@@ -17,7 +17,6 @@ return new class extends Migration
             $table->dateTime('jam_masuk')->nullable();
             $table->dateTime('jam_pulang')->nullable();
             $table->enum('jenis', ['Body', 'Tangki'])->default('Body');
-            $table->foreignId('departemen_id')->constrained('master_departemen')->cascadeOnDelete();
             $table->timestamps();
         });
 

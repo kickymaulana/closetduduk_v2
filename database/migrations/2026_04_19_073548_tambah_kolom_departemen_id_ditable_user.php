@@ -15,7 +15,7 @@ return new class extends Migration
         $table->foreignId('departemen_id')
               ->nullable() // Sebaiknya nullable dulu agar user yang sudah ada tidak error
               ->after('id') // Meletakkan kolom setelah 'id'
-              ->constrained('master_departemen') // Menunjuk ke tabel departments
+              ->constrained('departemen') // Menunjuk ke tabel departments
               ->onDelete('set null'); // Jika departemen dihapus, kolom di user jadi null
         });
 

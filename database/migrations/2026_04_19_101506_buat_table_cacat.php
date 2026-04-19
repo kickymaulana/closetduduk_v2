@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('master_cacat', function (Blueprint $table) {
+        Schema::create('cacat', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_cacat'); // Contoh: Legok sticker, Pecah body, dll
+            $table->string('cacat'); // Contoh: Legok sticker, Pecah body, dll
             $table->timestamps();
         });
     }
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_cacat');
+        Schema::dropIfExists('cacat');
     }
 };

@@ -169,26 +169,6 @@ const deleteDepartemen = () => {
                             </p>
                         </div>
 
-                        <div class="grid gap-2 max-w-[200px]">
-                            <Label
-                                for="urutan"
-                                class="font-semibold text-primary"
-                                >Nomor Urutan</Label
-                            >
-                            <Input
-                                id="urutan"
-                                type="number"
-                                v-model="form.urutan"
-                                class="bg-white/50 dark:bg-black/20 border-primary/20"
-                            />
-                            <p
-                                v-if="form.errors.urutan"
-                                class="text-sm text-destructive italic"
-                            >
-                                {{ form.errors.urutan }}
-                            </p>
-                        </div>
-
                         <Button
                             type="submit"
                             :disabled="form.processing"

@@ -67,7 +67,7 @@ const masterData = [
         root: "Master/Departemens",
     },
     {
-        name: "Master Cacat",
+        name: "Cacat",
         url: route("cacats.index"),
         icon: IconAlertTriangle, // Import icon ini dari tabler
         root: "Master/Cacats",

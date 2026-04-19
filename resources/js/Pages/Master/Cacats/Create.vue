@@ -12,7 +12,7 @@ import {
 } from "@tabler/icons-vue";
 
 defineOptions({ layout: AuthenticatedLayout });
-const form = useForm({ nama_cacat: "" });
+const form = useForm({ cacat: "" });
 </script>
 
 <template>
@@ -40,18 +40,18 @@ const form = useForm({ nama_cacat: "" });
                         class="space-y-6"
                     >
                         <div class="grid gap-2">
-                            <Label for="nama">Nama Jenis Cacat</Label>
+                            <Label for="cacat">Jenis Cacat</Label>
                             <Input
-                                id="nama"
-                                v-model="form.nama_cacat"
+                                id="cacat"
+                                v-model="form.cacat"
                                 placeholder="Contoh: Pecah Body"
                                 class="uppercase"
                             />
                             <p
-                                v-if="form.errors.nama_cacat"
+                                v-if="form.errors.cacat"
                                 class="text-sm text-destructive"
                             >
-                                {{ form.errors.nama_cacat }}
+                                {{ form.errors.cacat }}
                             </p>
                         </div>
                         <Button

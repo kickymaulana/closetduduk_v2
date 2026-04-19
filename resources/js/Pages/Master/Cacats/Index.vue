@@ -26,7 +26,7 @@ defineOptions({ layout: AuthenticatedLayout });
 
 const props = defineProps<{
     cacats: {
-        data: Array<{ id: number; nama_cacat: string; created_at: string }>;
+        data: Array<{ id: number; cacat: string; created_at: string }>;
         links: any[];
         from: number;
         to: number;
@@ -60,7 +60,7 @@ const cleanLabel = (label: string) => {
 </script>
 
 <template>
-    <Head title="Master Cacat" />
+    <Head title="Cacat" />
 
     <div class="flex flex-col gap-4 p-4 md:p-8 pt-4">
         <Card class="border-none shadow-sm">
@@ -108,10 +108,7 @@ const cleanLabel = (label: string) => {
                     <Table>
                         <TableHeader>
                             <TableRow class="bg-muted/50">
-                                <TableHead class="w-[100px] text-center"
-                                    >ID</TableHead
-                                >
-                                <TableHead>Nama Cacat</TableHead>
+                                <TableHead>Cacat</TableHead>
                                 <TableHead
                                     class="hidden md:table-cell text-center"
                                     >Ditambahkan Pada</TableHead
@@ -134,15 +131,10 @@ const cleanLabel = (label: string) => {
                                 :key="item.id"
                                 class="hover:bg-muted/30 transition-colors"
                             >
-                                <TableCell class="text-center">
-                                    <Badge variant="secondary">{{
-                                        item.id
-                                    }}</Badge>
-                                </TableCell>
                                 <TableCell
                                     class="font-bold text-primary uppercase tracking-wide"
                                 >
-                                    {{ item.nama_cacat }}
+                                    {{ item.cacat }}
                                 </TableCell>
                                 <TableCell
                                     class="hidden md:table-cell text-center text-muted-foreground text-sm"

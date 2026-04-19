@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 
-#[Fillable(['urutan', 'departemen'])]
-#[Table('master_departemen')]
-class MasterDepartemen extends Model
+#[Fillable(['cacat'])]
+#[Table('cacat')]
+class Cacat extends Model
 {
     //
 }

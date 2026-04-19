@@ -76,7 +76,7 @@ const cleanLabel = (label: string) => {
 </script>
 
 <template>
-    <Head title="Master Departemen" />
+    <Head title="Departemen" />
 
     <div class="flex flex-col gap-4 p-4 md:p-8 pt-4">
         <Card class="border-none shadow-sm">
@@ -85,7 +85,7 @@ const cleanLabel = (label: string) => {
             >
                 <CardTitle class="text-xl font-bold flex items-center gap-2">
                     <IconHierarchy2 class="size-6 text-primary" />
-                    Master Departemen
+                    Departemen
                 </CardTitle>
 
                 <div class="flex items-center gap-2 w-full md:w-auto">
@@ -126,9 +126,6 @@ const cleanLabel = (label: string) => {
                     <Table>
                         <TableHeader>
                             <TableRow class="bg-muted/50">
-                                <TableHead class="w-[100px] text-center"
-                                    >Urutan</TableHead
-                                >
                                 <TableHead>Nama Departemen</TableHead>
                                 <TableHead class="hidden md:table-cell"
                                     >Dibuat Pada</TableHead
@@ -151,12 +148,6 @@ const cleanLabel = (label: string) => {
                                 :key="item.id"
                                 class="hover:bg-muted/30 transition-colors"
                             >
-                                <TableCell class="text-center">
-                                    <Badge variant="secondary">{{
-                                        item.urutan
-                                    }}</Badge>
-                                </TableCell>
-
                                 <TableCell
                                     class="font-bold text-primary uppercase tracking-wide"
                                 >

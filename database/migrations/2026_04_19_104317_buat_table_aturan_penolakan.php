@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('aturan_penolakan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('master_cacat_id')->constrained('master_cacat')->cascadeOnDelete();
-            $table->foreignId('dep_toleransi')->constrained('master_departemen')->cascadeOnDelete();
-            $table->foreignId('dep_buang')->constrained('master_departemen')->cascadeOnDelete();
-            $table->foreignId('dep_pemeriksa')->constrained('master_departemen')->cascadeOnDelete();
+            $table->foreignId('cacat_id')->constrained('cacat')->cascadeOnDelete();
+            $table->foreignId('dep_toleransi')->constrained('departemen')->cascadeOnDelete();
+            $table->foreignId('dep_buang')->constrained('departemen')->cascadeOnDelete();
+            $table->foreignId('dep_pemeriksa')->constrained('departemen')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -45,7 +45,7 @@ const props = defineProps<{
         name: string;
         username: string;
         email: string;
-        departemen_nama: string; // Data dari Eager Loading di Controller
+        departemen_nama: string; // Diambil dari Controller
         created_at: string;
         updated_at: string;
     };
@@ -103,6 +103,12 @@ const formatDate = (dateString: string) => {
                             @{{ user.username }}
                         </p>
 
+                        <Badge
+                            variant="outline"
+                            class="px-3 py-1 bg-primary/5 text-primary border-primary/20"
+                        >
+                            {{ user.departemen_nama }}
+                        </Badge>
 
                         <div class="w-full mt-8 flex flex-col gap-2">
                             <Button class="w-full" variant="outline" as-child>
@@ -131,8 +137,7 @@ const formatDate = (dateString: string) => {
                                         <AlertDialogDescription>
                                             Tindakan ini permanen. Akun
                                             <strong>{{ user.name }}</strong>
-                                            akan dihapus selamanya dari sistem
-                                            Sisamcus.
+                                            akan dihapus selamanya dari sistem.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -156,14 +161,24 @@ const formatDate = (dateString: string) => {
             <Card class="border-none shadow-sm lg:col-span-2">
                 <CardHeader>
                     <CardTitle>Informasi Pengguna</CardTitle>
-                    <CardDescription
-                        >Detail lengkap mengenai identitas dan penempatan
-                        kerja.</CardDescription
-                    >
+                    <CardDescription>
+                        Detail lengkap mengenai identitas dan penempatan kerja.
+                    </CardDescription>
                 </CardHeader>
                 <Separator />
                 <CardContent class="pt-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-1">
+                            <div
+                                class="flex items-center text-[10px] font-bold uppercase text-muted-foreground gap-2 tracking-wider"
+                            >
+                                <IconBuildingCommunity class="size-3.5" />
+                                <span>Departemen / Unit Kerja</span>
+                            </div>
+                            <p class="font-semibold text-sm text-primary">
+                                {{ user.departemen_nama }}
+                            </p>
+                        </div>
 
                         <div class="space-y-1">
                             <div
@@ -182,7 +197,9 @@ const formatDate = (dateString: string) => {
                                 <IconFingerprint class="size-3.5" />
                                 <span>ID Internal</span>
                             </div>
-                            <p class="font-mono text-xs">#{{ user.id }}</p>
+                            <p class="font-mono text-xs text-muted-foreground">
+                                #{{ user.id }}
+                            </p>
                         </div>
 
                         <div class="space-y-1">

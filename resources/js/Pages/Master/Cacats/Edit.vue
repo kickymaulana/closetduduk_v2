@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 defineOptions({ layout: AuthenticatedLayout });
-const props = defineProps<{ cacat: { id: number; nama_cacat: string } }>();
-const form = useForm({ nama_cacat: props.cacat.nama_cacat });
+const props = defineProps<{ cacat: { id: number; cacat: string } }>();
+const form = useForm({ cacat: props.cacat.cacat });
 </script>
 
 <template>
@@ -80,7 +80,7 @@ const form = useForm({ nama_cacat: props.cacat.nama_cacat });
                                 ><AlertDialogTitle>Hapus Data?</AlertDialogTitle
                                 ><AlertDialogDescription
                                     >Hapus permanen
-                                    <strong>{{ props.cacat.nama_cacat }}</strong
+                                    <strong>{{ props.cacat.cacat }}</strong
                                     >?</AlertDialogDescription
                                 ></AlertDialogHeader
                             >
@@ -110,10 +110,10 @@ const form = useForm({ nama_cacat: props.cacat.nama_cacat });
                         class="space-y-6"
                     >
                         <div class="grid gap-2">
-                            <Label for="nama">Nama Jenis Cacat</Label>
+                            <Label for="cacat">Jenis Cacat</Label>
                             <Input
-                                id="nama"
-                                v-model="form.nama_cacat"
+                                id="cacat"
+                                v-model="form.cacat"
                                 class="uppercase"
                             />
                         </div>

@@ -4,18 +4,17 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\MasterDepartemen;
+use App\Models\Departemen;
 use Inertia\Inertia;
 
 class DepartemenController extends Controller
 {
     public function index(Request $request)
     {
-        $departemens = MasterDepartemen::query()
+        $departemens = Departemen::query()
             ->when($request->search, function ($query, $search) {
                 $query->where('departemen', 'like', "%{$search}%");
             })
-            ->orderBy('urutan', 'asc') // Urutkan berdasarkan kolom urutan
             ->paginate(10)
             ->withQueryString();
 
@@ -33,17 +32,14 @@ class DepartemenController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'departemen' => 'required|string|max:255|unique:master_departemen,departemen',
-            'urutan' => 'required|integer|min:0',
+            'departemen' => 'required|string|max:255|unique:departemen,departemen',
         ], [
             'departemen.unique' => 'Nama departemen sudah ada.',
             'departemen.required' => 'Nama departemen wajib diisi.',
-            'urutan.required' => 'Nomor urutan wajib diisi.',
         ]);
 
-        MasterDepartemen::create([
+        Departemen::create([
             'departemen' => $request->departemen,
-            'urutan' => $request->urutan,
         ]);
 
         return redirect()->route('departemens.index')
@@ -51,35 +47,32 @@ class DepartemenController extends Controller
     }
 
 
-    public function edit(MasterDepartemen $departemen)
+    public function edit(Departemen $departemen)
     {
         return Inertia::render('Master/Departemens/Edit', [
             'departemen' => $departemen
         ]);
     }
 
-    public function update(Request $request, MasterDepartemen $departemen)
+    public function update(Request $request, Departemen $departemen)
     {
         $request->validate([
             // unique:table,column,except_id
-            'departemen' => 'required|string|max:255|unique:master_departemen,departemen,' . $departemen->id,
-            'urutan' => 'required|integer|min:0',
+            'departemen' => 'required|string|max:255|unique:departemen,departemen,' . $departemen->id,
         ], [
             'departemen.unique' => 'Nama departemen sudah ada.',
             'departemen.required' => 'Nama departemen wajib diisi.',
-            'urutan.required' => 'Nomor urutan wajib diisi.',
         ]);
 
         $departemen->update([
             'departemen' => $request->departemen,
-            'urutan' => $request->urutan,
         ]);
 
         return redirect()->route('departemens.index')
             ->with('message', 'Data departemen berhasil diperbarui!');
     }
 
-    public function destroy(MasterDepartemen $departemen)
+    public function destroy(Departemen $departemen)
     {
         // Opsional: Tambahkan pengecekan jika departemen masih digunakan di tabel lain
         // if ($departemen->units()->exists()) {

@@ -94,29 +94,6 @@ const submit = () => {
                             </p>
                         </div>
 
-                        <div class="grid gap-2 max-w-[200px]">
-                            <Label
-                                for="urutan"
-                                class="font-semibold text-primary"
-                                >Nomor Urutan</Label
-                            >
-                            <Input
-                                id="urutan"
-                                type="number"
-                                v-model="form.urutan"
-                                placeholder="0"
-                                :class="{
-                                    'border-destructive': form.errors.urutan,
-                                }"
-                            />
-                            <p
-                                v-if="form.errors.urutan"
-                                class="text-sm text-destructive font-medium"
-                            >
-                                {{ form.errors.urutan }}
-                            </p>
-                        </div>
-
                         <div class="flex justify-end pt-4 border-t">
                             <Button
                                 type="submit"
