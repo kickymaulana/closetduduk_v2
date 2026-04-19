@@ -40,6 +40,8 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::delete('master/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     Route::get('master/departemens', [DepartemenController::class, 'index'])->name('departemens.index');
+    Route::get('master/departemens/create', [DepartemenController::class, 'create'])->name('departemens.create');
+    Route::post('master/departemens/create', [DepartemenController::class, 'store'])->name('departemens.store');
 });
 
 Route::middleware('auth')->group(function () {

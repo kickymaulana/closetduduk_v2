@@ -24,4 +24,29 @@ class DepartemenController extends Controller
             'filters' => $request->only(['search'])
         ]);
     }
+
+    public function create()
+    {
+        return Inertia::render('Master/Departemens/Create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'departemen' => 'required|string|max:255|unique:master_departemen,departemen',
+            'urutan' => 'required|integer|min:0',
+        ], [
+            'departemen.unique' => 'Nama departemen sudah ada.',
+            'departemen.required' => 'Nama departemen wajib diisi.',
+            'urutan.required' => 'Nomor urutan wajib diisi.',
+        ]);
+
+        MasterDepartemen::create([
+            'departemen' => $request->departemen,
+            'urutan' => $request->urutan,
+        ]);
+
+        return redirect()->route('departemens.index')
+            ->with('message', 'Departemen berhasil ditambahkan!');
+    }
 }

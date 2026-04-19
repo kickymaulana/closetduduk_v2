@@ -111,7 +111,7 @@ const cleanLabel = (label: string) => {
                         as-child
                         class="bg-primary hover:bg-primary/90 shadow-md"
                     >
-                        <Link :href="route('departemens.index')">
+                        <Link :href="route('departemens.create')">
                             <IconPlus class="mr-2 size-4" />
                             <span class="hidden sm:inline"
                                 >Tambah Departemen</span
