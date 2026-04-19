@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Master\CacatController;
 use App\Http\Controllers\Master\AturanPenolakanController;
 use App\Http\Controllers\SesiKerjaController;
+use App\Http\Controllers\Master\TroliFisikController;
 
 
 
@@ -62,6 +63,13 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'edit'])->name('aturanpenolakans.edit');
     Route::put('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'update'])->name('aturanpenolakans.update');
     Route::delete('master/aturan-penolakans/{cacat}', [AturanPenolakanController::class, 'destroy'])->name('aturanpenolakans.destroy');
+
+    Route::get('master/troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
+    Route::get('master/troli-fisiks/create', [TroliFisikController::class, 'create'])->name('trolifisiks.create');
+    Route::post('master/troli-fisiks/create', [TroliFisikController::class, 'store'])->name('trolifisiks.store');
+    Route::get('master/troli-fisiks/{trolifisik}/edit', [TroliFisikController::class, 'edit'])->name('trolifisiks.edit');
+    Route::put('master/troli-fisiks/{trolifisik}/edit', [TroliFisikController::class, 'update'])->name('trolifisiks.update');
+    Route::delete('master/troli-fisiks/{trolifisik}', [TroliFisikController::class, 'destroy'])->name('trolifisiks.destroy');
 });
 
 Route::middleware('auth')->group(function () {
