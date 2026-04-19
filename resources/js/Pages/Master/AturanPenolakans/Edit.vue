@@ -67,7 +67,7 @@ const form = useForm({
         <div class="max-w-3xl">
             <Card class="border-none shadow-lg">
                 <CardHeader
-                    class="flex flex-row items-center justify-between border-b bg-muted/20"
+                    class="flex flex-row items-center justify-between border-b"
                 >
                     <CardTitle class="text-primary"
                         >Update Konfigurasi</CardTitle
