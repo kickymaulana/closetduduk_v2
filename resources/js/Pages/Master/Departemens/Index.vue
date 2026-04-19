@@ -12,20 +12,20 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge"; // Tambahkan Badge
 import {
     IconPlus,
     IconPencil,
-    IconTrash,
     IconSearch,
     IconX,
-    IconHierarchy2, // Icon yang lebih cocok untuk departemen
+    IconHierarchy2,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
-// 1. Persistent Layout
+// 1. Definisikan Persistent Layout
 defineOptions({ layout: AuthenticatedLayout });
 
-// 2. Definisi Props (Disesuaikan untuk Departemen)
+// 2. Definisi Props
 const props = defineProps<{
     departemens: {
         data: Array<{
@@ -96,7 +96,7 @@ const cleanLabel = (label: string) => {
                         <Input
                             v-model="search"
                             placeholder="Cari departemen..."
-                            class="pl-10 pr-10 bg-muted/20"
+                            class="pl-10 pr-10"
                         />
                         <button
                             v-if="search"
@@ -109,7 +109,7 @@ const cleanLabel = (label: string) => {
 
                     <Button
                         as-child
-                        class="bg-primary hover:bg-primary/90 shadow-md"
+                        class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
                         <Link :href="route('departemens.create')">
                             <IconPlus class="mr-2 size-4" />
@@ -122,11 +122,13 @@ const cleanLabel = (label: string) => {
             </CardHeader>
 
             <CardContent>
-                <div class="rounded-lg border bg-card">
+                <div class="rounded-lg border overflow-hidden">
                     <Table>
                         <TableHeader>
-                            <TableRow class="bg-muted/30">
-                                <TableHead class="w-[80px]">Urutan</TableHead>
+                            <TableRow class="bg-muted/50">
+                                <TableHead class="w-[100px] text-center"
+                                    >Urutan</TableHead
+                                >
                                 <TableHead>Nama Departemen</TableHead>
                                 <TableHead class="hidden md:table-cell"
                                     >Dibuat Pada</TableHead
@@ -138,7 +140,7 @@ const cleanLabel = (label: string) => {
                             <TableRow v-if="departemens.data.length === 0">
                                 <TableCell
                                     colspan="4"
-                                    class="h-24 text-center text-muted-foreground"
+                                    class="h-24 text-center text-muted-foreground italic"
                                 >
                                     Data departemen tidak ditemukan.
                                 </TableCell>
@@ -147,32 +149,39 @@ const cleanLabel = (label: string) => {
                             <TableRow
                                 v-for="item in departemens.data"
                                 :key="item.id"
-                                class="hover:bg-muted/50 transition-colors"
+                                class="hover:bg-muted/30 transition-colors"
                             >
-                                <TableCell>
-                                    <span class="font-bold text-primary">{{
+                                <TableCell class="text-center">
+                                    <Badge variant="secondary">{{
                                         item.urutan
-                                    }}</span>
+                                    }}</Badge>
                                 </TableCell>
-                                <TableCell class="font-medium uppercase">{{
-                                    item.departemen
-                                }}</TableCell>
+
                                 <TableCell
-                                    class="hidden md:table-cell text-muted-foreground"
+                                    class="font-bold text-primary uppercase tracking-wide"
+                                >
+                                    {{ item.departemen }}
+                                </TableCell>
+                                <TableCell
+                                    class="hidden md:table-cell text-muted-foreground text-sm"
                                 >
                                     {{
                                         new Date(
                                             item.created_at,
-                                        ).toLocaleDateString("id-ID")
+                                        ).toLocaleDateString("id-ID", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                        })
                                     }}
                                 </TableCell>
 
-                                <TableCell class="text-right space-x-1">
+                                <TableCell class="text-right">
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        class="size-8 hover:text-blue-600"
-                                        title="Edit"
+                                        class="size-8 hover:text-primary transition-colors"
+                                        as-child
                                     >
                                         <Link
                                             :href="
@@ -218,9 +227,9 @@ const cleanLabel = (label: string) => {
                                 as-child
                                 variant="outline"
                                 size="sm"
-                                class="text-xs px-3 h-8"
+                                class="text-xs px-3 h-8 transition-all"
                                 :class="{
-                                    'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground shadow-sm':
+                                    'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm':
                                         link.active,
                                 }"
                             >
