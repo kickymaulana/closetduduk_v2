@@ -110,14 +110,7 @@ watch(search, (value) => {
                                         size="icon"
                                         as-child
                                     >
-                                        <Link
-                                            :href="
-                                                route(
-                                                    'sesikerjas.edit',
-                                                    item.id,
-                                                )
-                                            "
-                                        >
+                                        <Link>
                                             <IconPencil class="size-4" />
                                         </Link>
                                     </Button>

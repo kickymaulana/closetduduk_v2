@@ -71,4 +71,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('sesi-kerjas', [SesiKerjaController::class, 'index'])->name('sesikerjas.index');
     Route::get('sesi-kerjas/create', [SesiKerjaController::class, 'create'])->name('sesikerjas.create');
+    Route::post('sesi-kerjas/create', [SesiKerjaController::class, 'store'])->name('sesikerjas.store');
 });
