@@ -174,15 +174,16 @@ const cleanLabel = (label: string) => {
                                         class="size-8 hover:text-blue-600"
                                         title="Edit"
                                     >
-                                        <IconPencil class="size-4" />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        class="size-8 hover:text-destructive"
-                                        title="Hapus"
-                                    >
-                                        <IconTrash class="size-4" />
+                                        <Link
+                                            :href="
+                                                route(
+                                                    'departemens.edit',
+                                                    item.id,
+                                                )
+                                            "
+                                        >
+                                            <IconPencil class="size-4" />
+                                        </Link>
                                     </Button>
                                 </TableCell>
                             </TableRow>

@@ -42,6 +42,9 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/departemens', [DepartemenController::class, 'index'])->name('departemens.index');
     Route::get('master/departemens/create', [DepartemenController::class, 'create'])->name('departemens.create');
     Route::post('master/departemens/create', [DepartemenController::class, 'store'])->name('departemens.store');
+    Route::get('master/departemens/{departemen}/edit', [DepartemenController::class, 'edit'])->name('departemens.edit');
+    Route::put('master/departemens/{departemen}/edit', [DepartemenController::class, 'update'])->name('departemens.update');
+    Route::delete('master/departemens/{departemen}', [DepartemenController::class, 'destroy'])->name('departemens.destroy');
 });
 
 Route::middleware('auth')->group(function () {
