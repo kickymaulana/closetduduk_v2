@@ -7,6 +7,7 @@ import {
     IconAlertTriangle,
     IconGavel,
     IconClock,
+    IconTruck,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -77,6 +78,12 @@ const masterData = [
         url: route("aturanpenolakans.index"),
         icon: IconGavel,
         root: "Master/AturanPenolakans",
+    },
+    {
+        name: "Troli Fisik",
+        url: route("trolifisiks.index"),
+        icon: IconTruck,
+        root: "Master/TroliFisiks",
     },
     {
         name: "Jabatan",
