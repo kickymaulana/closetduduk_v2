@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import {
     IconInnerShadowTop,
-    IconPackage,
-    IconFileDescription,
-    IconClipboardList,
-    IconSettingsAutomation,
     IconUsers,
     IconHierarchy,
-    IconBuilding,
     IconGitMerge,
 } from "@tabler/icons-vue";
 
@@ -49,6 +44,12 @@ const masterData = [
         url: route("users.index"),
         icon: IconUsers,
         root: "Master/Users",
+    },
+    {
+        name: "Departemen",
+        url: route("departemens.index"),
+        icon: IconGitMerge,
+        root: "Master/Departemens",
     },
     {
         name: "Jabatan",
