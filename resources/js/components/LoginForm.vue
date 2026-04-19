@@ -36,82 +36,82 @@ const submit = () => {
     });
 };
 </script>
-
 <template>
     <div :class="cn('flex flex-col gap-6', props.class)">
         <Card
-            class="bg-white/30 dark:bg-black/20 backdrop-blur-xl border-white/20 dark:border-white/5 shadow-2xl"
+            class="bg-white/40 dark:bg-black/30 backdrop-blur-3xl border-primary/20 dark:border-white/5 shadow-2xl rounded-2xl"
         >
-            <CardHeader>
-                <CardTitle>Closet Duduk V2</CardTitle>
-                <CardDescription>
-                    Masukan username untuk masuk ke aplikasi
+            <CardHeader class="text-center">
+                <CardTitle class="text-2xl font-bold text-foreground"
+                    >Akses Masuk</CardTitle
+                >
+                <CardDescription class="text-foreground/70 font-medium">
+                    Masukkan kredensial untuk masuk ke sistem.
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form @submit.prevent="submit">
-                    <FieldGroup>
+                <form @submit.prevent="submit" class="space-y-4">
+                    <FieldGroup class="gap-4">
                         <Field>
-                            <FieldLabel for="email"> Username </FieldLabel>
+                            <FieldLabel
+                                class="font-semibold text-primary dark:text-primary-foreground/90"
+                                >Username</FieldLabel
+                            >
                             <Input
                                 id="username"
                                 v-model="form.username"
                                 type="text"
                                 placeholder="m@example.com"
+                                class="bg-white/70 dark:bg-black/20 border-border focus:border-primary focus:ring-primary h-11"
                                 required
                             />
                             <p
                                 v-if="form.errors.username"
-                                class="text-destructive text-xs mt-1"
+                                class="text-destructive text-xs mt-1italic"
                             >
                                 {{ form.errors.username }}
                             </p>
                         </Field>
+
                         <Field>
-                            <div class="flex items-center">
-                                <FieldLabel for="password">
-                                    Password
-                                </FieldLabel>
+                            <div class="flex items-center justify-between">
+                                <FieldLabel
+                                    class="font-semibold text-primary dark:text-primary-foreground/90"
+                                    >Password</FieldLabel
+                                >
                                 <a
                                     href="#"
-                                    class="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                                    class="text-xs text-primary hover:text-accent font-medium hover:underline transition-colors"
                                 >
-                                    Lupa password?
+                                    Lupa sandi?
                                 </a>
                             </div>
                             <Input
                                 id="password"
                                 type="password"
-                                required
                                 v-model="form.password"
+                                class="bg-white/70 dark:bg-black/20 border-border focus:border-primary focus:ring-primary h-11"
+                                required
                             />
                             <p
                                 v-if="form.errors.password"
-                                class="text-destructive text-xs mt-1"
+                                class="text-destructive text-xs mt-1italic"
                             >
                                 {{ form.errors.password }}
                             </p>
                         </Field>
-                        <Field>
-                            <Button
-                                type="submit"
-                                :disabled="form.processing"
-                                class="w-full"
-                            >
-                                {{
-                                    form.processing ? "Signing in..." : "Login"
-                                }}
-                            </Button>
-                            <!--<Button variant="outline" type="button">
-                Login with Google
-              </Button>-->
-                            <!--<FieldDescription class="text-center">
-                Don't have an account?
-                <a href="#">
-                  Sign up
-                </a>
-              </FieldDescription>-->
-                        </Field>
+
+                        <Button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="w-full font-bold shadow-xl transition-all duration-300 hover:bg-accent hover:text-accent-foreground text-lg h-12 rounded-xl active:scale-95"
+                        >
+                            {{
+                                form.processing
+                                    ? "Memproses..."
+                                    : "MASUK KE SISTEM"
+                            }}
+                        </Button>
                     </FieldGroup>
                 </form>
             </CardContent>
