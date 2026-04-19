@@ -1,7 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 @import "tailwindcss";
-
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -40,11 +38,6 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
     --color-sidebar: var(--sidebar);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
@@ -56,52 +49,53 @@
 }
 
 :root {
-    --radius: 0.75rem; /* Modern rounded corners */
-    --background: oklch(
-        0.99 0.01 180
-    ); /* Putih bersih dengan sedikit rona dingin */
-    --foreground: oklch(0.15 0.05 200); /* Abu-abu sangat gelap */
-    --card: oklch(1 0 0); /* Putih murni untuk card */
+    --radius: 0.75rem;
+    --background: oklch(0.99 0.01 180);
+    --foreground: oklch(0.15 0.05 200);
+
+    /* CARD & POPOVER (Solid, tidak tembus) */
+    --card: oklch(1 0 0);
     --card-foreground: oklch(0.15 0.05 200);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.15 0.05 200);
 
-    /* NEW THEME: DEEP TEAL (Primary) */
-    --primary: oklch(0.5 0.15 210); /* Deep Teal - Profesional & Bersih */
+    /* THEME COLORS: TEAL & LIME */
+    --primary: oklch(0.5 0.15 210);
     --primary-foreground: oklch(0.99 0.01 210);
-
-    /* NEW ACCENT: LIME GREEN (Aksen Berwarna) */
-    --secondary: oklch(0.95 0.05 160); /* Teal sangat muda */
+    --secondary: oklch(0.95 0.05 160);
     --secondary-foreground: oklch(0.2 0.1 210);
+    --accent: oklch(0.85 0.25 120);
+    --accent-foreground: oklch(0.15 0.1 120);
 
-    --accent: oklch(
-        0.85 0.25 120
-    ); /* Lime Green Fresh - Untuk energi & highlight */
-    --accent-foreground: oklch(0.15 0.1 120); /* Gelap untuk kontras */
-
+    /* STATUS & BORDERS */
     --muted: oklch(0.96 0.02 200);
     --muted-foreground: oklch(0.5 0.05 200);
-
-    --destructive: oklch(0.6 0.2 25); /* Merah standard */
-
+    --destructive: oklch(0.6 0.2 25);
     --border: oklch(0.9 0.03 200);
     --input: oklch(0.9 0.03 200);
-    --ring: oklch(0.5 0.15 210); /* Sama dengan primary */
+    --ring: oklch(0.5 0.15 210);
 }
 
 .dark {
-    --background: oklch(0.12 0.03 210); /* Navy gelap */
+    --background: oklch(0.12 0.03 210);
     --foreground: oklch(0.98 0.01 210);
-    --card: oklch(0.15 0.04 210); /* Sedikit lebih terang dari bg */
 
-    /* DARK MODE: DEEP TEAL */
+    /* CARD & POPOVER DARK (Solid) */
+    --card: oklch(0.16 0.04 210);
+    --card-foreground: oklch(0.98 0.01 210);
+    --popover: oklch(0.16 0.04 210);
+    --popover-foreground: oklch(0.98 0.01 210);
+
+    /* THEME COLORS DARK */
     --primary: oklch(0.6 0.15 210);
     --primary-foreground: oklch(0.1 0.03 210);
-
-    /* DARK MODE LIME: LEBIH MENYALA */
     --accent: oklch(0.85 0.25 120);
     --accent-foreground: oklch(0.1 0.05 120);
 
+    /* BORDERS & INPUT DARK */
     --border: oklch(0.25 0.05 210);
     --input: oklch(0.25 0.05 210);
+    --ring: oklch(0.6 0.15 210);
 }
 
 @layer base {
@@ -110,5 +104,9 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+    /* Memastikan elemen dengan rounded-full benar-benar bulat */
+    .rounded-full {
+        border-radius: 9999px !important;
     }
 }

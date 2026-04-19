@@ -10,6 +10,7 @@ use App\Http\Controllers\Master\DepartemenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Master\CacatController;
+use App\Http\Controllers\Master\AturanPenolakanController;
 
 
 
@@ -53,6 +54,13 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/cacats/{cacat}/edit', [CacatController::class, 'edit'])->name('cacats.edit');
     Route::put('master/cacats/{cacat}/edit', [CacatController::class, 'update'])->name('cacats.update');
     Route::delete('master/cacats/{cacat}', [CacatController::class, 'destroy'])->name('cacats.destroy');
+
+    Route::get('master/aturan-penolakans', [AturanPenolakanController::class, 'index'])->name('aturanpenolakans.index');
+    Route::get('master/aturan-penolakans/create', [AturanPenolakanController::class, 'create'])->name('aturanpenolakans.create');
+    Route::post('master/aturan-penolakans/create', [AturanPenolakanController::class, 'store'])->name('aturanpenolakans.store');
+    Route::get('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'edit'])->name('aturanpenolakans.edit');
+    Route::put('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'update'])->name('aturanpenolakans.update');
+    Route::delete('master/aturan-penolakans/{cacat}', [AturanPenolakanController::class, 'destroy'])->name('aturanpenolakans.destroy');
 });
 
 Route::middleware('auth')->group(function () {
