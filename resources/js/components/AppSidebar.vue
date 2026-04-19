@@ -4,6 +4,7 @@ import {
     IconUsers,
     IconHierarchy,
     IconGitMerge,
+    IconAlertTriangle,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -50,6 +51,12 @@ const masterData = [
         url: route("departemens.index"),
         icon: IconGitMerge,
         root: "Master/Departemens",
+    },
+    {
+        name: "Master Cacat",
+        url: route("cacats.index"),
+        icon: IconAlertTriangle, // Import icon ini dari tabler
+        root: "Master/Cacats",
     },
     {
         name: "Jabatan",

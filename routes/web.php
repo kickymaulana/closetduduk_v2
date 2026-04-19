@@ -9,6 +9,7 @@ use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\DepartemenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Master\CacatController;
 
 
 
@@ -45,6 +46,13 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/departemens/{departemen}/edit', [DepartemenController::class, 'edit'])->name('departemens.edit');
     Route::put('master/departemens/{departemen}/edit', [DepartemenController::class, 'update'])->name('departemens.update');
     Route::delete('master/departemens/{departemen}', [DepartemenController::class, 'destroy'])->name('departemens.destroy');
+
+    Route::get('master/cacats', [CacatController::class, 'index'])->name('cacats.index');
+    Route::get('master/cacats/create', [CacatController::class, 'create'])->name('cacats.create');
+    Route::post('master/cacats/create', [CacatController::class, 'store'])->name('cacats.store');
+    Route::get('master/cacats/{cacat}/edit', [CacatController::class, 'edit'])->name('cacats.edit');
+    Route::put('master/cacats/{cacat}/edit', [CacatController::class, 'update'])->name('cacats.update');
+    Route::delete('master/cacats/{cacat}', [CacatController::class, 'destroy'])->name('cacats.destroy');
 });
 
 Route::middleware('auth')->group(function () {
