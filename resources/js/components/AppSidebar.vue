@@ -8,6 +8,7 @@ import {
     IconGavel,
     IconClock,
     IconTruck,
+    IconArrowsSplit2,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -66,6 +67,12 @@ const masterData = [
         url: route("departemens.index"),
         icon: IconGitMerge,
         root: "Master/Departemens",
+    },
+    {
+        name: "Proses",
+        url: route("proses.index"),
+        icon: IconArrowsSplit2,
+        root: "Master/Proses",
     },
     {
         name: "Cacat",

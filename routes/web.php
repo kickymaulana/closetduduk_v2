@@ -13,6 +13,7 @@ use App\Http\Controllers\Master\CacatController;
 use App\Http\Controllers\Master\AturanPenolakanController;
 use App\Http\Controllers\SesiKerjaController;
 use App\Http\Controllers\Master\TroliFisikController;
+use App\Http\Controllers\Master\ProsesController;
 
 
 
@@ -49,6 +50,13 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/departemens/{departemen}/edit', [DepartemenController::class, 'edit'])->name('departemens.edit');
     Route::put('master/departemens/{departemen}/edit', [DepartemenController::class, 'update'])->name('departemens.update');
     Route::delete('master/departemens/{departemen}', [DepartemenController::class, 'destroy'])->name('departemens.destroy');
+
+    Route::get('master/proses', [ProsesController::class, 'index'])->name('proses.index');
+    Route::get('master/proses/create', [ProsesController::class, 'create'])->name('proses.create');
+    Route::post('master/proses/create', [ProsesController::class, 'store'])->name('proses.store');
+    Route::get('master/proses/{proses}/edit', [ProsesController::class, 'edit'])->name('proses.edit');
+    Route::put('master/proses/{proses}/edit', [ProsesController::class, 'update'])->name('proses.update');
+    Route::delete('master/proses/{proses}', [ProsesController::class, 'destroy'])->name('proses.destroy');
 
     Route::get('master/cacats', [CacatController::class, 'index'])->name('cacats.index');
     Route::get('master/cacats/create', [CacatController::class, 'create'])->name('cacats.create');

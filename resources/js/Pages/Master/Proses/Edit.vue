@@ -1,0 +1,229 @@
+<script setup lang="ts">
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Head, Link, useForm, router } from "@inertiajs/vue3";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from "@/components/ui/card";
+import {
+    IconArrowLeft,
+    IconDeviceFloppy,
+    IconLoader2,
+    IconDotsVertical,
+    IconTrash,
+    IconBuildingCommunity,
+    IconListNumbers,
+} from "@tabler/icons-vue";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+defineOptions({ layout: AuthenticatedLayout });
+
+const props = defineProps<{
+    proses: {
+        id: number;
+        proses: string;
+        urutan: number;
+        departemen_id: number;
+    };
+    departemens: Array<{ id: number; departemen: string }>;
+}>();
+
+const form = useForm({
+    departemen_id: props.proses.departemen_id,
+    proses: props.proses.proses,
+    urutan: props.proses.urutan,
+});
+
+const submit = () => {
+    form.put(route("proses.update", props.proses.id));
+};
+</script>
+
+<template>
+    <Head :title="'Edit Proses - ' + proses.proses" />
+
+    <div class="flex flex-col gap-6 p-4 md:p-8 pt-1">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    as-child
+                    class="rounded-full shadow-sm"
+                >
+                    <Link :href="route('proses.index')">
+                        <IconArrowLeft class="size-4" />
+                    </Link>
+                </Button>
+                <h2 class="text-3xl font-bold tracking-tight">
+                    Edit Alur Proses
+                </h2>
+            </div>
+        </div>
+
+        <div class="max-w-2xl">
+            <Card class="border-none shadow-lg">
+                <CardHeader
+                    class="flex flex-row items-center justify-between border-b py-4"
+                >
+                    <CardTitle class="text-primary text-lg"
+                        >Update Data Proses</CardTitle
+                    >
+
+                    <AlertDialog>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <Button variant="ghost" size="icon">
+                                    <IconDotsVertical class="size-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" class="w-40">
+                                <AlertDialogTrigger as-child>
+                                    <DropdownMenuItem
+                                        class="text-destructive focus:text-destructive cursor-pointer"
+                                    >
+                                        <IconTrash class="mr-2 size-4" />
+                                        Hapus Proses
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle
+                                    >Hapus Alur Proses?</AlertDialogTitle
+                                >
+                                <AlertDialogDescription>
+                                    Apakah Anda yakin ingin menghapus proses
+                                    <strong class="text-foreground">{{
+                                        props.proses.proses
+                                    }}</strong
+                                    >? Data yang dihapus tidak dapat
+                                    dikembalikan.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction
+                                    @click="
+                                        router.delete(
+                                            route(
+                                                'proses.destroy',
+                                                props.proses.id,
+                                            ),
+                                        )
+                                    "
+                                    class="bg-destructive text-white hover:bg-destructive/90"
+                                >
+                                    Ya, Hapus
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardHeader>
+
+                <CardContent class="pt-6">
+                    <form @submit.prevent="submit" class="space-y-6">
+                        <div class="grid gap-2">
+                            <Label for="departemen_id">Departemen</Label>
+                            <div class="relative">
+                                <select
+                                    id="departemen_id"
+                                    v-model="form.departemen_id"
+                                    class="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring shadow-sm appearance-none"
+                                    :class="{
+                                        'border-destructive':
+                                            form.errors.departemen_id,
+                                    }"
+                                >
+                                    <option
+                                        v-for="dept in departemens"
+                                        :key="dept.id"
+                                        :value="dept.id"
+                                    >
+                                        {{ dept.departemen }}
+                                    </option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground"
+                                >
+                                    <IconBuildingCommunity class="size-4" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="proses">Nama Proses</Label>
+                            <Input
+                                id="proses"
+                                v-model="form.proses"
+                                class="uppercase h-11"
+                                :class="{
+                                    'border-destructive': form.errors.proses,
+                                }"
+                            />
+                            <p
+                                v-if="form.errors.proses"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.proses }}
+                            </p>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="urutan" class="flex items-center gap-2">
+                                <IconListNumbers class="size-4" /> Urutan
+                                Pengerjaan
+                            </Label>
+                            <Input
+                                id="urutan"
+                                type="number"
+                                v-model="form.urutan"
+                                class="h-11"
+                                :class="{
+                                    'border-destructive': form.errors.urutan,
+                                }"
+                            />
+                        </div>
+
+                        <Button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="w-full bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
+                        >
+                            <IconLoader2
+                                v-if="form.processing"
+                                class="mr-2 size-4 animate-spin"
+                            />
+                            <IconDeviceFloppy v-else class="mr-2 size-4" />
+                            Simpan Perubahan
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+</template>
