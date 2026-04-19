@@ -56,13 +56,15 @@ class TroliFisikController extends Controller
         $request->validate([
             // Unique kecuali untuk ID troli ini sendiri
             'nomor' => 'required|string|max:255|unique:troli_fisik,nomor,' . $trolifisik->id,
+            'status' => 'required|in:Tidak,Digunakan',
         ], [
             'nomor.required' => 'Nomor troli wajib diisi.',
             'nomor.unique' => 'Nomor troli ini sudah digunakan.',
         ]);
 
         $trolifisik->update([
-            'nomor' => $request->nomor
+            'nomor' => $request->nomor,
+            'status' => $request->status,
         ]);
 
         return redirect()

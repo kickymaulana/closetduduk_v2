@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 
-#[Fillable(['nomor'])]
+#[Fillable(['nomor', 'status'])]
 #[Table('troli_fisik')]
 class TroliFisik extends Model
 {

@@ -16,6 +16,7 @@ defineOptions({ layout: AuthenticatedLayout });
 // Inisialisasi form dengan field 'nomor'
 const form = useForm({
     nomor: "",
+    status: "",
 });
 
 const submit = () => {
@@ -72,6 +73,24 @@ const submit = () => {
                                 class="text-sm text-destructive font-medium"
                             >
                                 {{ form.errors.nomor }}
+                            </p>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="status">Status Penggunaan</Label>
+                            <select
+                                id="status"
+                                v-model="form.status"
+                                class="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
+                            >
+                                <option value="Tidak">Tidak</option>
+                                <option value="Digunakan">Digunakan</option>
+                            </select>
+                            <p
+                                v-if="form.errors.status"
+                                class="text-sm text-destructive"
+                            >
+                                {{ form.errors.status }}
                             </p>
                         </div>
 

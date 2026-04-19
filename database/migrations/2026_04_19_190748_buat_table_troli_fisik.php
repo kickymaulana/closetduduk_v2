@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('troli_fisik', function (Blueprint $table) {
             $table->id();
             $table->string('nomor');
+            $table->enum('status', ['Tidak', 'Digunakan'])->default('Tidak');
             $table->timestamps();
         });
     }

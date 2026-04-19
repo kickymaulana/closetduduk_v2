@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AturanPenolakan;
-use App\Models\MasterCacat;
-use App\Models\MasterDepartemen;
+use App\Models\Cacat;
+use App\Models\Departemen;
 use Inertia\Inertia;
 
 class AturanPenolakanController extends Controller
@@ -33,8 +33,8 @@ class AturanPenolakanController extends Controller
     public function create()
     {
         return Inertia::render('Master/AturanPenolakans/Create', [
-            'cacats' => MasterCacat::all(),
-            'departemens' => MasterDepartemen::orderBy('urutan')->get(),
+            'cacats' => Cacat::all(),
+            'departemens' => Departemen::orderBy('created_at')->get(),
         ]);
     }
 
@@ -58,8 +58,8 @@ class AturanPenolakanController extends Controller
     {
         return Inertia::render('Master/AturanPenolakans/Edit', [
             'aturan' => AturanPenolakan::findOrFail($id),
-            'cacats' => MasterCacat::all(),
-            'departemens' => MasterDepartemen::orderBy('urutan')->get(),
+            'cacats' => Cacat::all(),
+            'departemens' => Departemen::orderBy('created_at')->get(),
         ]);
     }
 

@@ -113,6 +113,7 @@ const cleanLabel = (label: string) => {
                                     class="hidden md:table-cell text-center"
                                     >Ditambahkan Pada</TableHead
                                 >
+                                <TableHead>Status</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -148,6 +149,11 @@ const cleanLabel = (label: string) => {
                                             year: "numeric",
                                         })
                                     }}
+                                </TableCell>
+                                <TableCell
+                                    class="font-bold text-primary uppercase tracking-wide"
+                                >
+                                    {{ item.status }}
                                 </TableCell>
 
                                 <TableCell class="text-right">
