@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Master\CacatController;
 use App\Http\Controllers\Master\AturanPenolakanController;
+use App\Http\Controllers\SesiKerjaController;
 
 
 
@@ -67,4 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('sesi-kerjas', [SesiKerjaController::class, 'index'])->name('sesikerjas.index');
+    Route::get('sesi-kerjas/create', [SesiKerjaController::class, 'create'])->name('sesikerjas.create');
 });

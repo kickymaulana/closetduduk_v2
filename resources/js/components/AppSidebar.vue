@@ -6,6 +6,7 @@ import {
     IconGitMerge,
     IconAlertTriangle,
     IconGavel,
+    IconClock,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -37,6 +38,18 @@ const isAdminOrQC = computed(() => {
         userRoles.value.includes("admin") ||
         userRoles.value.includes("Quality Control")
     );
+});
+
+const filteredNavMain = computed(() => {
+    let menus: any[] = [];
+
+    menus.push({
+        title: "Sesi Kerja",
+        url: route("sesikerjas.index"),
+        icon: IconClock,
+        root: "SesiKerja",
+    });
+    return menus;
 });
 
 // Data untuk menu Master
