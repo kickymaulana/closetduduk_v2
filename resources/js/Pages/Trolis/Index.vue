@@ -135,7 +135,9 @@ const cleanLabel = (label: string) => {
                                         {{ troli.is_output ? 'Output (Wadah)' : 'Sumber' }}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>{{ troli.proses?.proses ?? '-' }}</TableCell>
+                                <TableCell>
+                                    <Badge class="bg-lime-500 text-black">{{ troli.proses?.proses ?? '-' }}</Badge>
+                                </TableCell>
                                 <TableCell>
                                     <Badge class="bg-lime-500 text-black">{{ troli.status }}</Badge>
                                 </TableCell>
