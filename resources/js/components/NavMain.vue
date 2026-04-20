@@ -34,6 +34,7 @@ defineProps<{
                         :tooltip="item.title"
                         as-child
                         :is-active="$page.component.startsWith(item.root ?? '')"
+                        class="data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                     >
                         <Link :href="item.url">
                             <component :is="item.icon" v-if="item.icon" />

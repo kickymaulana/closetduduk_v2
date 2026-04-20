@@ -49,7 +49,7 @@ const filteredNavMain = computed(() => {
         title: "Sesi Kerja",
         url: route("sesikerjas.index"),
         icon: IconClock,
-        root: "SesiKerja",
+        root: "SesiKerjas",
     });
     return menus;
 });
