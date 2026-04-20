@@ -93,9 +93,12 @@ const cleanLabel = (label: string) => {
                     </div>
 
                     <Button variant="outline" class="border-primary text-primary hover:bg-primary/10">
-                        <IconShoppingCart class="mr-2 size-4" />
-                        Ambil Fisik
+                        <Link :href="route('trolifisiks.index')" class="flex items-center justify-center">
+                            <IconShoppingCart class="mr-2 size-4" />
+                            Ambil Fisik
+                        </Link>
                     </Button>
+
 
                     <Button class="bg-primary hover:bg-primary/90">
                         <IconBuildingBridge class="mr-2 size-4" />
