@@ -143,7 +143,7 @@ const cleanLabel = (label: string) => {
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <Button variant="ghost" size="icon" as-child>
-                                        <Link :href="route('trolis.index', troli.id)"> <IconEye class="size-4 text-primary" />
+                                        <Link :href="route('trolis.produk.index', troli.id)"> <IconEye class="size-4 text-primary" />
                                         </Link>
                                     </Button>
                                 </TableCell>

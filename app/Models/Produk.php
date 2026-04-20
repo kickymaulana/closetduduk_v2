@@ -8,18 +8,13 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 
 #[Guarded([])]
-#[Table('troli')]
+#[Table('produk')]
 
-class Troli extends Model
+class Produk extends Model
 {
-    public function produks(): HasMany
+    public function troli_invoice()
     {
-        return $this->hasMany(Produk::class, 'troli_id');
-    }
-
-    public function proses()
-    {
-        return $this->belongsTo(Proses::class, 'proses_id', 'id');
+        return $this->belongsTo(Troli::class, 'troli_id');
     }
 
 }

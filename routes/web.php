@@ -16,6 +16,7 @@ use App\Http\Controllers\Master\TroliFisikController as MasterTroliFisikControll
 use App\Http\Controllers\Master\ProsesController;
 use App\Http\Controllers\TroliController;
 use App\Http\Controllers\TroliFisikController;
+use App\Http\Controllers\ProdukController;
 
 
 
@@ -92,6 +93,7 @@ Route::middleware('auth')->group(function () {
     Route::post('sesi-kerjas/create', [SesiKerjaController::class, 'store'])->name('sesikerjas.store');
 
     Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
+    Route::get('trolis/{troli}/produk', [ProdukController::class, 'index'])->name('trolis.produk.index');
 
     Route::get('troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
     Route::post('troli-fisiks/ambil', [TroliFisikController::class, 'ambil'])->name('trolifisiks.ambil');
