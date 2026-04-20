@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Troli;
 use App\Models\Proses;
 use Inertia\Inertia;
+use Illuminate\Validation\ValidationException;
 
 class TroliController extends Controller
 {
@@ -35,7 +36,6 @@ class TroliController extends Controller
         ]);
     }
 
-
     public function selesaikan_troli(Troli $troli)
     {
         $urutanSekarang = $troli->proses->urutan;
@@ -45,21 +45,23 @@ class TroliController extends Controller
             ->orderBy('urutan', 'asc')
             ->first();
 
-        if ($prosesBerikutnya) {
-            // 1. Update status troli dan pindah proses
-            $troli->update([
-                'status' => 'Selesai',
-                'proses_id' => $prosesBerikutnya->id
+        if (!$prosesBerikutnya) {
+            // Ini akan memicu blok onError di frontend
+            throw ValidationException::withMessages([
+                'proses' => 'Tidak ada proses lanjutan ditemukan setelah ' . $troli->proses->proses,
             ]);
-
-            // 2. Reset status "sudah_scan" semua produk di dalam troli ini
-            $troli->produks()->update([
-                'sudah_scan' => 'Belum'
-            ]);
-
-            return back()->with('message', 'Troli dilanjutkan ke: ' . $prosesBerikutnya->proses);
         }
 
-        return back()->with('error', 'Tidak ada proses lanjutan ditemukan.');
+        // Jika ada, baru jalankan update
+        $troli->update([
+            'status' => 'Selesai',
+            'proses_id' => $prosesBerikutnya->id
+        ]);
+
+        $troli->produks()->update([
+            'sudah_scan' => 'Belum'
+        ]);
+
+        return back()->with('message', 'Troli dilanjutkan ke: ' . $prosesBerikutnya->proses);
     }
 }

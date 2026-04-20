@@ -93,23 +93,18 @@ const confirmSelesai = () => {
     router.post(route('trolis.selesaikan', props.troli.id), {}, {
         onSuccess: () => {
             toast.success("Berhasil!", {
-                description: "Troli dipindah ke proses berikutnya dan status scan produk direset.",
+                description: "Troli berhasil dipindahkan.",
             });
         },
+        onError: (errors) => {
+            // Mengambil pesan error dari key 'proses' yang kita kirim dari Laravel
+            toast.error("Gagal!", {
+                description: errors.proses || "Terjadi kesalahan sistem.",
+            });
+        }
     });
 };
 
-const selesaikanTroli = () => {
-    if (confirm('Apakah Anda yakin ingin menyelesaikan proses di troli ini?')) {
-        router.post(route('trolis.selesaikan', props.troli.id), {}, {
-            onSuccess: () => {
-                toast.success("Berhasil!", {
-                    description: "Status troli telah diperbarui ke proses berikutnya.",
-                });
-            }
-        });
-    }
-};
 </script>
 
 <template>
