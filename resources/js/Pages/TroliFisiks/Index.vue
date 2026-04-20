@@ -29,6 +29,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { ref, watch } from "vue";
 
 
@@ -47,6 +49,7 @@ const props = defineProps<{
         to: number;
         total: number;
     };
+    prosesList: Array<{ id: number, proses: string }>;
     filters: {
         search: string;
     };
@@ -84,10 +87,14 @@ const cleanLabel = (label: string) => {
 
 const isDialogOpen = ref(false);
 const selectedTroliId = ref<number | null>(null);
+const selectedProsesId = ref<string>("");
 
-// Fungsi untuk membuka dialog
 const confirmAmbil = (id: number) => {
     selectedTroliId.value = id;
+    // Jika hanya ada 1 proses, otomatis pilihkan agar user tidak repot
+    if (props.prosesList.length === 1) {
+        selectedProsesId.value = props.prosesList[0].id.toString();
+    }
     isDialogOpen.value = true;
 };
 
@@ -96,15 +103,18 @@ const executeAmbil = () => {
         router.post(route("trolifisiks.ambil"),
             {
                 id: selectedTroliId.value,
-                // proses_id: props.currentProsesId // Contoh jika ada props ID proses
+                proses_id: selectedProsesId.value
             },
             {
                 onSuccess: () => {
                     isDialogOpen.value = false;
                     selectedTroliId.value = null;
+                    selectedProsesId.value = "";
                 }
             }
         );
+    } else {
+        alert("Silahkan pilih proses terlebih dahulu!");
     }
 };
 </script>
@@ -178,14 +188,41 @@ const executeAmbil = () => {
                         <AlertDialogHeader>
                             <AlertDialogTitle>Konfirmasi Pengambilan</AlertDialogTitle>
                             <AlertDialogDescription>
-                                Apakah Anda yakin ingin mengambil troli ini untuk digunakan?
-                                Status troli akan berubah menjadi "Digunakan".
+                                Pilih proses kerja untuk troli ini. Status troli fisik akan berubah menjadi "Digunakan".
                             </AlertDialogDescription>
                         </AlertDialogHeader>
+
+                        <div class="grid gap-4 py-4">
+                            <div class="grid gap-2">
+                                <Label for="proses">Proses Tujuan</Label>
+                                <Select v-model="selectedProsesId">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih Proses..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem
+                                            v-for="p in prosesList"
+                                            :key="p.id"
+                                            :value="p.id.toString()"
+                                        >
+                                            {{ p.proses }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p v-if="prosesList.length === 0" class="text-xs text-destructive">
+                                    Departemen Anda belum memiliki data proses.
+                                </p>
+                            </div>
+                        </div>
+
                         <AlertDialogFooter>
-                            <AlertDialogCancel @click="selectedTroliId = null">Batal</AlertDialogCancel>
-                            <AlertDialogAction @click="executeAmbil" class="bg-primary text-white hover:bg-primary/90">
-                                Ya, Ambil
+                            <AlertDialogCancel @click="isDialogOpen = false">Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                                @click="executeAmbil"
+                                :disabled="!selectedProsesId"
+                                class="bg-primary text-white hover:bg-primary/90"
+                            >
+                                Konfirmasi & Ambil
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

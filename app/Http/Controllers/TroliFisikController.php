@@ -13,16 +13,25 @@ class TroliFisikController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
+
         $troliFisiks = TroliFisik::query()
             ->when($request->search, function ($query, $search) {
                 $query->where('nomor', 'like', "%{$search}%");
             })
-            ->latest()
+            ->orderByRaw("FIELD(status, 'Tidak', 'Digunakan')")
+            ->orderBy('nomor', 'asc')
             ->paginate(10)
             ->withQueryString();
 
+        // Ambil proses yang hanya dimiliki oleh departemen user yang login
+        $prosesList = \App\Models\Proses::where('departemen_id', $user->departemen_id)
+            ->orderBy('urutan', 'asc')
+            ->get();
+
         return Inertia::render('TroliFisiks/Index', [
             'troliFisiks' => $troliFisiks,
+            'prosesList' => $prosesList, // Kirim daftar proses ke Vue
             'filters' => $request->only(['search'])
         ]);
     }
@@ -33,6 +42,7 @@ class TroliFisikController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:troli_fisik,id',
+            'proses_id' => 'required|exists:proses,id',
         ]);
 
         try {
@@ -73,7 +83,7 @@ class TroliFisikController extends Controller
                     'jenis' => 'Body',
                     'status' => 'Proses',
                     'is_output' => true,
-                    'proses_id' => 1, // Sesuaikan ID Prosesnya
+                    'proses_id' => $request->proses_id,
                 ]);
 
                 return redirect()->route('trolis.index')->with('success', "Berhasil! Invoice: $invoice");
