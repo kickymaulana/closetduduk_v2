@@ -34,12 +34,13 @@ class TroliFisikController extends Controller
     {
         $request->validate([
             'nomor' => 'required|string|max:255|unique:troli_fisik,nomor',
+            'status' => 'required|in:Tidak,Digunakan',
         ], [
             'nomor.required' => 'Nomor troli wajib diisi.',
             'nomor.unique' => 'Nomor troli ini sudah terdaftar.',
         ]);
 
-        TroliFisik::create($request->only('nomor'));
+        TroliFisik::create($request->only('nomor', 'status'));
 
         return redirect()->route('trolifisiks.index')->with('message', 'Data troli fisik berhasil ditambahkan.');
     }

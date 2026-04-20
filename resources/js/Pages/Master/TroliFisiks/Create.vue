@@ -10,6 +10,14 @@ import {
     IconDeviceFloppy,
     IconLoader2,
 } from "@tabler/icons-vue";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -77,21 +85,22 @@ const submit = () => {
                         </div>
 
                         <div class="grid gap-2">
-                            <Label for="status">Status Penggunaan</Label>
-                            <select
-                                id="status"
-                                v-model="form.status"
-                                class="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
-                            >
-                                <option value="Tidak">Tidak</option>
-                                <option value="Digunakan">Digunakan</option>
-                            </select>
-                            <p
-                                v-if="form.errors.status"
-                                class="text-sm text-destructive"
-                            >
-                                {{ form.errors.status }}
-                            </p>
+                            <Label>Status</Label>
+                            <Select v-model="form.status">
+                                <SelectTrigger
+                                        :class="{
+                                            'border-destructive':
+                                                form.errors.status,
+                                        }"
+
+                                    ><SelectValue
+                                        placeholder="Pilih Status"
+                                /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Tidak">Tidak</SelectItem>
+                                    <SelectItem value="Digunakan">Digunakan</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <Button
