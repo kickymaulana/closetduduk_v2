@@ -14,4 +14,10 @@ class Proses extends Model
     {
         return $this->belongsTo(Departemen::class);
     }
+
+    public function trolis()
+    {
+        return $this->hasMany(Troli::class, 'proses_id', 'id');
+    }
+
 }
