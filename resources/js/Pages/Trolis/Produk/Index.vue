@@ -101,7 +101,7 @@ const clearSearch = () => { search.value = ""; };
                         as-child
                         class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
-                        <Link :href="route('departemens.create')">
+                        <Link :href="route('trolis.produk.scan_awal', props.troli.id)">
                             <IconQrcode class="mr-2 size-4" />
                             <span class="hidden sm:inline"
                                 >Scan</span

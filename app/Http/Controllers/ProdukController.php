@@ -28,4 +28,33 @@ class ProdukController extends Controller
             'filters' => $request->only(['search'])
         ]);
     }
+
+    public function scan_awal(Troli $troli)
+    {
+        // Load relasi jika perlu, atau kirim data troli langsung
+        return Inertia::render('Trolis/Produk/ScanAwal', [
+            'troli' => $troli
+        ]);
+    }
+
+    public function store_scan(Request $request, Troli $troli)
+    {
+        $request->validate([
+            'qr' => 'required|string|max:10|unique:produk,qrcode',
+        ], [
+            'qr.unique' => 'QR Code ini sudah pernah discan/terdaftar!',
+            'qr.max' => 'Format QR Code salah (maksimal 10 karakter).'
+        ]);
+
+        // Simpan ke tabel produk
+        $troli->produks()->create([
+            'qrcode' => $request->qr,
+            'nama' => 'Sample ' . $request->qr, // Atau sesuaikan logika penamaanmu
+            'jenis' => $troli->jenis, // Defaultkan mengikuti jenis troli
+            'status_akhir' => 'OK',
+            'sudah_scan' => 'Sudah',
+        ]);
+
+        return back()->with('message', 'Produk berhasil ditambahkan.');
+    }
 }
