@@ -42,7 +42,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route("trolifisiks.update", props.troliFisik.id));
+    form.put(route("master.trolifisiks.update", props.troliFisik.id));
 };
 </script>
 
@@ -58,7 +58,7 @@ const submit = () => {
                     as-child
                     class="rounded-full shadow-sm"
                 >
-                    <Link :href="route('trolifisiks.index')">
+                    <Link :href="route('master.trolifisiks.index')">
                         <IconArrowLeft class="size-4" />
                     </Link>
                 </Button>
@@ -116,7 +116,7 @@ const submit = () => {
                                     @click="
                                         router.delete(
                                             route(
-                                                'trolifisiks.destroy',
+                                                'master.trolifisiks.destroy',
                                                 props.troliFisik.id,
                                             ),
                                         )

@@ -12,8 +12,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Master\CacatController;
 use App\Http\Controllers\Master\AturanPenolakanController;
 use App\Http\Controllers\SesiKerjaController;
-use App\Http\Controllers\Master\TroliFisikController;
+use App\Http\Controllers\Master\TroliFisikController as MasterTroliFisikController;
 use App\Http\Controllers\Master\ProsesController;
+use App\Http\Controllers\TroliController;
+use App\Http\Controllers\TroliFisikController;
 
 
 
@@ -72,12 +74,12 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::put('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'update'])->name('aturanpenolakans.update');
     Route::delete('master/aturan-penolakans/{cacat}', [AturanPenolakanController::class, 'destroy'])->name('aturanpenolakans.destroy');
 
-    Route::get('master/troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
-    Route::get('master/troli-fisiks/create', [TroliFisikController::class, 'create'])->name('trolifisiks.create');
-    Route::post('master/troli-fisiks/create', [TroliFisikController::class, 'store'])->name('trolifisiks.store');
-    Route::get('master/troli-fisiks/{trolifisik}/edit', [TroliFisikController::class, 'edit'])->name('trolifisiks.edit');
-    Route::put('master/troli-fisiks/{trolifisik}/edit', [TroliFisikController::class, 'update'])->name('trolifisiks.update');
-    Route::delete('master/troli-fisiks/{trolifisik}', [TroliFisikController::class, 'destroy'])->name('trolifisiks.destroy');
+    Route::get('master/troli-fisiks', [MasterTroliFisikController::class, 'index'])->name('master.trolifisiks.index');
+    Route::get('master/troli-fisiks/create', [MasterTroliFisikController::class, 'create'])->name('master.trolifisiks.create');
+    Route::post('master/troli-fisiks/create', [MasterTroliFisikController::class, 'store'])->name('master.trolifisiks.store');
+    Route::get('master/troli-fisiks/{trolifisik}/edit', [MasterTroliFisikController::class, 'edit'])->name('master.trolifisiks.edit');
+    Route::put('master/troli-fisiks/{trolifisik}/edit', [MasterTroliFisikController::class, 'update'])->name('master.trolifisiks.update');
+    Route::delete('master/troli-fisiks/{trolifisik}', [MasterTroliFisikController::class, 'destroy'])->name('master.trolifisiks.destroy');
 });
 
 Route::middleware('auth')->group(function () {
@@ -88,4 +90,8 @@ Route::middleware('auth')->group(function () {
     Route::get('sesi-kerjas', [SesiKerjaController::class, 'index'])->name('sesikerjas.index');
     Route::get('sesi-kerjas/create', [SesiKerjaController::class, 'create'])->name('sesikerjas.create');
     Route::post('sesi-kerjas/create', [SesiKerjaController::class, 'store'])->name('sesikerjas.store');
+
+    Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
+
+    Route::get('troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
 });

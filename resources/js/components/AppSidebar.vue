@@ -9,6 +9,7 @@ import {
     IconClock,
     IconTruck,
     IconArrowsSplit2,
+    IconShoppingCartCopy,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -51,6 +52,13 @@ const filteredNavMain = computed(() => {
         icon: IconClock,
         root: "SesiKerjas",
     });
+
+    menus.push({
+        title: "Troli",
+        url: route("trolis.index"),
+        icon: IconShoppingCartCopy,
+        root: "Trolis",
+    });
     return menus;
 });
 
@@ -88,7 +96,7 @@ const masterData = [
     },
     {
         name: "Troli Fisik",
-        url: route("trolifisiks.index"),
+        url: route("master.trolifisiks.index"),
         icon: IconTruck,
         root: "Master/TroliFisiks",
     },

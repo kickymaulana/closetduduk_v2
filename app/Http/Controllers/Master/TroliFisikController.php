@@ -42,7 +42,7 @@ class TroliFisikController extends Controller
 
         TroliFisik::create($request->only('nomor', 'status'));
 
-        return redirect()->route('trolifisiks.index')->with('message', 'Data troli fisik berhasil ditambahkan.');
+        return redirect()->route('master.trolifisiks.index')->with('message', 'Data troli fisik berhasil ditambahkan.');
     }
 
     public function edit(TroliFisik $trolifisik)
@@ -69,7 +69,7 @@ class TroliFisikController extends Controller
         ]);
 
         return redirect()
-            ->route('trolifisiks.index')
+            ->route('master.trolifisiks.index')
             ->with('message', 'Data troli fisik berhasil diperbarui.');
     }
     public function destroy(TroliFisik $trolifisik)
@@ -77,7 +77,7 @@ class TroliFisikController extends Controller
         $trolifisik->delete();
 
         return redirect()
-            ->route('trolifisiks.index')
+            ->route('master.trolifisiks.index')
             ->with('message', 'Data troli fisik berhasil dihapus.');
     }
 }

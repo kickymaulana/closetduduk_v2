@@ -28,7 +28,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route("trolifisiks.store"), {
+    form.post(route("master.trolifisiks.store"), {
         onSuccess: () => form.reset(),
     });
 };
@@ -45,7 +45,7 @@ const submit = () => {
                 as-child
                 class="rounded-full shadow-sm"
             >
-                <Link :href="route('trolifisiks.index')">
+                <Link :href="route('master.trolifisiks.index')">
                     <IconArrowLeft class="size-4" />
                 </Link>
             </Button>

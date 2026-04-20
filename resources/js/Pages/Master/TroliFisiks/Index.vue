@@ -41,7 +41,7 @@ watch(search, (value) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
         router.get(
-            route("trolifisiks.index"),
+            route("master.trolifisiks.index"),
             { search: value },
             { preserveState: true, replace: true },
         );
@@ -95,7 +95,7 @@ const cleanLabel = (label: string) => {
                         as-child
                         class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
-                        <Link :href="route('trolifisiks.create')">
+                        <Link :href="route('master.trolifisiks.create')">
                             <IconPlus class="mr-2 size-4" />
                             Tambah Troli
                         </Link>
@@ -166,7 +166,7 @@ const cleanLabel = (label: string) => {
                                         <Link
                                             :href="
                                                 route(
-                                                    'trolifisiks.edit',
+                                                    'master.trolifisiks.edit',
                                                     item.id,
                                                 )
                                             "
