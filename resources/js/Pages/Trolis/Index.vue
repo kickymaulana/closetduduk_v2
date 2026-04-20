@@ -37,6 +37,7 @@ const props = defineProps<{
             proses?: {
                 nama_proses: string; // Sesuaikan dengan nama kolom di tabel 'proses'
             };
+            produks_count: number;
             created_at: string;
         }>;
         links: any[];
@@ -118,6 +119,7 @@ const cleanLabel = (label: string) => {
                                 <TableHead>Tipe</TableHead>
                                 <TableHead>Proses</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Total</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -140,6 +142,9 @@ const cleanLabel = (label: string) => {
                                 </TableCell>
                                 <TableCell>
                                     <Badge class="bg-lime-500 text-black">{{ troli.status }}</Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge class="bg-lime-500 text-black">{{ troli.produks_count }}</Badge>
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <Button variant="ghost" size="icon" as-child>

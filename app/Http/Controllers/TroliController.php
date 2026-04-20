@@ -19,6 +19,7 @@ class TroliController extends Controller
             })
             // 2. Load relasi (Eager Loading)
             ->with(['proses'])
+            ->withCount(['produks'])
             // 3. Fitur Pencarian
             ->when($request->search, function ($query, $search) {
                 $query->where('invoice', 'like', "%{$search}%");
