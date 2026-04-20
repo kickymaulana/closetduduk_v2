@@ -32,6 +32,8 @@ const props = defineProps<{
             id: number;
             urutan: number;
             departemen: string;
+            proses_count: number;
+            users_count: number;
             created_at: string;
         }>;
         links: Array<{
@@ -127,6 +129,8 @@ const cleanLabel = (label: string) => {
                         <TableHeader>
                             <TableRow class="bg-muted/50">
                                 <TableHead>Nama Departemen</TableHead>
+                                <TableHead>Proses</TableHead>
+                                <TableHead>User</TableHead>
                                 <TableHead class="hidden md:table-cell"
                                     >Dibuat Pada</TableHead
                                 >
@@ -152,6 +156,17 @@ const cleanLabel = (label: string) => {
                                     class="font-bold text-primary uppercase tracking-wide"
                                 >
                                     {{ item.departemen }}
+                                </TableCell>
+
+                                <TableCell>
+                                    <Badge variant="secondary" class="font-semibold">
+                                        {{ item.proses_count }} Proses
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="secondary" class="font-semibold">
+                                        {{ item.users_count }} User
+                                    </Badge>
                                 </TableCell>
                                 <TableCell
                                     class="hidden md:table-cell text-muted-foreground text-sm"

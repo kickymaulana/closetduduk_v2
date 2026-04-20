@@ -12,6 +12,8 @@ class DepartemenController extends Controller
     public function index(Request $request)
     {
         $departemens = Departemen::query()
+            ->withCount('proses')
+            ->withCount('users')
             ->when($request->search, function ($query, $search) {
                 $query->where('departemen', 'like', "%{$search}%");
             })
