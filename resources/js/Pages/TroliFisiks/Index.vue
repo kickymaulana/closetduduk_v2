@@ -19,7 +19,18 @@ import {
     IconX,
     IconHandClick, // Ikon untuk aksi ambil
 } from "@tabler/icons-vue";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ref, watch } from "vue";
+
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -69,6 +80,32 @@ const cleanLabel = (label: string) => {
     if (label.includes("Previous")) return "Sebelumnya";
     if (label.includes("Next")) return "Selanjutnya";
     return label;
+};
+
+const isDialogOpen = ref(false);
+const selectedTroliId = ref<number | null>(null);
+
+// Fungsi untuk membuka dialog
+const confirmAmbil = (id: number) => {
+    selectedTroliId.value = id;
+    isDialogOpen.value = true;
+};
+
+const executeAmbil = () => {
+    if (selectedTroliId.value) {
+        router.post(route("trolifisiks.ambil"),
+            {
+                id: selectedTroliId.value,
+                // proses_id: props.currentProsesId // Contoh jika ada props ID proses
+            },
+            {
+                onSuccess: () => {
+                    isDialogOpen.value = false;
+                    selectedTroliId.value = null;
+                }
+            }
+        );
+    }
 };
 </script>
 
@@ -123,7 +160,7 @@ const cleanLabel = (label: string) => {
                                     <Button
                                         size="sm"
                                         :disabled="item.status === 'Digunakan'"
-                                        @click="ambilTroli(item.id)"
+                                        @click="confirmAmbil(item.id)"
                                         class="bg-primary hover:bg-primary/90"
                                     >
                                         <IconHandClick class="size-4 mr-2" />
@@ -134,6 +171,27 @@ const cleanLabel = (label: string) => {
                         </TableBody>
                     </Table>
                 </div>
+
+
+                <AlertDialog :open="isDialogOpen" @update:open="isDialogOpen = $event">
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Konfirmasi Pengambilan</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Apakah Anda yakin ingin mengambil troli ini untuk digunakan?
+                                Status troli akan berubah menjadi "Digunakan".
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel @click="selectedTroliId = null">Batal</AlertDialogCancel>
+                            <AlertDialogAction @click="executeAmbil" class="bg-primary text-white hover:bg-primary/90">
+                                Ya, Ambil
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+
 
                 <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
                     <p class="text-xs text-muted-foreground italic">

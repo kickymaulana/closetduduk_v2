@@ -94,4 +94,5 @@ Route::middleware('auth')->group(function () {
     Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
 
     Route::get('troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
+    Route::post('troli-fisiks/ambil', [TroliFisikController::class, 'ambil'])->name('trolifisiks.ambil');
 });
