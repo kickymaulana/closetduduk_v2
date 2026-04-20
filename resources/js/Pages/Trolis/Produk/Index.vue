@@ -18,9 +18,34 @@ import {
     IconSearch,
     IconX,
     IconQrcode, // Ikon Scan
-    IconArrowLeft
+    IconArrowLeft,
+    IconSettings,
+    IconDownload,
+    IconTrash,
+    IconDotsVertical,
+    IconCheck,
 } from "@tabler/icons-vue";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ref, watch } from "vue";
+import { toast } from "vue-sonner";
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -62,19 +87,94 @@ watch(search, (value) => {
 });
 
 const clearSearch = () => { search.value = ""; };
+
+
+const confirmSelesai = () => {
+    router.post(route('trolis.selesaikan', props.troli.id), {}, {
+        onSuccess: () => {
+            toast.success("Berhasil!", {
+                description: "Troli dipindah ke proses berikutnya dan status scan produk direset.",
+            });
+        },
+    });
+};
+
+const selesaikanTroli = () => {
+    if (confirm('Apakah Anda yakin ingin menyelesaikan proses di troli ini?')) {
+        router.post(route('trolis.selesaikan', props.troli.id), {}, {
+            onSuccess: () => {
+                toast.success("Berhasil!", {
+                    description: "Status troli telah diperbarui ke proses berikutnya.",
+                });
+            }
+        });
+    }
+};
 </script>
 
 <template>
     <Head :title="'Produk Troli - ' + troli.invoice" />
 
     <div class="flex flex-col gap-4 p-4 md:p-8 pt-4">
-        <div class="flex items-center gap-2">
+
+        <div class="flex items-center justify-between w-full">
             <Button variant="ghost" size="sm" as-child>
                 <Link :href="route('trolis.index')">
                     <IconArrowLeft class="size-4 mr-2" />
                     Kembali ke Daftar Troli
                 </Link>
             </Button>
+
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button variant="outline" size="icon" class="size-8">
+                        <IconDotsVertical class="size-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" class="w-48">
+                    <DropdownMenuLabel>Opsi Troli</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
+
+                    <AlertDialog>
+                        <AlertDialogTrigger as-child>
+                            <button class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full">
+                                <IconCheck class="mr-2 size-4 text-green-500" />
+                                Selesaikan Troli
+                            </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Selesaikan Proses Sekarang?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Troli ini akan dipindahkan ke tahap berikutnya.
+                                    Semua status produk di dalamnya akan direset menjadi <b>Belum Scan</b> untuk tahap baru.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction @click="confirmSelesai" class="bg-green-600 hover:bg-green-700">
+                                    Ya, Selesaikan
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+                    <DropdownMenuItem>
+                        <IconDownload class="mr-2 size-4" />
+                        Export Excel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <IconSettings class="mr-2 size-4" />
+                        Pengaturan
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem class="text-destructive focus:text-destructive">
+                        <IconTrash class="mr-2 size-4" />
+                        Kosongkan Troli
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
 
         <Card class="border-none shadow-sm">
