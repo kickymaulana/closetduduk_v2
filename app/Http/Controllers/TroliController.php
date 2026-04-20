@@ -10,8 +10,16 @@ class TroliController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user();
+
         $trolis = Troli::query()
-            ->with(['proses']) // Memuat relasi proses
+            // 1. Filter: Hanya ambil troli yang prosesnya milik departemen user login
+            ->whereHas('proses', function ($query) use ($user) {
+                $query->where('departemen_id', $user->departemen_id);
+            })
+            // 2. Load relasi (Eager Loading)
+            ->with(['proses'])
+            // 3. Fitur Pencarian
             ->when($request->search, function ($query, $search) {
                 $query->where('invoice', 'like', "%{$search}%");
             })
