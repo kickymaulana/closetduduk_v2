@@ -190,7 +190,11 @@ const confirmSelesai = () => {
                         <IconPackage class="size-6 text-primary" />
                         Isi Troli: {{ troli.invoice }}
                     </div>
-                    <span class="text-sm font-normal text-muted-foreground">Total Produk: {{ produks.total }} | Proses: {{ troli.proses?.proses }}</span>
+                    <span class="text-sm font-normal text-muted-foreground">Total Produk: {{ produks.total }} |
+                        <Badge :class="bg-yellow-500">
+                        Proses: {{ troli.proses?.proses }}
+                        </Badge>
+                    </span>
                 </CardTitle>
 
                 <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">

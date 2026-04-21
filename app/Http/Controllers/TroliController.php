@@ -68,7 +68,8 @@ class TroliController extends Controller
             'sudah_scan' => 'Belum'
         ]);
 
-        return back()->with('message', 'Troli dilanjutkan ke: ' . $prosesBerikutnya->proses);
+        return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
+
     }
 
     public function ambil(Request $request)
