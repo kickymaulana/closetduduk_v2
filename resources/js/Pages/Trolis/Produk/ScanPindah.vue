@@ -155,7 +155,7 @@ defineOptions({ layout: AuthenticatedLayout });
                                     </div>
                                     <div>
                                         <p class="text-sm font-bold font-mono">{{ t.invoice }}</p>
-                                        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">{{ t.keterangan || 'Troli Aktif' }}</p>
+                                        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">Keperluan {{ t.keperluan }}</p>
                                     </div>
                                 </div>
                                 <IconCircleCheck v-if="form.troli_tujuan_id === t.id" class="size-5 text-blue-600" />

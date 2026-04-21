@@ -143,4 +143,53 @@ class TroliController extends Controller
         return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
     }
 
+
+    public function kembalikan(Troli $troli)
+    {
+        $prosesSekarang = $troli->proses->id;
+        $proses = Proses::where('urutan', '<', $prosesSekarang)->orderBy('urutan')->get();
+
+        return Inertia::render('Trolis/Kembalikan', [
+            'troli' => $troli->load('proses'),
+            'prosesTujuan' => $proses,
+        ]);
+    }
+
+    /**
+     * Memproses perubahan data ke database (POST)
+     */
+    public function kembalikan_store(Request $request, Troli $troli)
+    {
+        // Validasi: proses_id harus ada di tabel proses
+        $request->validate([
+            'proses_id' => 'required|exists:proses,id',
+        ]);
+
+        try {
+            // Kita gunakan Transaction agar jika satu gagal, semua batal (aman)
+            \DB::transaction(function () use ($request, $troli) {
+
+                // 1. Update status troli
+                $troli->update([
+                    'proses_id' => $request->proses_id,
+                    'status'    => 'Proses', // Reset kembali ke 'Proses' jika sebelumnya 'Selesai'
+                ]);
+
+                // 2. Reset status produk di dalam troli tersebut
+                // Karena mundur proses, biasanya produk harus di-scan ulang
+                $troli->produks()->update([
+                    'sudah_scan' => 'Belum'
+                ]);
+            });
+
+            return redirect()->route('trolis.index')
+                ->with('success', "Troli {$troli->invoice} berhasil dikembalikan.");
+
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'proses_id' => 'Gagal mengembalikan troli. Silahkan coba lagi.'
+            ]);
+        }
+    }
+
 }

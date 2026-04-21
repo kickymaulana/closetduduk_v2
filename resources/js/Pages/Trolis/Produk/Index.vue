@@ -24,6 +24,9 @@ import {
     IconTrash,
     IconDotsVertical,
     IconCheck,
+    IconCircleCheck,
+    IconTransfer,
+    IconArrowBackUp,
 } from "@tabler/icons-vue";
 import {
     DropdownMenu,
@@ -126,61 +129,57 @@ const confirmSelesai = () => {
             </Button>
 
             <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <Button variant="outline" size="icon" class="size-8">
-                        <IconDotsVertical class="size-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" class="w-48">
-                    <DropdownMenuLabel>Opsi Troli</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
+            <DropdownMenuTrigger as-child>
+                <Button variant="outline" size="icon" class="size-8">
+                <IconDotsVertical class="size-4" />
+                </Button>
+            </DropdownMenuTrigger>
 
+            <DropdownMenuContent align="end" class="w-48">
+                <DropdownMenuLabel>Opsi Troli</DropdownMenuLabel>
+                <DropdownMenuSeparator />
 
-                    <AlertDialog>
-                        <AlertDialogTrigger as-child>
-                            <button class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground w-full">
-                                <IconCheck class="mr-2 size-4 text-green-500" />
-                                Selesaikan Troli
-                            </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Selesaikan Proses Sekarang?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Troli ini akan dipindahkan ke tahap berikutnya.
-                                    Semua status produk di dalamnya akan direset menjadi <b>Belum Scan</b> untuk tahap baru.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Batal</AlertDialogCancel>
-                                <AlertDialogAction @click="confirmSelesai" class="bg-green-600 hover:bg-green-700">
-                                    Ya, Selesaikan
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-
-
-                    <DropdownMenuItem as-child>
-                        <Link
-                            :href="route('trolis.produk.scan_pindah', props.troli.id)"
-                            class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
-                        >
-                            <IconCheck class="mr-2 size-4 text-green-500" />
-                            <span>Pindahkan</span>
-                        </Link>
+                <AlertDialog>
+                <AlertDialogTrigger as-child>
+                    <DropdownMenuItem @select.prevent>
+                    <IconCircleCheck class="mr-2 size-4 text-green-500" />
+                    <span>Selesaikan</span>
                     </DropdownMenuItem>
-                    <!--<DropdownMenuItem>
-                        <IconSettings class="mr-2 size-4" />
-                        Pengaturan
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem class="text-destructive focus:text-destructive">
-                        <IconTrash class="mr-2 size-4" />
-                        Kosongkan Troli
-                    </DropdownMenuItem>-->
-                </DropdownMenuContent>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Selesaikan Proses Sekarang?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Troli ini akan dipindahkan ke tahap berikutnya.
+                        Semua status produk di dalamnya akan direset menjadi <b>Belum Scan</b> untuk tahap baru.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                    <AlertDialogAction @click="confirmSelesai" class="bg-green-600 hover:bg-green-700">
+                        Ya, Selesaikan
+                    </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+                </AlertDialog>
+
+                <DropdownMenuItem as-child>
+                <Link :href="route('trolis.produk.scan_pindah', props.troli.id)">
+                    <IconTransfer class="mr-2 size-4 text-green-500" />
+                    <span>Pindahkan</span>
+                </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem as-child>
+                <Link :href="route('trolis.kembalikan', props.troli.id)">
+                    <IconArrowBackUp class="mr-2 size-4 text-green-500" />
+                    <span>Kembalikan</span>
+                </Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
             </DropdownMenu>
+
+
         </div>
 
         <Card class="border-none shadow-sm">
@@ -191,7 +190,7 @@ const confirmSelesai = () => {
                         Isi Troli: {{ troli.invoice }}
                     </div>
                     <span class="text-sm font-normal text-muted-foreground">Total Produk: {{ produks.total }} |
-                        <Badge :class="bg-yellow-500">
+                        <Badge>
                         Proses: {{ troli.proses?.proses }}
                         </Badge>
                     </span>

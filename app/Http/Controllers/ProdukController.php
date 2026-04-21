@@ -101,7 +101,7 @@ class ProdukController extends Controller
 
             // Data Daftar Troli Tujuan (untuk pilihan di sidebar/dropdown)
             'daftarTroli' => Troli::where('id', '!=', $troli->id)
-                ->get(['id', 'invoice'])
+                ->get(['id', 'invoice', 'keperluan'])
         ]);
     }
 
