@@ -50,11 +50,11 @@ class TroliController extends Controller
         if (!$prosesBerikutnya) {
             $troli->update([
                 'status' => 'Selesai',
-                'proses_id' => $prosesSekarang->id
+                'is_output' => true,
             ]);
             // Ini akan memicu blok onError di frontend
             throw ValidationException::withMessages([
-                'proses' => 'Tidak ada proses lanjutan ditemukan setelah, tapi tetep berhasil dibuat selesai' . $troli->proses->proses,
+                'proses' => 'Tidak ada proses lanjutan ditemukan setelah' . $troli->proses->proses,
             ]);
         }
 
@@ -95,7 +95,8 @@ class TroliController extends Controller
             // 3. Filter berdasarkan proses sebelumnya dan status Selesai
             ->when($prosesSebelumnya, function ($query) use ($prosesSebelumnya) {
                 $query->where('proses_id', $prosesSebelumnya->id)
-                    ->where('status', 'Selesai'); // Pastikan kolom 'status' sesuai dengan DB kamu
+                    ->where('status', 'Selesai') // Pastikan kolom 'status' sesuai dengan DB kamu
+                    ->where('is_output', true);
             })
             // Jika tidak ada proses sebelumnya (user di urutan pertama), tampilkan data awal atau kosongkan
             ->unless($prosesSebelumnya, function ($query) {
@@ -135,8 +136,9 @@ class TroliController extends Controller
         $troli->update([
             'proses_id' => $prosesSekarang->id,
             'status'    => 'Proses', // Menandakan sedang dikerjakan di departemen Anda
+            'is_output' => false,
         ]);
-        $troli->produks->update([
+        $troli->produks()->update([
             'sudah_scan' => 'Belum'
         ]);
 

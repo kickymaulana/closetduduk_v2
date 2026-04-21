@@ -83,7 +83,7 @@ class TroliFisikController extends Controller
                     'keperluan' => $request->keperluan,
                     'jenis' => 'Body',
                     'status' => 'Proses',
-                    'is_output' => true,
+                    'is_output' => false,
                     'proses_id' => $request->proses_id,
                 ]);
 
