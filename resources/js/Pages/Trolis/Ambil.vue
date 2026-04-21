@@ -19,8 +19,9 @@ import {
     IconX,
     IconEye,
     IconPlus,
-    IconBuildingBridge,
     IconDownload,
+    IconBuildingBridge,
+    IconArrowLeft,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
@@ -58,7 +59,7 @@ watch(search, (value) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
         router.get(
-            route("trolis.index"),
+            route("trolis.ambil"),
             { search: value },
             { preserveState: true, replace: true },
         );
@@ -78,11 +79,22 @@ const cleanLabel = (label: string) => {
     <Head title="Manajemen Troli" />
 
     <div class="flex flex-col gap-4 p-4 md:p-8 pt-4">
+
+        <div class="flex items-center justify-between w-full">
+                <Button variant="ghost" size="sm" as-child>
+                    <Link :href="route('trolis.index')">
+                        <IconArrowLeft class="size-4 mr-2" />
+                        Kembali ke Daftar Troli
+                    </Link>
+                </Button>
+        </div>
+
+
         <Card class="border-none shadow-sm">
             <CardHeader class="flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0 pb-6">
                 <CardTitle class="text-xl font-bold flex items-center gap-2">
-                    <IconShoppingCart class="size-6 text-primary" />
-                    Manajemen Troli
+                    <IconDownload class="size-6 text-primary" />
+                    Ambil Troli
                 </CardTitle>
 
                 <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
@@ -94,20 +106,6 @@ const cleanLabel = (label: string) => {
                         </button>
                     </div>
 
-                    <Button variant="outline" class="border-primary text-primary hover:bg-primary/10">
-                        <Link :href="route('trolifisiks.index')" class="flex items-center justify-center">
-                            <IconShoppingCart class="mr-2 size-4" />
-                            Ambil Fisik
-                        </Link>
-                    </Button>
-
-
-                    <Button class="bg-primary hover:bg-primary/90">
-                        <Link :href="route('trolis.ambil')" class="flex items-center justify-center">
-                        <IconDownload class="mr-2 size-4" />
-                        Ambil Troli
-                        </Link>
-                    </Button>
                 </div>
             </CardHeader>
 
@@ -120,7 +118,7 @@ const cleanLabel = (label: string) => {
                                 <TableHead>Keperluan</TableHead>
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Tipe</TableHead>
-                                <TableHead>Proses</TableHead>
+                                <TableHead>Dari Proses</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Total</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
@@ -151,7 +149,7 @@ const cleanLabel = (label: string) => {
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <Button variant="ghost" size="icon" as-child>
-                                        <Link :href="route('trolis.produk.index', troli.id)"> <IconEye class="size-4 text-primary" />
+                                        <Link :href="route('trolis.produk.index', troli.id)"> <IconDownload class="size-4 text-primary" />
                                         </Link>
                                     </Button>
                                 </TableCell>
@@ -163,3 +161,4 @@ const cleanLabel = (label: string) => {
         </Card>
     </div>
 </template>
+

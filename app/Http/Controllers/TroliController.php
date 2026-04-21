@@ -64,4 +64,49 @@ class TroliController extends Controller
 
         return back()->with('message', 'Troli dilanjutkan ke: ' . $prosesBerikutnya->proses);
     }
+
+    public function ambil(Request $request)
+    {
+        $user = auth()->user();
+
+        // 1. Ambil info proses user saat ini
+        $prosesSekarang = $user->departemen->proses()->orderBy('urutan', 'asc')->first();
+        // Jaga-jaga jika data proses belum di-setup
+        if (!$prosesSekarang) {
+            return back()->with('error', 'Proses untuk departemen Anda belum diatur.');
+        }
+        $urutanSekarang = $prosesSekarang->urutan;
+        // 2. Cari ID proses yang urutannya tepat sebelum urutanSekarang
+        // Ini lebih aman daripada cuma $urutanSekarang - 1 (antisipasi loncatan angka)
+        $prosesSebelumnya = Proses::where('urutan', '<', $urutanSekarang)
+                            ->orderBy('urutan', 'desc')
+                            ->first();
+
+        $trolis = Troli::query()
+            ->with(['proses'])
+            ->withCount(['produks'])
+            // 3. Filter berdasarkan proses sebelumnya dan status Selesai
+            ->when($prosesSebelumnya, function ($query) use ($prosesSebelumnya) {
+                $query->where('proses_id', $prosesSebelumnya->id)
+                    ->where('status', 'Selesai'); // Pastikan kolom 'status' sesuai dengan DB kamu
+            })
+            // Jika tidak ada proses sebelumnya (user di urutan pertama), tampilkan data awal atau kosongkan
+            ->unless($prosesSebelumnya, function ($query) {
+                // Logika jika ini adalah proses pertama di sistem
+                // Misalnya: hanya tampilkan yang proses_id-nya milik dia sendiri tapi statusnya 'Baru'
+                $query->whereNull('id'); // Sementara dibuat kosong jika tidak ada proses sebelumnya
+            })
+            ->when($request->search, function ($query, $search) {
+                $query->where('invoice', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Trolis/Ambil', [
+            'trolis' => $trolis,
+            'filters' => $request->only(['search'])
+        ]);
+    }
+
 }
