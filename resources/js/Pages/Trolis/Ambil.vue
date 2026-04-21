@@ -23,6 +23,16 @@ import {
     IconBuildingBridge,
     IconArrowLeft,
 } from "@tabler/icons-vue";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ref, watch } from "vue";
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -73,9 +83,63 @@ const cleanLabel = (label: string) => {
     if (label.includes("Next")) return "Selanjutnya";
     return label;
 };
+
+// State untuk mengontrol dialog
+const selectedTroli = ref<any>(null);
+const isDialogOpen = ref(false);
+
+// Fungsi untuk membuka dialog
+const confirmAmbil = (troli: any) => {
+    selectedTroli.value = troli;
+    isDialogOpen.value = true;
+};
+
+// Fungsi eksekusi ambil (Kirim ke Backend)
+const handleAmbil = () => {
+    if (selectedTroli.value) {
+        // Mengirim data { id: ... } ke backend
+        router.post(route('trolis.ambilproses'), {
+            id: selectedTroli.value.id
+        }, {
+            onSuccess: () => {
+                isDialogOpen.value = false;
+                selectedTroli.value = null;
+            },
+            onError: (errors) => {
+                console.error(errors);
+                alert("Gagal mengambil troli.");
+            }
+        });
+    }
+};
 </script>
 
 <template>
+
+
+    <AlertDialog :open="isDialogOpen" @update:open="isDialogOpen = $event">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Konfirmasi Pengambilan</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Apakah Anda yakin ingin mengambil troli dengan nomor invoice
+                    <span class="font-bold text-primary">{{ selectedTroli?.invoice }}</span>?
+                    Troli ini akan dipindahkan ke departemen Anda.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel @click="selectedTroli = null">Batal</AlertDialogCancel>
+                <AlertDialogAction
+                    class="bg-orange-500 hover:bg-orange-600"
+                    @click="handleAmbil"
+                >
+                    Ya, Ambil Sekarang
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
+
     <Head title="Manajemen Troli" />
 
     <div class="flex flex-col gap-4 p-4 md:p-8 pt-4">
@@ -148,9 +212,14 @@ const cleanLabel = (label: string) => {
                                     <Badge class="bg-lime-500 text-black">{{ troli.produks_count }}</Badge>
                                 </TableCell>
                                 <TableCell class="text-right">
-                                    <Button variant="ghost" size="icon" as-child>
-                                        <Link :href="route('trolis.produk.index', troli.id)"> <IconDownload class="size-4 text-primary" />
-                                        </Link>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        class="text-orange-600 border-orange-200 hover:bg-orange-50 gap-2"
+                                        @click="confirmAmbil(troli)"
+                                    >
+                                        <IconDownload class="size-4" />
+                                        Ambil
                                     </Button>
                                 </TableCell>
                             </TableRow>

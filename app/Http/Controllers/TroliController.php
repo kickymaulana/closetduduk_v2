@@ -109,4 +109,28 @@ class TroliController extends Controller
         ]);
     }
 
+
+    public function ambilproses(Request $request)
+    {
+        $user = auth()->user();
+
+        // Cari data troli berdasarkan ID yang dikirim dari Vue
+        $troli = Troli::findOrFail($request->id);
+
+        // Ambil proses pertama/saat ini untuk departemen user
+        $prosesSekarang = $user->departemen->proses()->orderBy('urutan', 'asc')->first();
+
+        if (!$prosesSekarang) {
+            return back()->with('error', 'Proses departemen Anda belum diatur.');
+        }
+
+        // Update status dan pindahkan ke proses user
+        $troli->update([
+            'proses_id' => $prosesSekarang->id,
+            'status'    => 'Proses', // Menandakan sedang dikerjakan di departemen Anda
+        ]);
+
+        return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
+    }
+
 }
