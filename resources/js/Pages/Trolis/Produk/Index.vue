@@ -160,11 +160,17 @@ const confirmSelesai = () => {
                         </AlertDialogContent>
                     </AlertDialog>
 
-                    <!--<DropdownMenuItem>
-                        <IconDownload class="mr-2 size-4" />
-                        Export Excel
+
+                    <DropdownMenuItem as-child>
+                        <Link
+                            :href="route('trolis.produk.scan_pindah', props.troli.id)"
+                            class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+                        >
+                            <IconCheck class="mr-2 size-4 text-green-500" />
+                            <span>Pindahkan</span>
+                        </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <!--<DropdownMenuItem>
                         <IconSettings class="mr-2 size-4" />
                         Pengaturan
                     </DropdownMenuItem>
