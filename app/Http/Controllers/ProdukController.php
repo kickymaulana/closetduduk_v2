@@ -92,4 +92,45 @@ class ProdukController extends Controller
 
         return back()->with('message', 'Validasi produk berhasil.');
     }
+
+    public function scan_pindah(Troli $troli)
+    {
+        return Inertia::render('Trolis/Produk/ScanPindah', [
+            // Data Troli Asal
+            'troli' => $troli->load('produks'), // opsional load produks jika ingin tampilkan list barang
+
+            // Data Daftar Troli Tujuan (untuk pilihan di sidebar/dropdown)
+            'daftarTroli' => Troli::where('id', '!=', $troli->id)
+                ->get(['id', 'invoice'])
+        ]);
+    }
+
+    public function scan_pindah_store(Request $request, Troli $troli)
+    {
+        $request->validate([
+            'qr' => 'required|string',
+            'troli_tujuan_id' => 'required|exists:troli,id',
+        ]);
+
+        // Cari produk yang berada di troli asal (troli_id) dengan qrcode tersebut
+        $produk = Produk::where('troli_id', $troli->id)
+            ->where('qrcode', $request->qr)
+            ->first();
+
+        if (!$produk) {
+            return back()->withErrors([
+                'qr' => "Produk {$request->qr} tidak ditemukan di troli " . $troli->invoice
+            ]);
+        }
+
+        // Eksekusi perpindahan ID
+        $produk->update([
+            'troli_id' => $request->troli_tujuan_id,
+            // Optional: Jika ingin reset status scan saat pindah troli
+            // 'sudah_scan' => 'Belum'
+        ]);
+
+        return back();
+    }
+
 }
