@@ -27,6 +27,7 @@ import {
     IconCircleCheck,
     IconTransfer,
     IconArrowBackUp,
+    IconBasketX,
 } from "@tabler/icons-vue";
 import {
     DropdownMenu,
@@ -143,7 +144,7 @@ const confirmSelesai = () => {
                 <AlertDialogTrigger as-child>
                     <DropdownMenuItem @select.prevent>
                     <IconCircleCheck class="mr-2 size-4 text-green-500" />
-                    <span>Selesaikan</span>
+                    <span>Selesaikan Troli</span>
                     </DropdownMenuItem>
                 </AlertDialogTrigger>
 
@@ -163,17 +164,23 @@ const confirmSelesai = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
                 </AlertDialog>
+                <DropdownMenuItem as-child>
+                <Link :href="route('trolis.kembalikan', props.troli.id)">
+                    <IconArrowBackUp class="mr-2 size-4 text-green-500" />
+                    <span>Kembalikan Troli</span>
+                </Link>
+                </DropdownMenuItem>
 
                 <DropdownMenuItem as-child>
                 <Link :href="route('trolis.produk.scan_pindah', props.troli.id)">
                     <IconTransfer class="mr-2 size-4 text-green-500" />
-                    <span>Pindahkan</span>
+                    <span>Pindahkan Produk</span>
                 </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem as-child>
-                <Link :href="route('trolis.kembalikan', props.troli.id)">
-                    <IconArrowBackUp class="mr-2 size-4 text-green-500" />
-                    <span>Kembalikan</span>
+                <Link :href="route('trolis.produk.scan_hapus', props.troli.id)">
+                    <IconBasketX class="mr-2 size-4 text-red-500" />
+                    <span>Hapus Produk</span>
                 </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>

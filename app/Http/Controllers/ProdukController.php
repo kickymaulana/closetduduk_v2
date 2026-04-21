@@ -133,4 +133,45 @@ class ProdukController extends Controller
         return back();
     }
 
+
+    public function scan_hapus(Troli $troli)
+    {
+        return Inertia::render('Trolis/Produk/ScanHapus', [
+            'troli' => $troli
+        ]);
+    }
+
+    public function scan_hapus_store(Request $request, Troli $troli)
+    {
+        $request->validate([
+            'qr' => 'required|string',
+        ]);
+
+        // 1. Cari produk yang ada di troli ini berdasarkan QR
+        $produk = Produk::where('troli_id', $troli->id)
+            ->where('qrcode', $request->qr)
+            ->first();
+
+        // 2. Cek apakah produk ditemukan
+        if (!$produk) {
+            return back()->withErrors([
+                'qr' => "Produk {$request->qr} tidak ada di troli ini."
+            ]);
+        }
+
+        // 3. SYARAT KRUSIAL: Cek apakah statusnya "Buang"
+        // Asumsi: kolom status bernama 'status'
+        if ($produk->status !== 'Buang') {
+            return back()->withErrors([
+                'qr' => "Gagal! Produk {$request->qr} statusnya '{$produk->status}'. Hanya produk berstatus 'Buang' yang boleh dihapus."
+            ]);
+        }
+
+        // 4. Eksekusi Hapus (atau lepas dari troli)
+        // Jika maksudnya hapus permanen dari DB: $produk->delete();
+        // Jika maksudnya hanya dikeluarkan dari troli:
+        $produk->update(['troli_id' => null]);
+
+        return back();
+    }
 }

@@ -105,6 +105,8 @@ Route::middleware('auth')->group(function () {
     Route::post('trolis/{troli}/produk/scan', [ProdukController::class, 'scan_store'])->name('trolis.produk.scan_store');
     Route::get('trolis/{troli}/produk/scan-pindah', [ProdukController::class, 'scan_pindah'])->name('trolis.produk.scan_pindah');
     Route::post('trolis/{troli}/produk/scan-pindah', [ProdukController::class, 'scan_pindah_store'])->name('trolis.produk.scan_pindah_store');
+    Route::get('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus'])->name('trolis.produk.scan_hapus');
+    Route::post('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus_store'])->name('trolis.produk.scan_hapus_store');
 
     Route::get('troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
     Route::post('troli-fisiks/ambil', [TroliFisikController::class, 'ambil'])->name('trolifisiks.ambil');
