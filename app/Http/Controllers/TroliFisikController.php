@@ -43,6 +43,7 @@ class TroliFisikController extends Controller
         $request->validate([
             'id' => 'required|exists:troli_fisik,id',
             'proses_id' => 'required|exists:proses,id',
+            'keperluan'     => 'required|in:In Proses,OK,Scan',
         ]);
 
         try {
@@ -79,7 +80,7 @@ class TroliFisikController extends Controller
                 // 6. Simpan ke tabel troli
                 Troli::create([
                     'invoice' => $invoice,
-                    'keperluan' => 'Scan',
+                    'keperluan' => $request->keperluan,
                     'jenis' => 'Body',
                     'status' => 'Proses',
                     'is_output' => true,

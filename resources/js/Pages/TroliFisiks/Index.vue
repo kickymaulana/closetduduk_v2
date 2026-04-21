@@ -90,6 +90,7 @@ const cleanLabel = (label: string) => {
 const isDialogOpen = ref(false);
 const selectedTroliId = ref<number | null>(null);
 const selectedProsesId = ref<string>("");
+const selectedKeperluan = ref<string>("");
 
 const confirmAmbil = (id: number) => {
     selectedTroliId.value = id;
@@ -105,7 +106,8 @@ const executeAmbil = () => {
         router.post(route("trolifisiks.ambil"),
             {
                 id: selectedTroliId.value,
-                proses_id: selectedProsesId.value
+                proses_id: selectedProsesId.value,
+                keperluan: selectedKeperluan.value,
             },
             {
                 onSuccess: () => {
@@ -204,7 +206,7 @@ const executeAmbil = () => {
                             </AlertDialogDescription>
                         </AlertDialogHeader>
 
-                        <div class="grid gap-4 py-4">
+                        <div class="grid grid-cols-2 gap-4 py-4">
                             <div class="grid gap-2">
                                 <Label for="proses">Proses Tujuan</Label>
                                 <Select v-model="selectedProsesId">
@@ -224,6 +226,20 @@ const executeAmbil = () => {
                                 <p v-if="prosesList.length === 0" class="text-xs text-destructive">
                                     Departemen Anda belum memiliki data proses.
                                 </p>
+                            </div>
+
+                            <div class="grid gap-2">
+                                <Label for="keperluan">Keperluan</Label>
+                                <Select v-model="selectedKeperluan">
+                                    <SelectTrigger id="keperluan">
+                                        <SelectValue placeholder="Pilih Keperluan..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="OK">OK</SelectItem>
+                                        <SelectItem value="In Proses">In Proses</SelectItem>
+                                        <SelectItem value="Scan">Scan</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
 
