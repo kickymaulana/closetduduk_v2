@@ -155,7 +155,7 @@ const confirmSelesai = () => {
                         </AlertDialogContent>
                     </AlertDialog>
 
-                    <DropdownMenuItem>
+                    <!--<DropdownMenuItem>
                         <IconDownload class="mr-2 size-4" />
                         Export Excel
                     </DropdownMenuItem>
@@ -167,7 +167,7 @@ const confirmSelesai = () => {
                     <DropdownMenuItem class="text-destructive focus:text-destructive">
                         <IconTrash class="mr-2 size-4" />
                         Kosongkan Troli
-                    </DropdownMenuItem>
+                    </DropdownMenuItem>-->
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
@@ -203,6 +203,19 @@ const confirmSelesai = () => {
                             >
                         </Link>
                     </Button>
+
+                    <Button
+                        as-child
+                        class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
+                    >
+                        <Link :href="route('trolis.produk.scan', props.troli.id)">
+                            <IconQrcode class="mr-2 size-4" />
+                            <span class="hidden sm:inline"
+                                >Scan Validasi</span
+                            >
+                        </Link>
+                    </Button>
+
 
                 </div>
             </CardHeader>

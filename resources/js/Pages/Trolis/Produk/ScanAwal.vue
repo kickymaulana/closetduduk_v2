@@ -32,7 +32,7 @@ const scan = () => {
     // Pastikan input tidak kosong sebelum kirim
     if (!form.qr) return;
 
-    form.post(route('trolis.produk.store_scan', props.troli.id), {
+    form.post(route('trolis.produk.scan_awal_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
             // Sonner Success
