@@ -53,6 +53,11 @@ const props = defineProps<{
     troli: {
         id: number;
         invoice: string;
+        proses?: {
+            id: number;
+            proses: string; // Sesuaikan dengan nama kolom nama proses di tabel kamu
+            urutan: number;
+        };
     };
     produks: {
         data: Array<{
@@ -179,7 +184,7 @@ const confirmSelesai = () => {
                         <IconPackage class="size-6 text-primary" />
                         Isi Troli: {{ troli.invoice }}
                     </div>
-                    <span class="text-sm font-normal text-muted-foreground">Total Produk: {{ produks.total }}</span>
+                    <span class="text-sm font-normal text-muted-foreground">Total Produk: {{ produks.total }} | Proses: {{ troli.proses?.proses }}</span>
                 </CardTitle>
 
                 <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
@@ -193,26 +198,24 @@ const confirmSelesai = () => {
 
 
                     <Button
+                        v-if="props.troli.proses?.proses === 'Casting'"
                         as-child
                         class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
                         <Link :href="route('trolis.produk.scan_awal', props.troli.id)">
                             <IconQrcode class="mr-2 size-4" />
-                            <span class="hidden sm:inline"
-                                >Scan</span
-                            >
+                            <span class="hidden sm:inline">Scan</span>
                         </Link>
                     </Button>
 
                     <Button
+                        v-else
                         as-child
                         class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
                         <Link :href="route('trolis.produk.scan', props.troli.id)">
                             <IconQrcode class="mr-2 size-4" />
-                            <span class="hidden sm:inline"
-                                >Scan Validasi</span
-                            >
+                            <span class="hidden sm:inline">Scan Validasi</span>
                         </Link>
                     </Button>
 

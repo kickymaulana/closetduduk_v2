@@ -11,6 +11,7 @@ class ProdukController extends Controller
 {
     public function index(Request $request, Troli $troli)
     {
+        $troli->load('proses');
         // Kita ambil produk yang hanya milik troli ini
         $produks = Produk::query()
             ->where('troli_id', $troli->id)
