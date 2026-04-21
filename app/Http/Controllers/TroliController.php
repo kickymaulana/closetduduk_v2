@@ -40,15 +40,21 @@ class TroliController extends Controller
     {
         $urutanSekarang = $troli->proses->urutan;
 
+        $prosesSekarang = Proses::where('urutan', $urutanSekarang)->first();
+
         $prosesBerikutnya = \App\Models\Proses::where('departemen_id', $troli->proses->departemen_id)
             ->where('urutan', '>', $urutanSekarang)
             ->orderBy('urutan', 'asc')
             ->first();
 
         if (!$prosesBerikutnya) {
+            $troli->update([
+                'status' => 'Selesai',
+                'proses_id' => $prosesSekarang->id
+            ]);
             // Ini akan memicu blok onError di frontend
             throw ValidationException::withMessages([
-                'proses' => 'Tidak ada proses lanjutan ditemukan setelah ' . $troli->proses->proses,
+                'proses' => 'Tidak ada proses lanjutan ditemukan setelah, tapi tetep berhasil dibuat selesai' . $troli->proses->proses,
             ]);
         }
 
@@ -128,6 +134,9 @@ class TroliController extends Controller
         $troli->update([
             'proses_id' => $prosesSekarang->id,
             'status'    => 'Proses', // Menandakan sedang dikerjakan di departemen Anda
+        ]);
+        $troli->produks->update([
+            'sudah_scan' => 'Belum'
         ]);
 
         return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');

@@ -18,6 +18,8 @@ import {
     IconSearch,
     IconX,
     IconHandClick, // Ikon untuk aksi ambil
+        IconArrowLeft,
+
 } from "@tabler/icons-vue";
 import {
     AlertDialog,
@@ -123,6 +125,16 @@ const executeAmbil = () => {
     <Head title="Daftar Troli Fisik" />
 
     <div class="flex flex-col gap-4 p-4 md:p-8 pt-4">
+
+                <div class="flex items-center justify-between w-full">
+                <Button variant="ghost" size="sm" as-child>
+                    <Link :href="route('trolis.index')">
+                        <IconArrowLeft class="size-4 mr-2" />
+                        Kembali ke Daftar Troli
+                    </Link>
+                </Button>
+        </div>
+
         <Card class="border-none shadow-sm">
             <CardHeader class="flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0 pb-6">
                 <CardTitle class="text-xl font-bold flex items-center gap-2">
