@@ -69,7 +69,7 @@ const form = useForm({
                                             v-for="c in cacats"
                                             :key="c.id"
                                             :value="c.id.toString()"
-                                            >{{ c.nama_cacat }}</SelectItem
+                                            >{{ c.cacat }}</SelectItem
                                         >
                                     </SelectContent>
                                 </Select>
