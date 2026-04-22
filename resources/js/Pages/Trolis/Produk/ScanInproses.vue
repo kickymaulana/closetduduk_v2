@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue"; // Tambahkan watch
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,12 +22,21 @@ const props = defineProps<{
     pilihan_cacat: Array<{ id: number; cacat: string }>;
 }>();
 
+// Key unik untuk Local Storage agar tidak bentrok antar troli
+const STORAGE_KEY = `scan_cacat_ids_${props.troli.id}`;
+
 const qrInput = ref<any>(null);
 
 const form = useForm({
     qr: "",
-    cacat_ids: [] as number[], // Menyimpan ID cacat yang dipilih
+    // Ambil data dari localStorage saat load, jika tidak ada default []
+    cacat_ids: JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as number[],
 });
+
+// Pantau perubahan cacat_ids dan simpan ke localStorage secara otomatis
+watch(() => form.cacat_ids, (newVal) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal));
+}, { deep: true });
 
 const focusInput = () => {
     qrInput.value?.$el?.querySelector('input')?.focus();
@@ -37,7 +46,6 @@ onMounted(() => {
     focusInput();
 });
 
-// Fungsi toggle checkbox manual jika diperlukan
 const toggleCacat = (id: number) => {
     const index = form.cacat_ids.indexOf(id);
     if (index > -1) {
@@ -45,6 +53,13 @@ const toggleCacat = (id: number) => {
     } else {
         form.cacat_ids.push(id);
     }
+};
+
+// Fungsi reset manual untuk membersihkan pilihan dan storage
+const clearSelection = () => {
+    form.cacat_ids = [];
+    localStorage.removeItem(STORAGE_KEY);
+    toast.info("Pilihan cacat telah dibersihkan.");
 };
 
 const handleScan = () => {
@@ -57,7 +72,10 @@ const handleScan = () => {
                 description: `Produk ${form.qr} berhasil diproses.`,
                 duration: 2000,
             });
-            form.reset(); // Reset QR dan Checkbox
+
+            // PENTING: Jangan pakai form.reset() karena akan menghapus cacat_ids.
+            // Cukup kosongkan QR saja agar pilihan cacat tetap "lengket".
+            form.qr = "";
             focusInput();
         },
         onError: (errors) => {
@@ -131,7 +149,7 @@ defineOptions({ layout: AuthenticatedLayout });
                         <IconAlertTriangle class="size-4 text-red-500" />
                         LAPORAN CACAT (OPSIONAL)
                     </CardTitle>
-                    <p class="text-xs text-muted-foreground">Klik pada jenis cacat jika ditemukan kendala pada produk</p>
+                    <p class="text-xs text-muted-foreground italic">Pilihan tersimpan otomatis (F5 tidak akan hilang)</p>
                 </CardHeader>
 
                 <CardContent class="py-6">
@@ -142,16 +160,14 @@ defineOptions({ layout: AuthenticatedLayout });
                             type="button"
                             @click="toggleCacat(item.id)"
                             :class="[
-                                'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border-2',
+                                'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border-2 flex items-center gap-2',
                                 form.cacat_ids.includes(item.id)
                                     ? 'bg-red-500 border-red-600 text-white shadow-md transform scale-105'
                                     : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:bg-red-50'
                             ]"
                         >
-                            <span class="flex items-center gap-2">
-                                <IconCheck v-if="form.cacat_ids.includes(item.id)" class="size-3" />
-                                {{ item.cacat }}
-                            </span>
+                            <IconCheck v-if="form.cacat_ids.includes(item.id)" class="size-3" />
+                            {{ item.cacat }}
                         </button>
                     </div>
 
@@ -163,7 +179,7 @@ defineOptions({ layout: AuthenticatedLayout });
 
                 <div class="p-4 bg-slate-50 border-t flex justify-between items-center">
                     <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Terpilih:</span>
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 leading-none">Terpilih:</span>
                         <span class="text-sm font-bold text-red-600">
                             {{ form.cacat_ids.length }} Jenis Kerusakan
                         </span>
@@ -172,7 +188,7 @@ defineOptions({ layout: AuthenticatedLayout });
                         size="sm"
                         variant="ghost"
                         class="text-red-600 hover:bg-red-100 hover:text-red-700 font-bold"
-                        @click="form.reset('cacat_ids')"
+                        @click="clearSelection"
                         :disabled="form.cacat_ids.length === 0"
                     >
                         Bersihkan Semua
