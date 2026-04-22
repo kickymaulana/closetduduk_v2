@@ -8,20 +8,18 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Models\MasterDepartemen;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class SesiKerjaController extends Controller
 {
     public function index(Request $request)
     {
         $sesikerjas = SesiKerja::query()
-            ->with(['leader']) // Mengambil data user yang jadi leader
-            // Jika ada relasi ke master_departemen di model, tambahkan di sini
-            // ->with(['departemen'])
+            ->with(['leader'])
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('leader', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 })
-                // Tambahkan pencarian berdasarkan jenis jika perlu
                 ->orWhere('jenis', 'like', "%{$search}%");
             })
             ->latest()
@@ -30,7 +28,8 @@ class SesiKerjaController extends Controller
 
         return Inertia::render('SesiKerjas/Index', [
             'sesikerjas' => $sesikerjas,
-            'filters' => $request->only(['search'])
+            'filters' => $request->only(['search']),
+            'sesi_kerja_id' => session('sesi_kerja_id'),
         ]);
     }
 
@@ -85,5 +84,21 @@ class SesiKerjaController extends Controller
 
         return redirect()->route('sesikerjas.index')
             ->with('message', 'Sesi kerja berhasil diperbarui.');
+    }
+
+    public function aktifkan(SesiKerja $sesikerja)
+    {
+        session(['sesi_kerja_id' => $sesikerja->id]);
+
+        return Redirect::route('sesikerjas.index')
+            ->with('message', "Sesi {$sesikerja->jenis} diaktifkan.");
+    }
+
+    public function nonaktif()
+    {
+        session()->forget('sesi_kerja_id');
+
+        return Redirect::route('sesikerjas.index')
+            ->with('message', 'Sesi kerja dinonaktifkan.');
     }
 }

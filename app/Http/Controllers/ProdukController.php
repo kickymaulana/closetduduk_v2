@@ -63,7 +63,7 @@ class ProdukController extends Controller
                 PengerjaanProduk::create([
                     'produk_id' => $produk->id,
                     'sesi_kerja_id' => $sesi_kerja_id,
-                    'proses_id' => auth()->user()->departemen_id,
+                    'proses_id' => $troli->proses->proses_id,
                 ]);
 
                 return back()->with('success', 'Scan berhasil. ' . ($currentCount + 1) . '/' . $maxLimit);

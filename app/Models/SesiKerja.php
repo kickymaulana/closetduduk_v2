@@ -5,19 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['leader_id', 'jam_masuk', 'jam_pulang', 'jenis', 'departemen_id'])]
 #[Table('sesi_kerja')]
 class SesiKerja extends Model
 {
-    public function leader()
+    public function leader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'leader_id');
     }
 
-    public function departemen()
+    public function sesi_kerja_members(): HasMany
     {
-        return $this->belongsTo(MasterDepartemen::class, 'departemen_id');
+        return $this->hasMany(SesiKerjaMember::class, 'sesi_kerja_id');
     }
-
 }

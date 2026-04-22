@@ -21,6 +21,7 @@ defineOptions({ layout: AuthenticatedLayout });
 const props = defineProps<{
     sesikerjas: any;
     filters: { search: string };
+    sesi_kerja_id: number | null;
 }>();
 
 const search = ref(props.filters.search || "");
@@ -36,6 +37,16 @@ watch(search, (value) => {
         );
     }, 500);
 });
+
+const toggleSesi = (id: number) => {
+    if (props.sesi_kerja_id === id) {
+        // Jika sedang aktif, maka jalankan fungsi nonaktif
+        router.delete(route('sesikerjas.nonaktif', id));
+    } else {
+        // Jika tidak aktif, jalankan fungsi aktifkan
+        router.post(route('sesikerjas.aktifkan', id));
+    }
+};
 </script>
 
 <template>
@@ -113,6 +124,14 @@ watch(search, (value) => {
                                         <Link :href="route('sesikerjas.show', item.id)">
                                             <IconPencil class="size-4 text-primary" />
                                         </Link>
+                                    </Button>
+                                    <Button
+                                        @click="toggleSesi(item.id)"
+                                        :variant="sesi_kerja_id === item.id ? 'destructive' : 'outline'"
+                                        size="sm"
+                                    >
+                                        <IconCircleCheck v-if="sesi_kerja_id === item.id" class="mr-1 size-4" />
+                                        {{ sesi_kerja_id === item.id ? 'Nonaktifkan' : 'Aktifkan' }}
                                     </Button>
                                 </TableCell>
                             </TableRow>
