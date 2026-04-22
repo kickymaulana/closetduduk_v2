@@ -208,7 +208,7 @@ const getDuration = () => {
                                 </TableCell>
                                 <TableCell class="font-bold text-primary">{{ log.produk?.qrcode }}</TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" class="font-normal">{{ log.proses?.nama || 'N/A' }}</Badge>
+                                    <Badge variant="outline" class="font-normal">{{ log.proses?.proses || 'N/A' }}</Badge>
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <Badge
