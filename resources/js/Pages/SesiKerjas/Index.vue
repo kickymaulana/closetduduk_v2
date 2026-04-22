@@ -110,8 +110,8 @@ watch(search, (value) => {
                                         size="icon"
                                         as-child
                                     >
-                                        <Link>
-                                            <IconPencil class="size-4" />
+                                        <Link :href="route('sesikerjas.show', item.id)">
+                                            <IconPencil class="size-4 text-primary" />
                                         </Link>
                                     </Button>
                                 </TableCell>

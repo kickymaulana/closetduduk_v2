@@ -1,0 +1,128 @@
+<script setup lang="ts">
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Head, Link, useForm } from "@inertiajs/vue3";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    IconArrowLeft,
+    IconDeviceFloppy,
+    IconLoader2,
+    IconEdit,
+} from "@tabler/icons-vue";
+
+const props = defineProps<{
+    sesikerja: {
+        id: number;
+        jam_masuk: string;
+        jam_pulang: string | null;
+        jenis: string;
+    };
+}>();
+
+defineOptions({ layout: AuthenticatedLayout });
+
+// Inisialisasi form dengan data dari props
+const form = useForm({
+    // Format datetime-local butuh string YYYY-MM-DDTHH:mm
+    jam_masuk: props.sesikerja.jam_masuk ? props.sesikerja.jam_masuk.slice(0, 16) : "",
+    jam_pulang: props.sesikerja.jam_pulang ? props.sesikerja.jam_pulang.slice(0, 16) : "",
+    jenis: props.sesikerja.jenis,
+});
+
+const submit = () => {
+    form.put(route("sesikerjas.update", props.sesikerja.id));
+};
+</script>
+
+<template>
+    <Head title="Edit Sesi Kerja" />
+    <div class="flex flex-col gap-6 p-4 md:p-8 pt-1">
+        <div class="flex items-center gap-4">
+            <Button variant="outline" size="icon" as-child class="rounded-full">
+                <Link :href="route('sesikerjas.index')">
+                    <IconArrowLeft class="size-4" />
+                </Link>
+            </Button>
+            <h2 class="text-3xl font-bold tracking-tight">Edit Sesi Kerja</h2>
+        </div>
+
+        <div class="max-w-2xl">
+            <Card class="border-none shadow-lg">
+                <CardHeader>
+                    <CardTitle class="text-primary text-lg flex items-center gap-2">
+                        <IconEdit class="size-5" />
+                        Ubah Detail Sesi
+                    </CardTitle>
+                </CardHeader>
+
+                <CardContent>
+                    <form @submit.prevent="submit" class="space-y-6">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="grid gap-2">
+                                <Label>Jenis Pekerjaan</Label>
+                                <Select v-model="form.jenis">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih Jenis" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Body">Body</SelectItem>
+                                        <SelectItem value="Tangki">Tangki</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid gap-2">
+                                    <Label for="jam_masuk">Jam Masuk</Label>
+                                    <Input
+                                        id="jam_masuk"
+                                        type="datetime-local"
+                                        v-model="form.jam_masuk"
+                                        :class="{ 'border-destructive': form.errors.jam_masuk }"
+                                    />
+                                    <p v-if="form.errors.jam_masuk" class="text-xs text-destructive italic">
+                                        {{ form.errors.jam_masuk }}
+                                    </p>
+                                </div>
+
+                                <div class="grid gap-2">
+                                    <Label for="jam_pulang">Jam Pulang</Label>
+                                    <Input
+                                        id="jam_pulang"
+                                        type="datetime-local"
+                                        v-model="form.jam_pulang"
+                                        :class="{ 'border-destructive': form.errors.jam_pulang }"
+                                    />
+                                    <p v-if="form.errors.jam_pulang" class="text-xs text-destructive italic">
+                                        {{ form.errors.jam_pulang }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t">
+                            <Button
+                                type="submit"
+                                :disabled="form.processing"
+                                class="w-full bg-primary h-11"
+                            >
+                                <IconLoader2 v-if="form.processing" class="mr-2 animate-spin" />
+                                <IconDeviceFloppy v-else class="mr-2" />
+                                Simpan Perubahan
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+</template>

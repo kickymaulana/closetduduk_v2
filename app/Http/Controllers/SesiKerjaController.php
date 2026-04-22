@@ -48,16 +48,42 @@ class SesiKerjaController extends Controller
             'jam_pulang' => 'nullable|date|after:jam_masuk',
             'jenis' => 'required|in:Body,Tangki',
         ]);
-
-        // Tambahkan leader_id dari user yang sedang login
         $validated['leader_id'] = Auth::id();
-
-        // Hardcode atau set null departemen_id jika di database masih ada kolomnya tapi belum dipakai
-        $validated['departemen_id'] = 3; // Atau pastikan kolomnya nullable di migration
 
         SesiKerja::create($validated);
 
         return redirect()->route('sesikerjas.index')
             ->with('message', 'Sesi kerja berhasil dicatat.');
+    }
+
+
+    public function show(SesiKerja $sesikerja)
+    {
+        $sesikerja->load(['leader']);
+
+        return Inertia::render('SesiKerjas/Show', [
+            'sesikerja' => $sesikerja
+        ]);
+    }
+
+    public function edit(SesiKerja $sesikerja)
+    {
+        return Inertia::render('SesiKerjas/Edit', [
+            'sesikerja' => $sesikerja
+        ]);
+    }
+
+    public function update(Request $request, SesiKerja $sesikerja)
+    {
+        $validated = $request->validate([
+            'jam_masuk' => 'required|date',
+            'jam_pulang' => 'nullable|date|after:jam_masuk',
+            'jenis' => 'required|in:Body,Tangki',
+        ]);
+
+        $sesikerja->update($validated);
+
+        return redirect()->route('sesikerjas.index')
+            ->with('message', 'Sesi kerja berhasil diperbarui.');
     }
 }
