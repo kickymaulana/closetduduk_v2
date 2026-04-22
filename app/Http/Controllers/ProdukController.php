@@ -263,18 +263,16 @@ class ProdukController extends Controller
 
     public function scan_inproses(Troli $troli)
     {
-        $list_cacat_group_by = Cacat::whereHas('aturan_penolakans', function ($query) use ($troli) {
-            // Tambahkan tutup kurung ")" sebelum titik koma ";"
+        $pilihan_cacat = Cacat::whereHas('aturan_penolakans', function ($query) use ($troli) {
             $query->where('proses_pemeriksa', $troli->proses->id);
         })
         ->select(['id', 'cacat'])
         ->distinct()
         ->get();
 
-        dd($list_cacat_group_by);
-
         return Inertia::render('Trolis/Produk/ScanInproses', [
-            'troli' => $troli
+            'troli' => $troli,
+            'pilihan_cacat' => $pilihan_cacat
         ]);
     }
 
