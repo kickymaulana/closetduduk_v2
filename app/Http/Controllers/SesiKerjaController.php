@@ -15,6 +15,7 @@ class SesiKerjaController extends Controller
     public function index(Request $request)
     {
         $sesikerjas = SesiKerja::query()
+            ->where('leader_id', auth()->id())
             ->with(['leader'])
             ->withCount('pengerjaan_produks')
             ->when($request->search, function ($query, $search) {
