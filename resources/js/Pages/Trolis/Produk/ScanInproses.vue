@@ -124,53 +124,58 @@ defineOptions({ layout: AuthenticatedLayout });
                 </CardContent>
             </Card>
 
+
             <Card class="md:col-span-7 border-2 border-slate-200 shadow-xl">
                 <CardHeader class="bg-slate-50 border-b">
                     <CardTitle class="text-sm font-bold flex items-center gap-2">
                         <IconAlertTriangle class="size-4 text-red-500" />
                         LAPORAN CACAT (OPSIONAL)
                     </CardTitle>
-                    <p class="text-xs text-muted-foreground">Pilih jenis cacat jika ditemukan kendala pada produk</p>
+                    <p class="text-xs text-muted-foreground">Klik pada jenis cacat jika ditemukan kendala pada produk</p>
                 </CardHeader>
-                <CardContent class="py-4">
-                    <div v-if="pilihan_cacat.length > 0" class="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto pr-2">
-                        <div
+
+                <CardContent class="py-6">
+                    <div v-if="pilihan_cacat.length > 0" class="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto">
+                        <button
                             v-for="item in pilihan_cacat"
                             :key="item.id"
-                            class="flex items-center space-x-3 space-y-0 rounded-md border p-3 shadow-sm hover:bg-slate-50 transition-colors cursor-pointer"
+                            type="button"
                             @click="toggleCacat(item.id)"
+                            :class="[
+                                'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border-2',
+                                form.cacat_ids.includes(item.id)
+                                    ? 'bg-red-500 border-red-600 text-white shadow-md transform scale-105'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:bg-red-50'
+                            ]"
                         >
-                            <Checkbox
-                                :id="'cacat-' + item.id"
-                                :checked="form.cacat_ids.includes(item.id)"
-                                @update:checked="toggleCacat(item.id)"
-                            />
-                            <div class="grid gap-1.5 leading-none">
-                                <Label
-                                    :for="'cacat-' + item.id"
-                                    class="text-sm font-medium leading-none cursor-pointer"
-                                >
-                                    {{ item.cacat }}
-                                </Label>
-                            </div>
-                        </div>
+                            <span class="flex items-center gap-2">
+                                <IconCheck v-if="form.cacat_ids.includes(item.id)" class="size-3" />
+                                {{ item.cacat }}
+                            </span>
+                        </button>
                     </div>
+
                     <div v-else class="text-center py-10 text-muted-foreground">
                         <IconClipboardCheck class="size-10 mx-auto opacity-20 mb-2" />
-                        <p class="text-xs">Tidak ada daftar jenis cacat untuk proses ini.</p>
+                        <p class="text-xs">Tidak ada daftar jenis cacat.</p>
                     </div>
                 </CardContent>
+
                 <div class="p-4 bg-slate-50 border-t flex justify-between items-center">
-                    <span class="text-xs font-medium text-slate-500">
-                        {{ form.cacat_ids.length }} Cacat dipilih
-                    </span>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Terpilih:</span>
+                        <span class="text-sm font-bold text-red-600">
+                            {{ form.cacat_ids.length }} Jenis Kerusakan
+                        </span>
+                    </div>
                     <Button
                         size="sm"
-                        variant="outline"
+                        variant="ghost"
+                        class="text-red-600 hover:bg-red-100 hover:text-red-700 font-bold"
                         @click="form.reset('cacat_ids')"
                         :disabled="form.cacat_ids.length === 0"
                     >
-                        Reset Pilihan
+                        Bersihkan Semua
                     </Button>
                 </div>
             </Card>

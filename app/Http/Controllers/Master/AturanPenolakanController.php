@@ -41,12 +41,10 @@ class AturanPenolakanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'cacat_id'   => 'required|exists:proses,id',
+            'cacat_id'   => 'required|exists:cacat,id',
             'proses_toleransi'   => 'required|exists:proses,id',
             'proses_buang'       => 'required|exists:proses,id',
             'proses_pemeriksa'   => 'required|exists:proses,id',
-        ], [
-            // 'cacat_id.unique' => 'Aturan untuk jenis cacat ini sudah ada.',
         ]);
 
         AturanPenolakan::create($request->all());
