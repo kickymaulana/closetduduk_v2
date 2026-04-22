@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Troli;
 use App\Models\Produk;
+use App\Models\Cacat;
 use App\Models\PengerjaanProduk;
 use App\Models\SesiKerja;
 use Illuminate\Support\Facades\DB;
@@ -258,4 +259,23 @@ class ProdukController extends Controller
 
         return back();
     }
+
+
+    public function scan_inproses(Troli $troli)
+    {
+        $list_cacat_group_by = Cacat::whereHas('aturan_penolakans', function ($query) use ($troli) {
+            // Tambahkan tutup kurung ")" sebelum titik koma ";"
+            $query->where('proses_pemeriksa', $troli->proses->id);
+        })
+        ->select(['id', 'cacat'])
+        ->distinct()
+        ->get();
+
+        dd($list_cacat_group_by);
+
+        return Inertia::render('Trolis/Produk/ScanInproses', [
+            'troli' => $troli
+        ]);
+    }
+
 }
