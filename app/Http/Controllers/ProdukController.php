@@ -112,14 +112,26 @@ class ProdukController extends Controller
         ]);
     }
 
-    // 2. Method Logika Scan Validasi (Update Status)
+
     public function scan_store(Request $request, Troli $troli)
     {
         $request->validate([
             'qr' => 'required|string',
         ]);
 
-        // Cari produk di dalam troli ini
+        // 1. Cek Sesi Kerja Aktif
+        $sesi_kerja_id = session('sesi_kerja_id');
+        if (!$sesi_kerja_id) {
+            return back()->withErrors(['error' => 'Silakan pilih/aktifkan Sesi Kerja terlebih dahulu!']);
+        }
+
+        $sesi = SesiKerja::with('sesi_kerja_members')->find($sesi_kerja_id);
+        if (!$sesi) {
+            session()->forget('sesi_kerja_id');
+            return back()->withErrors(['error' => 'Sesi kerja tidak valid. Pilih ulang sesi kerja.']);
+        }
+
+        // 2. Cari produk di dalam troli ini
         $produk = $troli->produks()->where('qrcode', $request->qr)->first();
 
         if (!$produk) {
@@ -130,12 +142,38 @@ class ProdukController extends Controller
             return back()->withErrors(['qr' => 'Barang ini sudah discan sebelumnya.']);
         }
 
-        // Update status scan saja, tidak membuat data baru
-        $produk->update([
-            'sudah_scan' => 'Sudah'
-        ]);
+        try {
+            return DB::transaction(function () use ($produk, $troli, $sesi) {
+                // 3. Update status scan produk
+                $produk->update([
+                    'sudah_scan' => 'Sudah'
+                ]);
 
-        return back()->with('message', 'Validasi produk berhasil.');
+                // 4. Catat histori untuk LEADER
+                PengerjaanProduk::create([
+                    'produk_id' => $produk->id,
+                    'sesi_kerja_id' => $sesi->id,
+                    'user_id' => auth()->id(),
+                    'proses_id' => $troli->proses->id,
+                    'status_kondisi' => 'OK', // Default OK untuk scan validasi
+                ]);
+
+                // 5. Catat histori untuk SEMUA ANGGOTA
+                foreach ($sesi->sesi_kerja_members as $member) {
+                    PengerjaanProduk::create([
+                        'produk_id' => $produk->id,
+                        'sesi_kerja_id' => $sesi->id,
+                        'user_id' => $member->user_id,
+                        'proses_id' => $troli->proses->id,
+                        'status_kondisi' => 'OK',
+                    ]);
+                }
+
+                return back()->with('success', 'Validasi berhasil! Data tercatat untuk tim.');
+            });
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menyimpan validasi: ' . $e->getMessage()]);
+        }
     }
 
     public function scan_pindah(Troli $troli)

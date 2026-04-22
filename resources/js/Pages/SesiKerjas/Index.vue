@@ -91,7 +91,7 @@ const toggleSesi = (id: number) => {
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Jam Masuk</TableHead>
                                 <TableHead>Jam Pulang</TableHead>
-                                <TableHead>Pengerjaan</TableHead>
+                                <TableHead>Total Scan</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -140,9 +140,9 @@ const toggleSesi = (id: number) => {
                                 <TableCell>
                                     <div class="flex items-center gap-2">
                                         <Badge variant="outline" class="font-mono text-sm border-primary/50 text-primary">
-                                            {{ item.total_produk }}
+                                            {{ item.total_pengerjaan }}
                                         </Badge>
-                                        <span class="text-xs text-muted-foreground uppercase italic font-medium">Produk</span>
+                                        <span class="text-xs text-muted-foreground uppercase italic font-medium">Kali</span>
                                     </div>
                                 </TableCell>
 

@@ -18,8 +18,8 @@ class SesiKerjaController extends Controller
         $sesikerjas = SesiKerja::query()
             ->where('leader_id', auth()->id())
             ->with(['leader', 'sesi_kerja_members.user'])
-            ->withCount(['pengerjaan_produks as total_produk' => function ($query) {
-                $query->select(DB::raw('count(distinct(produk_id))'));
+            ->withCount(['pengerjaan_produks as total_pengerjaan' => function ($query) {
+                $query->select(DB::raw('count(distinct produk_id, proses_id)'));
             }])
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('leader', function ($q) use ($search) {
