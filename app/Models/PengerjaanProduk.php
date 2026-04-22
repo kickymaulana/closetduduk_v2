@@ -22,4 +22,9 @@ class PengerjaanProduk extends Model
     {
         return $this->belongsTo(SesiKerja::class, 'sesi_kerja_id');
     }
+
+    public function proses(): BelongsTo
+    {
+        return $this->belongsTo(Proses::class, 'proses_id');
+    }
 }

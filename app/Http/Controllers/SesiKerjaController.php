@@ -84,12 +84,28 @@ class SesiKerjaController extends Controller
     }
 
 
+
     public function show(SesiKerja $sesikerja)
     {
-        $sesikerja->load(['leader', 'sesi_kerja_members.user']);
+        // Load relasi pengerjaan_produks, produk, dan prosesnya
+        $sesikerja->load([
+            'leader',
+            'sesi_kerja_members.user',
+            'pengerjaan_produks.produk',
+            'pengerjaan_produks.proses'
+        ]);
+
+        // Hitung statistik berdasarkan produk fisik unik
+        $stats = [
+            'total_produk'    => $sesikerja->pengerjaan_produks()->distinct('produk_id')->count(),
+            'total_ok'        => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'OK')->distinct('produk_id')->count(),
+            'total_in_proses' => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'In Proses')->distinct('produk_id')->count(),
+            'total_reject'    => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'Buang')->distinct('produk_id')->count(),
+        ];
 
         return Inertia::render('SesiKerjas/Show', [
-            'sesikerja' => $sesikerja
+            'sesikerja' => $sesikerja,
+            'stats'     => $stats
         ]);
     }
 
