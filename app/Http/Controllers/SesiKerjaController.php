@@ -111,8 +111,13 @@ class SesiKerjaController extends Controller
 
     public function edit(SesiKerja $sesikerja)
     {
+        // Load members supaya checkbox-nya tercentang otomatis di Vue
+        $sesikerja->load('sesi_kerja_members');
+
         return Inertia::render('SesiKerjas/Edit', [
-            'sesikerja' => $sesikerja
+            'sesikerja' => $sesikerja,
+            // Kirim daftar user lagi
+            'users' => User::where('id', '!=', auth()->id())->get(['id', 'name'])
         ]);
     }
 
@@ -122,12 +127,33 @@ class SesiKerjaController extends Controller
             'jam_masuk' => 'required|date',
             'jam_pulang' => 'nullable|date|after:jam_masuk',
             'jenis' => 'required|in:Body,Tangki',
+            'user_ids' => 'nullable|array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
-        $sesikerja->update($validated);
+        DB::transaction(function () use ($validated, $sesikerja) {
+            // Update data utama
+            $sesikerja->update([
+                'jam_masuk' => $validated['jam_masuk'],
+                'jam_pulang' => $validated['jam_pulang'],
+                'jenis' => $validated['jenis'],
+            ]);
+
+            // Update Member: Hapus yang lama, masukkan yang baru
+            // (Ini cara paling aman kalau tidak pakai relation sync)
+            $sesikerja->sesi_kerja_members()->delete();
+
+            if (!empty($validated['user_ids'])) {
+                foreach ($validated['user_ids'] as $userId) {
+                    $sesikerja->sesi_kerja_members()->create([
+                        'user_id' => $userId
+                    ]);
+                }
+            }
+        });
 
         return redirect()->route('sesikerjas.index')
-            ->with('message', 'Sesi kerja berhasil diperbarui.');
+            ->with('message', 'Sesi kerja dan tim berhasil diperbarui.');
     }
 
     public function aktifkan(SesiKerja $sesikerja)

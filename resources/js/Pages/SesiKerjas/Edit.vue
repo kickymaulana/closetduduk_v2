@@ -17,6 +17,7 @@ import {
     IconDeviceFloppy,
     IconLoader2,
     IconEdit,
+    IconUsers,
 } from "@tabler/icons-vue";
 
 const props = defineProps<{
@@ -25,17 +26,23 @@ const props = defineProps<{
         jam_masuk: string;
         jam_pulang: string | null;
         jenis: string;
+        // Kita butuh data member yang sudah ada
+        sesi_kerja_members: Array<{ user_id: number }>;
     };
+    // Kita butuh daftar user untuk dipilih kembali
+    users: Array<{ id: number; name: string }>;
 }>();
 
 defineOptions({ layout: AuthenticatedLayout });
 
-// Inisialisasi form dengan data dari props
+// Ambil ID user yang sudah terdaftar sebagai member untuk default value
+const existingMemberIds = props.sesikerja.sesi_kerja_members.map(m => m.user_id);
+
 const form = useForm({
-    // Format datetime-local butuh string YYYY-MM-DDTHH:mm
     jam_masuk: props.sesikerja.jam_masuk ? props.sesikerja.jam_masuk.slice(0, 16) : "",
     jam_pulang: props.sesikerja.jam_pulang ? props.sesikerja.jam_pulang.slice(0, 16) : "",
     jenis: props.sesikerja.jenis,
+    user_ids: existingMemberIds, // Masukkan anggota yang sudah ada
 });
 
 const submit = () => {
@@ -106,6 +113,38 @@ const submit = () => {
                                         {{ form.errors.jam_pulang }}
                                     </p>
                                 </div>
+                            </div>
+
+                            <div class="grid gap-4 pt-4 border-t">
+                                <Label class="text-base flex items-center gap-2">
+                                    <IconUsers class="size-5 text-primary" />
+                                    Perbarui Anggota Tim
+                                </Label>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 bg-muted/30 rounded-lg border">
+                                    <div
+                                        v-for="user in users"
+                                        :key="user.id"
+                                        class="flex items-center space-x-3 p-2 hover:bg-background rounded-md transition-colors"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            :id="'user-' + user.id"
+                                            :value="user.id"
+                                            v-model="form.user_ids"
+                                            class="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        <label
+                                            :for="'user-' + user.id"
+                                            class="text-sm font-medium leading-none cursor-pointer w-full"
+                                        >
+                                            {{ user.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <p v-if="form.errors.user_ids" class="text-xs text-destructive italic">
+                                    {{ form.errors.user_ids }}
+                                </p>
                             </div>
                         </div>
 
