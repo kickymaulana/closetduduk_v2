@@ -13,7 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { IconPlus, IconPencil, IconSearch, IconClock, IconCircleCheck } from "@tabler/icons-vue";
+import { IconPlus, IconPencil, IconSearch, IconClock, IconCircleCheck, IconEye,
+IconPlayerStop,
+IconPlayerPlay
+} from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -151,16 +154,25 @@ const toggleSesi = (id: number) => {
                                         as-child
                                     >
                                         <Link :href="route('sesikerjas.show', item.id)">
-                                            <IconPencil class="size-4 text-primary" />
+                                            <IconEye class="size-4 text-primary" />
                                         </Link>
                                     </Button>
+
                                     <Button
                                         @click="toggleSesi(item.id)"
                                         :variant="sesi_kerja_id === item.id ? 'destructive' : 'outline'"
                                         size="sm"
+                                        class="w-32"
                                     >
-                                        <IconCircleCheck v-if="sesi_kerja_id === item.id" class="mr-1 size-4" />
-                                        {{ sesi_kerja_id === item.id ? 'Nonaktifkan' : 'Aktifkan' }}
+                                        <template v-if="sesi_kerja_id === item.id">
+                                            <IconPlayerStop class="mr-2 size-4" />
+                                            Nonaktifkan
+                                        </template>
+
+                                        <template v-else>
+                                            <IconPlayerPlay class="mr-2 size-4 text-primary" />
+                                            Aktifkan
+                                        </template>
                                     </Button>
                                 </TableCell>
                             </TableRow>
