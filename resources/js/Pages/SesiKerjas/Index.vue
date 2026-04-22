@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { IconPlus, IconPencil, IconSearch, IconClock } from "@tabler/icons-vue";
+import { IconPlus, IconPencil, IconSearch, IconClock, IconCircleCheck } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -84,6 +84,7 @@ const toggleSesi = (id: number) => {
                         <TableHeader>
                             <TableRow class="bg-muted/50">
                                 <TableHead>Leader</TableHead>
+                                <TableHead>Anggota</TableHead>
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Jam Masuk</TableHead>
                                 <TableHead>Jam Pulang</TableHead>
@@ -99,6 +100,21 @@ const toggleSesi = (id: number) => {
                                 <TableCell class="font-medium">
                                     {{ item.leader?.name }}
                                 </TableCell>
+                            <TableCell>
+    <div class="flex flex-wrap gap-1 max-w-[200px]">
+        <Badge
+            v-for="member in item.sesi_kerja_members"
+            :key="member.id"
+            variant="outline"
+            class="text-[10px] px-2 py-0 bg-muted/50"
+        >
+            {{ member.user.name }}
+        </Badge>
+        <span v-if="item.sesi_kerja_members.length === 0" class="text-xs text-muted-foreground italic">
+            Tanpa Anggota
+        </span>
+    </div>
+</TableCell>
                                 <TableCell>
                                     <Badge
                                         :variant="
@@ -116,14 +132,18 @@ const toggleSesi = (id: number) => {
                                 <TableCell>{{
                                     item.jam_pulang || "-"
                                 }}</TableCell>
+
+
                                 <TableCell>
-                                    <div class="flex items-center gap-2">
-                                        <Badge variant="outline" class="font-mono text-sm">
-                                            {{ item.pengerjaan_produks_count }}
-                                        </Badge>
-                                        <span class="text-xs text-muted-foreground uppercase italic">Item</span>
-                                    </div>
-                                </TableCell>
+    <div class="flex items-center gap-2">
+        <Badge variant="outline" class="font-mono text-sm border-primary/50 text-primary">
+            {{ item.total_produk }}
+        </Badge>
+        <span class="text-xs text-muted-foreground uppercase italic font-medium">Produk</span>
+    </div>
+</TableCell>
+
+
                                 <TableCell class="text-right">
                                     <Button
                                         variant="ghost"

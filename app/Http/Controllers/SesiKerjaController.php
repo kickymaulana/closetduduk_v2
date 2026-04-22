@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\MasterDepartemen;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 
 class SesiKerjaController extends Controller
 {
@@ -16,8 +17,10 @@ class SesiKerjaController extends Controller
     {
         $sesikerjas = SesiKerja::query()
             ->where('leader_id', auth()->id())
-            ->with(['leader'])
-            ->withCount('pengerjaan_produks')
+            ->with(['leader', 'sesi_kerja_members.user'])
+            ->withCount(['pengerjaan_produks as total_produk' => function ($query) {
+                $query->select(DB::raw('count(distinct(produk_id))'));
+            }])
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('leader', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
