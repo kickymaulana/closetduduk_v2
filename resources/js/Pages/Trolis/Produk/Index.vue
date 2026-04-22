@@ -102,15 +102,19 @@ const confirmSelesai = () => {
     router.post(route('trolis.selesaikan', props.troli.id), {}, {
         onSuccess: () => {
             toast.success("Berhasil!", {
-                description: "Troli berhasil dipindahkan.",
+                description: "Troli berhasil pindahkan ke proses selanjutnya.",
             });
         },
+
+
         onError: (errors) => {
-            // Mengambil pesan error dari key 'proses' yang kita kirim dari Laravel
-            toast.error("Gagal!", {
-                description: errors.proses || "Terjadi kesalahan sistem.",
+            const message = errors.qr || errors.error || "Terjadi kesalahan sistem.";
+            // Sonner Error
+            toast.error("Gagal Scan", {
+                description: message,
             });
         }
+
     });
 };
 

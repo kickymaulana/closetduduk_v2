@@ -7,6 +7,7 @@ use App\Models\Troli;
 use App\Models\Proses;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class TroliController extends Controller
 {
@@ -36,8 +37,20 @@ class TroliController extends Controller
         ]);
     }
 
-    public function selesaikan_troli(Troli $troli)
+   public function selesaikan_troli(Troli $troli)
     {
+
+        // 1. Cek apakah ada produk di dalam troli yang status 'sudah_scan' nya masih 'Belum'
+        $adaYangBelumScan = $troli->produks()
+        ->where('sudah_scan', 'Belum')
+        ->exists();
+
+        if ($adaYangBelumScan) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'error' => 'Gagal! Masih ada produk di dalam troli ini yang belum discan.'
+            ]);
+        }
+
         $urutanSekarang = $troli->proses->urutan;
 
         $prosesSekarang = Proses::where('urutan', $urutanSekarang)->first();
@@ -52,21 +65,21 @@ class TroliController extends Controller
                 'status' => 'Selesai',
                 'is_output' => true,
             ]);
-            // Ini akan memicu blok onError di frontend
-            throw ValidationException::withMessages([
-                'proses' => 'Tidak ada proses lanjutan ditemukan setelah' . $troli->proses->proses,
-            ]);
+            return redirect()->route('trolis.index')->with('success', 'Troli mencapai tahap akhir dan telah diselesaikan.');
         }
 
-        // Jika ada, baru jalankan update
-        $troli->update([
-            'status' => 'Selesai',
-            'proses_id' => $prosesBerikutnya->id
-        ]);
+        // 5. Jalankan update ke proses berikutnya
+        DB::transaction(function () use ($troli, $prosesBerikutnya) {
+            $troli->update([
+                'status' => 'Selesai', // Atau mungkin statusnya jadi 'Pending' lagi untuk proses berikutnya?
+                'proses_id' => $prosesBerikutnya->id
+            ]);
 
-        $troli->produks()->update([
-            'sudah_scan' => 'Belum'
-        ]);
+            // Reset status scan produk menjadi 'Belum' agar bisa discan ulang di proses baru
+            $troli->produks()->update([
+                'sudah_scan' => 'Belum'
+            ]);
+        });
 
         return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
 
