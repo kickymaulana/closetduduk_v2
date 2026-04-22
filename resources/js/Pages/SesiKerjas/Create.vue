@@ -17,9 +17,14 @@ import {
     IconDeviceFloppy,
     IconLoader2,
     IconClockPlay,
+    IconUsers,
 } from "@tabler/icons-vue";
 
 defineOptions({ layout: AuthenticatedLayout });
+
+const props = defineProps<{
+    users: Array<{ id: number; name: string }>;
+}>();
 
 // Ambil waktu sekarang untuk default jam masuk (format: YYYY-MM-DDTHH:mm)
 const now = new Date().toISOString().slice(0, 16);
@@ -28,6 +33,7 @@ const form = useForm({
     jam_masuk: now,
     jam_pulang: "",
     jenis: "Body",
+    user_ids: [] as number[],
 });
 
 const submit = () => {
@@ -119,6 +125,45 @@ const submit = () => {
                                     </p>
                                 </div>
                             </div>
+
+
+                            <div class="grid gap-4 pt-4 border-t">
+    <Label class="text-base flex items-center gap-2">
+        <IconUsers class="size-5 text-primary" />
+        Pilih Anggota Tim
+    </Label>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 bg-muted/30 rounded-lg border">
+        <div
+            v-for="user in users"
+            :key="user.id"
+            class="flex items-center space-x-3 p-2 hover:bg-background rounded-md transition-colors"
+        >
+            <input
+                type="checkbox"
+                :id="'user-' + user.id"
+                :value="user.id"
+                v-model="form.user_ids"
+                class="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label
+                :for="'user-' + user.id"
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer w-full"
+            >
+                {{ user.name }}
+            </label>
+        </div>
+
+        <div v-if="users.length === 0" class="col-span-2 text-center py-4 text-muted-foreground text-sm italic">
+            Tidak ada user lain yang tersedia.
+        </div>
+    </div>
+    <p v-if="form.errors.user_ids" class="text-xs text-destructive italic">
+        {{ form.errors.user_ids }}
+    </p>
+</div>
+
+
                         </div>
 
                         <div class="pt-4 border-t">

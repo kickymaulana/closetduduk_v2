@@ -44,9 +44,10 @@ const scan = () => {
             qrInput.value?.focus();
         },
         onError: (errors) => {
+            const message = errors.qr || errors.error || "Terjadi kesalahan sistem.";
             // Sonner Error
             toast.error("Gagal Scan", {
-                description: errors.qr || "Terjadi kesalahan sistem.",
+                description: message,
             });
             form.reset('qr');
             qrInput.value?.focus();

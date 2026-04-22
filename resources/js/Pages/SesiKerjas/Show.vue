@@ -120,6 +120,23 @@ const formatDate = (dateString: string | null) => {
                     </div>
                 </CardContent>
             </Card>
+
+            <Card class="border-none shadow-lg mt-6">
+                <CardHeader>
+                    <CardTitle class="text-lg">Anggota Tim</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div class="flex flex-wrap gap-2">
+                        <Badge v-for="member in sesikerja.sesi_kerja_members" :key="member.id" variant="secondary">
+                            <IconUser class="size-3 mr-1" />
+                            {{ member.user.name }}
+                        </Badge>
+                        <span v-if="sesikerja.sesi_kerja_members.length === 0" class="text-muted-foreground text-sm italic">
+                            Tidak ada anggota tambahan.
+                        </span>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
 
         </div>

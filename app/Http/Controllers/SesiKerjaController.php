@@ -39,7 +39,10 @@ class SesiKerjaController extends Controller
 
     public function create()
     {
-        return Inertia::render('SesiKerjas/Create');
+        return Inertia::render('SesiKerjas/Create', [
+            'users' => User::where('id', '!=', auth()->id())->get(['id', 'name'])
+        ]);
+
     }
 
     public function store(Request $request)
@@ -48,10 +51,30 @@ class SesiKerjaController extends Controller
             'jam_masuk' => 'required|date',
             'jam_pulang' => 'nullable|date|after:jam_masuk',
             'jenis' => 'required|in:Body,Tangki',
+            'user_ids'  => 'nullable|array', // ID anggota yang dipilih
+            'user_ids.*'=> 'exists:users,id'
         ]);
         $validated['leader_id'] = Auth::id();
 
-        SesiKerja::create($validated);
+
+        // Gunakan Transaction agar jika simpan member gagal, sesi_kerja juga batal (aman)
+        \DB::transaction(function () use ($validated) {
+            $sesi = SesiKerja::create([
+                'leader_id' => $validated['leader_id'],
+                'jam_masuk' => $validated['jam_masuk'],
+                'jam_pulang' => $validated['jam_pulang'],
+                'jenis' => $validated['jenis'],
+            ]);
+
+            if (!empty($validated['user_ids'])) {
+                foreach ($validated['user_ids'] as $userId) {
+                    $sesi->sesi_kerja_members()->create([
+                        'user_id' => $userId
+                    ]);
+                }
+            }
+        });
+
 
         return redirect()->route('sesikerjas.index')
             ->with('message', 'Sesi kerja berhasil dicatat.');
@@ -60,7 +83,7 @@ class SesiKerjaController extends Controller
 
     public function show(SesiKerja $sesikerja)
     {
-        $sesikerja->load(['leader']);
+        $sesikerja->load(['leader', 'sesi_kerja_members.user']);
 
         return Inertia::render('SesiKerjas/Show', [
             'sesikerja' => $sesikerja

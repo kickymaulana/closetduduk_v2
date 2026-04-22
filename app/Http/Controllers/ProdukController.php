@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Troli;
 use App\Models\Produk;
 use App\Models\PengerjaanProduk;
+use App\Models\SesiKerja;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -55,9 +56,18 @@ class ProdukController extends Controller
             return back()->withErrors(['error' => 'Silakan pilih/aktifkan Sesi Kerja terlebih dahulu di menu Sesi Kerja!']);
         }
 
-        try {
-            return DB::transaction(function () use ($request, $troli, $sesi_kerja_id) {
+        // Ambil data sesi beserta semua anggotanya
+        $sesi = SesiKerja::with('sesi_kerja_members')->find($sesi_kerja_id);
+        if (!$sesi) {
+            // Jika data tidak ketemu di DB, hapus session yang basi dan minta user pilih ulang
+            session()->forget('sesi_kerja_id');
+            return back()->withErrors(['error' => 'Sesi kerja tidak ditemukan. Silakan pilih kembali sesi kerja yang aktif.']);
+        }
 
+        try {
+            return DB::transaction(function () use ($request, $troli, $sesi) {
+
+                // 1. Simpan Produk Utamanya
                 $produk = $troli->produks()->create([
                     'qrcode' => $request->qr,
                     'nama' => 'Sample ' . $request->qr,
@@ -66,22 +76,32 @@ class ProdukController extends Controller
                     'sudah_scan' => 'Sudah',
                 ]);
 
+                // 2. Catat untuk Leader (yang sedang login/melakukan scan)
                 PengerjaanProduk::create([
                     'produk_id' => $produk->id,
-                    'sesi_kerja_id' => $sesi_kerja_id,
+                    'sesi_kerja_id' => $sesi->id,
+                    'user_id' => auth()->id(), // Leader
                     'proses_id' => $troli->proses->id,
+                    'status_kondisi' => 'OK',
                 ]);
 
-                return back()->with('success', 'Scan berhasil. ');
-            });
+                // 3. AUTO-INSERT untuk semua anggota tim
+                foreach ($sesi->sesi_kerja_members as $member) {
+                    PengerjaanProduk::create([
+                        'produk_id' => $produk->id,
+                        'sesi_kerja_id' => $sesi->id,
+                        'user_id' => $member->user_id, // Anggota
+                        'proses_id' => $troli->proses->id,
+                        'status_kondisi' => 'OK',
+                    ]);
+                }
 
+                return back()->with('success', 'Berhasil! Produk dicatat untuk Leader dan ' . $sesi->sesi_kerja_members->count() . ' anggota tim.');
+            });
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Gagal menyimpan data: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Gagal: ' . $e->getMessage()]);
         }
 
-
-
-        return back()->with('message', 'Produk berhasil ditambahkan.');
     }
 
     // 1. Method Tampilan Scan Validasi
