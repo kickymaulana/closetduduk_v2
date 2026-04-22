@@ -96,6 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::put('sesi-kerjas/{sesikerja}/edit', [SesiKerjaController::class, 'update'])->name('sesikerjas.update');
     Route::post('sesi-kerjas/{sesikerja}/aktifkan', [SesiKerjaController::class, 'aktifkan'])->name('sesikerjas.aktifkan');
     Route::delete('sesi-kerjas/{sesikerja}/nonaktif', [SesiKerjaController::class, 'nonaktif'])->name('sesikerjas.nonaktif');
+    Route::delete('sesi-kerjas/{sesikerja}', [SesiKerjaController::class, 'destroy'])->name('sesikerjas.destroy');
 
     Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
     Route::get('trolis/ambil', [TroliController::class, 'ambil'])->name('trolis.ambil');

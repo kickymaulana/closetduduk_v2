@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, router } from "@inertiajs/vue3";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,8 +24,28 @@ import {
     IconCheck,
     IconX,
     IconHistory,
-    IconLoader
+    IconLoader,
+    IconTrash,
+    IconDotsVertical
 } from "@tabler/icons-vue";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 
 const props = defineProps<{
     sesikerja: any;
@@ -38,6 +58,11 @@ const props = defineProps<{
 }>();
 
 defineOptions({ layout: AuthenticatedLayout });
+
+// Fungsi Hapus
+const deleteSesi = () => {
+    router.delete(route("sesikerjas.destroy", props.sesikerja.id));
+};
 
 const formatDate = (dateString: string | null) => {
     if (!dateString) return "-";
@@ -75,12 +100,56 @@ const getDuration = () => {
                 </div>
             </div>
 
-            <Button as-child variant="default">
-                <Link :href="route('sesikerjas.edit', sesikerja.id)">
-                    <IconEdit class="mr-2 size-4" />
-                    Edit Sesi
-                </Link>
-            </Button>
+
+
+            <div class="flex items-center gap-2">
+                <AlertDialog>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="ghost" size="icon" class="rounded-full">
+                                <IconDotsVertical class="size-5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-40">
+                            <DropdownMenuItem as-child>
+                                <Link :href="route('sesikerjas.edit', sesikerja.id)" class="flex items-center cursor-pointer">
+                                    <IconEdit class="mr-2 size-4 text-primary" />
+                                    <span>Edit Sesi</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            <AlertDialogTrigger as-child>
+                                <DropdownMenuItem class="flex items-center cursor-pointer text-destructive focus:text-destructive">
+                                    <IconTrash class="mr-2 size-4" />
+                                    <span>Hapus Sesi</span>
+                                </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Sesi Kerja?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Tindakan ini tidak dapat dibatalkan. Sesi ini akan dihapus secara permanen.
+                                <span v-if="stats.total_produk > 0" class="block mt-2 font-bold text-destructive underline italic">
+                                    Peringatan: Sesi ini sudah memiliki {{ stats.total_produk }} data pengerjaan!
+                                </span>
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction @click="deleteSesi" class="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Ya, Hapus
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
+
+
+
+
+
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">

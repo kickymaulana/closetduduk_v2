@@ -171,4 +171,26 @@ class SesiKerjaController extends Controller
         return Redirect::route('sesikerjas.index')
             ->with('message', 'Sesi kerja dinonaktifkan.');
     }
+
+    public function destroy(SesiKerja $sesikerja)
+    {
+        // Cek apakah sudah ada produk yang dikerjakan di sesi ini
+        $adaPengerjaan = $sesikerja->pengerjaan_produks()->exists();
+
+        if ($adaPengerjaan) {
+            return back()->withErrors([
+                'error' => 'Sesi tidak bisa dihapus karena sudah ada data pengerjaan produk di dalamnya!'
+            ]);
+        }
+
+        DB::transaction(function () use ($sesikerja) {
+            // Hapus member dulu (karena foreign key)
+            $sesikerja->sesi_kerja_members()->delete();
+            // Baru hapus sesi
+            $sesikerja->delete();
+        });
+
+        return redirect()->route('sesikerjas.index')
+            ->with('message', 'Sesi kerja berhasil dihapus.');
+    }
 }
