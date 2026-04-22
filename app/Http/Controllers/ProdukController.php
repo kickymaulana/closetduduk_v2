@@ -49,10 +49,16 @@ class ProdukController extends Controller
             'qr.max' => 'Format QR Code salah (maksimal 10 karakter).'
         ]);
 
-        try {
-            return DB::transaction(function () use ($request, $troli, $sesi_kerja) {
+        $sesi_kerja_id = session('sesi_kerja_id');
 
-                $troli->produks()->create([
+        if (!$sesi_kerja_id) {
+            return back()->withErrors(['error' => 'Silakan pilih/aktifkan Sesi Kerja terlebih dahulu di menu Sesi Kerja!']);
+        }
+
+        try {
+            return DB::transaction(function () use ($request, $troli, $sesi_kerja_id) {
+
+                $produk = $troli->produks()->create([
                     'qrcode' => $request->qr,
                     'nama' => 'Sample ' . $request->qr,
                     'jenis' => $troli->jenis,
@@ -63,10 +69,10 @@ class ProdukController extends Controller
                 PengerjaanProduk::create([
                     'produk_id' => $produk->id,
                     'sesi_kerja_id' => $sesi_kerja_id,
-                    'proses_id' => $troli->proses->proses_id,
+                    'proses_id' => $troli->proses->id,
                 ]);
 
-                return back()->with('success', 'Scan berhasil. ' . ($currentCount + 1) . '/' . $maxLimit);
+                return back()->with('success', 'Scan berhasil. ');
             });
 
         } catch (\Exception $e) {
