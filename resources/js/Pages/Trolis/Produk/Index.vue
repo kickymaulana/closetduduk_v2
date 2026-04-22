@@ -245,7 +245,6 @@ const confirmSelesai = () => {
                         <TableHeader>
                             <TableRow class="bg-muted/50">
                                 <TableHead>QR Code</TableHead>
-                                <TableHead>Nama Produk</TableHead>
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Status Akhir</TableHead>
                                 <TableHead>Scan</TableHead>
@@ -261,7 +260,6 @@ const confirmSelesai = () => {
 
                             <TableRow v-for="item in produks.data" :key="item.id" class="hover:bg-muted/30 transition-colors">
                                 <TableCell class="font-mono font-bold">{{ item.qrcode }}</TableCell>
-                                <TableCell>{{ item.nama }}</TableCell>
                                 <TableCell>{{ item.jenis }}</TableCell>
                                 <TableCell>
                                     <Badge :variant="item.status_akhir === 'OK' ? 'default' : 'destructive'">
