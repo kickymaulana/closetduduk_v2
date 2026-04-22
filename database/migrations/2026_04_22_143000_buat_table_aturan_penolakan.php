@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('aturan_penolakan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cacat_id')->constrained('cacat')->cascadeOnDelete();
-            $table->foreignId('dep_toleransi')->constrained('departemen')->cascadeOnDelete();
-            $table->foreignId('dep_buang')->constrained('departemen')->cascadeOnDelete();
-            $table->foreignId('dep_pemeriksa')->constrained('departemen')->cascadeOnDelete();
+            $table->foreignId('proses_toleransi')->constrained('proses')->cascadeOnDelete();
+            $table->foreignId('proses_buang')->constrained('proses')->cascadeOnDelete();
+            $table->foreignId('proses_pemeriksa')->constrained('proses')->cascadeOnDelete();
             $table->timestamps();
         });
     }

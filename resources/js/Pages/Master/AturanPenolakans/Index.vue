@@ -90,23 +90,23 @@ watch(search, (value) => {
                                 :key="item.id"
                             >
                                 <TableCell class="font-bold text-primary">{{
-                                    item.mastercacat.nama_cacat
+                                    item.cacat.cacat
                                 }}</TableCell>
                                 <TableCell
                                     ><Badge variant="outline">{{
-                                        item.relasi_dep_toleransi.departemen
+                                        item.proses_toleransi.proses
                                     }}</Badge></TableCell
                                 >
                                 <TableCell
                                     ><Badge variant="secondary">{{
-                                        item.relasi_dep_buang.departemen
+                                        item.proses_buang.proses
                                     }}</Badge></TableCell
                                 >
                                 <TableCell
                                     ><Badge
                                         class="bg-lime-500 text-black hover:bg-lime-600"
                                         >{{
-                                            item.relasi_dep_pemeriksa.departemen
+                                            item.proses_pemeriksa.proses
                                         }}</Badge
                                     ></TableCell
                                 >

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AturanPenolakan;
 use App\Models\Cacat;
-use App\Models\Departemen;
+use App\Models\Proses;
 use Inertia\Inertia;
 
 class AturanPenolakanController extends Controller
@@ -14,10 +14,10 @@ class AturanPenolakanController extends Controller
     public function index(Request $request)
     {
         $aturanPenolakans = AturanPenolakan::query()
-            ->with(['mastercacat', 'relasi_dep_toleransi', 'relasi_dep_buang', 'relasi_dep_pemeriksa'])
+            ->with(['cacat', 'proses_toleransi', 'proses_buang', 'proses_pemeriksa'])
             ->when($request->search, function ($query, $search) {
-                $query->whereHas('mastercacat', function ($q) use ($search) {
-                    $q->where('nama_cacat', 'like', "%{$search}%");
+                $query->whereHas('cacat', function ($q) use ($search) {
+                    $q->where('cacat', 'like', "%{$search}%");
                 });
             })
             ->latest()
@@ -34,19 +34,19 @@ class AturanPenolakanController extends Controller
     {
         return Inertia::render('Master/AturanPenolakans/Create', [
             'cacats' => Cacat::all(),
-            'departemens' => Departemen::orderBy('created_at')->get(),
+            'proses' => Proses::orderBy('created_at')->get(),
         ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'master_cacat_id' => 'required|exists:master_cacat,id|unique:aturan_penolakan,master_cacat_id',
-            'dep_toleransi'   => 'required|exists:master_departemen,id',
-            'dep_buang'       => 'required|exists:master_departemen,id',
-            'dep_pemeriksa'   => 'required|exists:master_departemen,id',
+            'cacat_id'   => 'required|exists:proses,id',
+            'proses_toleransi'   => 'required|exists:proses,id',
+            'proses_buang'       => 'required|exists:proses,id',
+            'proses_pemeriksa'   => 'required|exists:proses,id',
         ], [
-            'master_cacat_id.unique' => 'Aturan untuk jenis cacat ini sudah ada.',
+            // 'cacat_id.unique' => 'Aturan untuk jenis cacat ini sudah ada.',
         ]);
 
         AturanPenolakan::create($request->all());

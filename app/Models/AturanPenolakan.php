@@ -5,28 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['master_cacat_id', 'dep_toleransi', 'dep_buang', 'dep_pemeriksa'])]
+#[Fillable(['cacat_id', 'proses_toleransi', 'proses_buang', 'proses_pemeriksa'])]
 #[Table('aturan_penolakan')]
 class AturanPenolakan extends Model
 {
-    public function mastercacat()
+    public function cacat(): BelongsTo
     {
-        return $this->belongsTo(MasterCacat::class, 'master_cacat_id');
+        return $this->belongsTo(Cacat::class, 'cacat_id');
     }
 
-    public function relasi_dep_toleransi()
+    public function proses_toleransi(): BelongsTo
     {
-        return $this->belongsTo(MasterDepartemen::class, 'dep_toleransi', 'id');
+        return $this->belongsTo(Proses::class, 'proses_toleransi', 'id');
     }
 
-    public function relasi_dep_buang()
+    public function proses_buang(): BelongsTo
     {
-        return $this->belongsTo(MasterDepartemen::class, 'dep_buang', 'id');
+        return $this->belongsTo(Proses::class, 'proses_buang', 'id');
     }
 
-    public function relasi_dep_pemeriksa()
+    public function proses_pemeriksa(): BelongsTo
     {
-        return $this->belongsTo(MasterDepartemen::class, 'dep_pemeriksa', 'id');
+        return $this->belongsTo(Proses::class, 'proses_pemeriksa', 'id');
     }
 }
