@@ -159,9 +159,10 @@ class ProdukController extends Controller
             ]);
         }
 
+
         // 3. SYARAT KRUSIAL: Cek apakah statusnya "Buang"
         // Asumsi: kolom status bernama 'status'
-        if ($produk->status !== 'Buang') {
+        if ($produk->status_akhir !== 'Buang') {
             return back()->withErrors([
                 'qr' => "Gagal! Produk {$request->qr} statusnya '{$produk->status}'. Hanya produk berstatus 'Buang' yang boleh dihapus."
             ]);
