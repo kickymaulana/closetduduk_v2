@@ -21,4 +21,9 @@ class SesiKerja extends Model
     {
         return $this->hasMany(SesiKerjaMember::class, 'sesi_kerja_id');
     }
+
+    public function pengerjaan_produks(): HasMany
+    {
+        return $this->hasMany(PengerjaanProduk::class, 'sesi_kerja_id');
+    }
 }

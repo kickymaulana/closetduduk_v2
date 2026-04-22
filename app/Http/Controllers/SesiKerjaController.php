@@ -16,6 +16,7 @@ class SesiKerjaController extends Controller
     {
         $sesikerjas = SesiKerja::query()
             ->with(['leader'])
+            ->withCount('pengerjaan_produks')
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('leader', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");

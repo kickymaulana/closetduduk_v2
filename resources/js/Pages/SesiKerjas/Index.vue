@@ -87,6 +87,7 @@ const toggleSesi = (id: number) => {
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Jam Masuk</TableHead>
                                 <TableHead>Jam Pulang</TableHead>
+                                <TableHead>Pengerjaan</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -115,6 +116,14 @@ const toggleSesi = (id: number) => {
                                 <TableCell>{{
                                     item.jam_pulang || "-"
                                 }}</TableCell>
+                                <TableCell>
+                                    <div class="flex items-center gap-2">
+                                        <Badge variant="outline" class="font-mono text-sm">
+                                            {{ item.pengerjaan_produks_count }}
+                                        </Badge>
+                                        <span class="text-xs text-muted-foreground uppercase italic">Item</span>
+                                    </div>
+                                </TableCell>
                                 <TableCell class="text-right">
                                     <Button
                                         variant="ghost"
