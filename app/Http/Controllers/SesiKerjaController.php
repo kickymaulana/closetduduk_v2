@@ -84,23 +84,24 @@ class SesiKerjaController extends Controller
     }
 
 
-
     public function show(SesiKerja $sesikerja)
     {
-        // Load relasi pengerjaan_produks, produk, dan prosesnya
         $sesikerja->load([
             'leader',
             'sesi_kerja_members.user',
-            'pengerjaan_produks.produk',
-            'pengerjaan_produks.proses'
+            // Urutkan riwayat dari yang terbaru (latest)
+            'pengerjaan_produks' => function($query) {
+                $query->with(['produk', 'proses'])->latest();
+            }
         ]);
 
-        // Hitung statistik berdasarkan produk fisik unik
+        // Statistik fokus pada jumlah AKTIVITAS SCAN (Unique Produk per Proses)
         $stats = [
-            'total_produk'    => $sesikerja->pengerjaan_produks()->distinct('produk_id')->count(),
-            'total_ok'        => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'OK')->distinct('produk_id')->count(),
-            'total_in_proses' => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'In Proses')->distinct('produk_id')->count(),
-            'total_reject'    => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'Buang')->distinct('produk_id')->count(),
+            // Total pengerjaan (Produk A di Proses 1 dan Produk A di Proses 2 dihitung 2 kali)
+            'total_scan'      => $sesikerja->pengerjaan_produks()->distinct('produk_id', 'proses_id')->count(),
+            'total_ok'        => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'OK')->distinct('produk_id', 'proses_id')->count(),
+            'total_in_proses' => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'In Proses')->distinct('produk_id', 'proses_id')->count(),
+            'total_reject'    => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'Buang')->distinct('produk_id', 'proses_id')->count(),
         ];
 
         return Inertia::render('SesiKerjas/Show', [

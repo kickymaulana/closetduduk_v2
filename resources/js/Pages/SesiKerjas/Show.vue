@@ -152,13 +152,15 @@ const getDuration = () => {
 
         </div>
 
+
+
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Card class="border-none shadow-md bg-blue-50/50 border-blue-100 text-blue-700">
                 <CardContent class="p-6 flex items-center gap-4">
                     <IconPackage class="size-8 opacity-70" />
                     <div>
-                        <p class="text-xs font-bold uppercase opacity-70">Total Produk</p>
-                        <p class="text-3xl font-bold">{{ stats.total_produk }}</p>
+                        <p class="text-xs font-bold uppercase opacity-70">Total Scan</p>
+                        <p class="text-3xl font-bold">{{ stats.total_scan }} <span class="text-sm font-normal">Kali</span></p>
                     </div>
                 </CardContent>
             </Card>
@@ -167,8 +169,8 @@ const getDuration = () => {
                 <CardContent class="p-6 flex items-center gap-4">
                     <IconCheck class="size-8 opacity-70" />
                     <div>
-                        <p class="text-xs font-bold uppercase opacity-70">Kondisi OK</p>
-                        <p class="text-3xl font-bold">{{ stats.total_ok }}</p>
+                        <p class="text-xs font-bold uppercase opacity-70">Scan OK</p>
+                        <p class="text-3xl font-bold">{{ stats.total_ok }} <span class="text-sm font-normal">Kali</span></p>
                     </div>
                 </CardContent>
             </Card>
@@ -178,7 +180,7 @@ const getDuration = () => {
                     <IconLoader class="size-8 opacity-70 animate-spin-slow" />
                     <div>
                         <p class="text-xs font-bold uppercase opacity-70">In Proses</p>
-                        <p class="text-3xl font-bold">{{ stats.total_in_proses }}</p>
+                        <p class="text-3xl font-bold">{{ stats.total_in_proses }} <span class="text-sm font-normal">Kali</span></p>
                     </div>
                 </CardContent>
             </Card>
@@ -188,7 +190,7 @@ const getDuration = () => {
                     <IconX class="size-8 opacity-70" />
                     <div>
                         <p class="text-xs font-bold uppercase opacity-70">Reject</p>
-                        <p class="text-3xl font-bold">{{ stats.total_reject }}</p>
+                        <p class="text-3xl font-bold">{{ stats.total_reject }} <span class="text-sm font-normal">Kali</span></p>
                     </div>
                 </CardContent>
             </Card>
