@@ -38,13 +38,13 @@ import {
 
 defineOptions({ layout: AuthenticatedLayout });
 
-const props = defineProps<{ aturan: any; cacats: any[]; departemens: any[] }>();
+const props = defineProps<{ aturan: any; cacats: any[]; proses: any[] }>();
 
 const form = useForm({
-    master_cacat_id: props.aturan.master_cacat_id.toString(),
-    dep_toleransi: props.aturan.dep_toleransi.toString(),
-    dep_buang: props.aturan.dep_buang.toString(),
-    dep_pemeriksa: props.aturan.dep_pemeriksa.toString(),
+    cacat_id: props.aturan.cacat_id.toString(),
+    proses_toleransi: props.aturan.proses_toleransi.toString(),
+    proses_buang: props.aturan.proses_buang.toString(),
+    proses_pemeriksa: props.aturan.proses_pemeriksa.toString(),
 });
 </script>
 
@@ -129,7 +129,7 @@ const form = useForm({
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="grid gap-2">
                                 <Label>Jenis Cacat</Label>
-                                <Select v-model="form.master_cacat_id">
+                                <Select v-model="form.cacat_id">
                                     <SelectTrigger
                                         ><SelectValue
                                     /></SelectTrigger>
@@ -138,55 +138,55 @@ const form = useForm({
                                             v-for="c in cacats"
                                             :key="c.id"
                                             :value="c.id.toString()"
-                                            >{{ c.nama_cacat }}</SelectItem
+                                            >{{ c.cacat }}</SelectItem
                                         ></SelectContent
                                     >
                                 </Select>
                             </div>
                             <div class="grid gap-2">
                                 <Label>Departemen Pemeriksa</Label>
-                                <Select v-model="form.dep_pemeriksa">
+                                <Select v-model="form.proses_pemeriksa">
                                     <SelectTrigger
                                         ><SelectValue
                                     /></SelectTrigger>
                                     <SelectContent
                                         ><SelectItem
-                                            v-for="d in departemens"
+                                            v-for="d in proses"
                                             :key="d.id"
                                             :value="d.id.toString()"
-                                            >{{ d.departemen }}</SelectItem
+                                            >{{ d.proses }}</SelectItem
                                         ></SelectContent
                                     >
                                 </Select>
                             </div>
                             <div class="grid gap-2">
                                 <Label>Departemen Toleransi</Label>
-                                <Select v-model="form.dep_toleransi">
+                                <Select v-model="form.proses_toleransi">
                                     <SelectTrigger
                                         ><SelectValue
                                     /></SelectTrigger>
                                     <SelectContent
                                         ><SelectItem
-                                            v-for="d in departemens"
+                                            v-for="d in proses"
                                             :key="d.id"
                                             :value="d.id.toString()"
-                                            >{{ d.departemen }}</SelectItem
+                                            >{{ d.proses }}</SelectItem
                                         ></SelectContent
                                     >
                                 </Select>
                             </div>
                             <div class="grid gap-2">
                                 <Label>Departemen Buang</Label>
-                                <Select v-model="form.dep_buang">
+                                <Select v-model="form.proses_buang">
                                     <SelectTrigger
                                         ><SelectValue
                                     /></SelectTrigger>
                                     <SelectContent
                                         ><SelectItem
-                                            v-for="d in departemens"
+                                            v-for="d in proses"
                                             :key="d.id"
                                             :value="d.id.toString()"
-                                            >{{ d.departemen }}</SelectItem
+                                            >{{ d.proses }}</SelectItem
                                         ></SelectContent
                                     >
                                 </Select>

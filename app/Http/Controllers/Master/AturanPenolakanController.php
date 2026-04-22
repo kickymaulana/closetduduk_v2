@@ -59,7 +59,7 @@ class AturanPenolakanController extends Controller
         return Inertia::render('Master/AturanPenolakans/Edit', [
             'aturan' => AturanPenolakan::findOrFail($id),
             'cacats' => Cacat::all(),
-            'departemens' => Departemen::orderBy('created_at')->get(),
+            'proses' => Proses::orderBy('created_at')->get(),
         ]);
     }
 
@@ -68,10 +68,10 @@ class AturanPenolakanController extends Controller
         $aturan = AturanPenolakan::findOrFail($id);
 
         $request->validate([
-            'master_cacat_id' => 'required|exists:master_cacat,id|unique:aturan_penolakan,master_cacat_id,' . $aturan->id,
-            'dep_toleransi'   => 'required|exists:master_departemen,id',
-            'dep_buang'       => 'required|exists:master_departemen,id',
-            'dep_pemeriksa'   => 'required|exists:master_departemen,id',
+            'cacat_id'   => 'required|exists:proses,id',
+            'proses_toleransi'   => 'required|exists:proses,id',
+            'proses_buang'       => 'required|exists:proses,id',
+            'proses_pemeriksa'   => 'required|exists:proses,id',
         ]);
 
         $aturan->update($request->all());
