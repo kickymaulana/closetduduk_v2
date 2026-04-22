@@ -55,7 +55,7 @@ const submit = () => {
     <div class="flex flex-col gap-6 p-4 md:p-8 pt-1">
         <div class="flex items-center gap-4">
             <Button variant="outline" size="icon" as-child class="rounded-full">
-                <Link :href="route('sesikerjas.index')">
+                <Link :href="route('sesikerjas.show', props.sesikerja.id)">
                     <IconArrowLeft class="size-4" />
                 </Link>
             </Button>
