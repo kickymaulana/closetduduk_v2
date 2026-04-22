@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Troli;
 use App\Models\Produk;
+use App\Models\PengerjaanProduk;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProdukController extends Controller
@@ -47,14 +49,31 @@ class ProdukController extends Controller
             'qr.max' => 'Format QR Code salah (maksimal 10 karakter).'
         ]);
 
-        // Simpan ke tabel produk
-        $troli->produks()->create([
-            'qrcode' => $request->qr,
-            'nama' => 'Sample ' . $request->qr, // Atau sesuaikan logika penamaanmu
-            'jenis' => $troli->jenis, // Defaultkan mengikuti jenis troli
-            'status_akhir' => 'OK',
-            'sudah_scan' => 'Sudah',
-        ]);
+        try {
+            return DB::transaction(function () use ($request, $troli, $sesi_kerja) {
+
+                $troli->produks()->create([
+                    'qrcode' => $request->qr,
+                    'nama' => 'Sample ' . $request->qr,
+                    'jenis' => $troli->jenis,
+                    'status_akhir' => 'OK',
+                    'sudah_scan' => 'Sudah',
+                ]);
+
+                PengerjaanProduk::create([
+                    'produk_id' => $produk->id,
+                    'sesi_kerja_id' => $sesi_kerja_id,
+                    'proses_id' => auth()->user()->departemen_id,
+                ]);
+
+                return back()->with('success', 'Scan berhasil. ' . ($currentCount + 1) . '/' . $maxLimit);
+            });
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menyimpan data: ' . $e->getMessage()]);
+        }
+
+
 
         return back()->with('message', 'Produk berhasil ditambahkan.');
     }

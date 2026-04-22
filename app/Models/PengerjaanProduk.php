@@ -10,18 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Guarded([])]
-#[Table('troli')]
-
-class Troli extends Model
+#[Table('pengerjaan_produk')]
+class PengerjaanProduk extends Model
 {
-    public function produks(): HasMany
+    public function produk(): BelongsTo
     {
-        return $this->hasMany(Produk::class, 'troli_id');
+        return $this->belongsTo(Produk::class, 'produk_id');
     }
-
-    public function proses(): BelongsTo
-    {
-        return $this->belongsTo(Proses::class, 'proses_id', 'id');
-    }
-
 }
