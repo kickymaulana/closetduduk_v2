@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "vue-sonner"; // Pakai sonner
+import { toast } from "vue-sonner";
 import {
     IconScan,
     IconLoader2,
     IconArrowLeft,
     IconCheck,
-    IconAlertCircle
 } from "@tabler/icons-vue";
 
 const props = defineProps<{
@@ -18,39 +17,59 @@ const props = defineProps<{
 }>();
 
 const qrInput = ref<HTMLInputElement | null>(null);
-const isFull = ref(false);
 
 const form = useForm({
     qr: "",
 });
 
+/**
+ * FUNGSI FOKUS UTAMA
+ * Menggunakan setTimeout 50ms untuk memastikan transisi DOM
+ * Inertia selesai sebelum meminta fokus kembali.
+ */
+const forceFocus = () => {
+    setTimeout(() => {
+        if (qrInput.value) {
+            qrInput.value.focus();
+        }
+    }, 50);
+};
+
+// 1. Fokus saat halaman pertama kali terbuka
 onMounted(() => {
-    qrInput.value?.focus();
+    forceFocus();
+});
+
+/**
+ * 2. WATCHDOG: Pantau status 'processing'
+ * Ketika form selesai (processing berubah dari true ke false),
+ * sistem otomatis memicu fokus kembali. Ini jauh lebih stabil
+ * daripada menaruhnya di onSuccess.
+ */
+watch(() => form.processing, (isProcessing) => {
+    if (!isProcessing) {
+        forceFocus();
+    }
 });
 
 const scan = () => {
-    // Pastikan input tidak kosong sebelum kirim
-    if (!form.qr) return;
+    if (!form.qr || form.processing) return;
 
     form.post(route('trolis.produk.scan_awal_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
-            // Sonner Success
             toast.success("Berhasil!", {
-                description: `Produk ${form.qr} berhasil ditambahkan ke troli.`,
-                duration: 3000,
+                description: `Produk ${form.qr} berhasil dicatat.`,
+                duration: 2000,
             });
             form.reset();
-            qrInput.value?.focus();
+            // Fokus otomatis ditangani oleh 'watch' di atas
         },
         onError: (errors) => {
-            const message = errors.qr || errors.error || "Terjadi kesalahan sistem.";
-            // Sonner Error
-            toast.error("Gagal Scan", {
-                description: message,
-            });
+            const message = errors.qr || errors.error || "Gagal menyimpan data.";
+            toast.error("Gagal Scan", { description: message });
             form.reset('qr');
-            qrInput.value?.focus();
+            forceFocus();
         }
     });
 };
@@ -61,7 +80,7 @@ defineOptions({ layout: AuthenticatedLayout });
 <template>
     <Head title="Scan Masuk Produk" />
 
-    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4 relative">
+    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4 relative" @click="forceFocus">
 
         <div class="w-full max-w-md mb-4">
             <Button variant="ghost" as-child class="group text-muted-foreground hover:text-primary">
@@ -100,14 +119,15 @@ defineOptions({ layout: AuthenticatedLayout });
                     <input
                         ref="qrInput"
                         v-model="form.qr"
-                        :disabled="isFull || form.processing"
+                        :disabled="form.processing"
                         type="text"
                         maxlength="10"
-                        @input="form.qr = form.qr.toUpperCase()"
-                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-primary/30 focus:border-primary focus:ring-0 transition-all outline-none font-bold placeholder:text-muted/20"
+                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-primary/30 focus:border-primary focus:ring-0 transition-all outline-none font-bold placeholder:text-muted/20 uppercase"
                         style="background: transparent; font-size: 2.2rem; color: #1e3a8a; height: 80px;"
                         placeholder="SCAN DISINI"
                         @keyup.enter="scan"
+                        @input="form.qr = form.qr.toUpperCase()"
+                        @blur="forceFocus"
                         autocomplete="off"
                     >
 
@@ -115,15 +135,19 @@ defineOptions({ layout: AuthenticatedLayout });
                         <IconLoader2 class="animate-spin size-5" />
                         <span>Menyimpan...</span>
                     </div>
+
+                    <p v-if="form.errors.qr" class="text-sm text-red-600 text-center font-semibold animate-pulse">
+                        {{ form.errors.qr }}
+                    </p>
                 </div>
             </CardContent>
         </Card>
 
         <div class="mt-8 flex flex-col items-center gap-2 text-xs text-muted-foreground italic">
-            <p>Scanner mode active</p>
-            <div class="flex gap-2">
+            <p>Scanner Mode Active (Autofocus Locked)</p>
+            <div class="flex gap-2 text-green-600 font-medium">
                 <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-                <span>Ready to receive data</span>
+                <span>Siap menerima input QR</span>
             </div>
         </div>
     </div>
