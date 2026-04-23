@@ -10,6 +10,7 @@ import {
     IconTruck,
     IconArrowsSplit2,
     IconShoppingCartCopy,
+    IconHistory,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -58,6 +59,13 @@ const filteredNavMain = computed(() => {
         url: route("trolis.index"),
         icon: IconShoppingCartCopy,
         root: "Trolis",
+    });
+
+    menus.push({
+        title: "Riwayat Scan Masuk",
+        url: route("riwayat.scan.masuk"),
+        icon: IconHistory,
+        root: "RiwayatScanMasuk",
     });
     return menus;
 });

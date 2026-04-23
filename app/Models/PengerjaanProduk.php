@@ -32,4 +32,9 @@ class PengerjaanProduk extends Model
     {
         return $this->hasMany(PengerjaanCacat::class, 'pengerjaan_produk_id');
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -17,6 +17,7 @@ use App\Http\Controllers\Master\ProsesController;
 use App\Http\Controllers\TroliController;
 use App\Http\Controllers\TroliFisikController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\RiwayatScanMasukController;
 
 
 
@@ -121,4 +122,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
     Route::post('troli-fisiks/ambil', [TroliFisikController::class, 'ambil'])->name('trolifisiks.ambil');
+
+    Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
 });
