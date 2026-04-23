@@ -102,6 +102,18 @@ defineOptions({ layout: AuthenticatedLayout });
 
     <div class="flex flex-col items-center justify-center min-h-[80vh] p-4">
 
+        <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
+            <Button as-child variant="outline" class="text-blue-600 border-blue-200 hover:bg-blue-50">
+                <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
+            </Button>
+            <Button as-child variant="outline" class="text-orange-600 border-orange-200 hover:bg-orange-50">
+                <Link :href="route('trolis.produk.scan_inproses', troli.id)">IN PROSES</Link>
+            </Button>
+            <Button as-child variant="default" class="bg-red-600 hover:bg-red-700 shadow-lg border-b-4 border-red-800">
+                <Link :href="route('trolis.produk.scan_buang', troli.id)">BUANG</Link>
+            </Button>
+        </div>
+
         <div class="w-full max-w-2xl mb-4 text-left">
             <Button variant="ghost" as-child class="group text-muted-foreground hover:text-red-600">
                 <Link :href="route('trolis.produk.index', troli.id)">
