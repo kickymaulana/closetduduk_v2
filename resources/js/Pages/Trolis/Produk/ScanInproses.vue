@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted, watch } from "vue"; // Tambahkan watch
+import { ref, onMounted, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "vue-sonner";
 import {
     IconScan,
@@ -22,18 +20,38 @@ const props = defineProps<{
     pilihan_cacat: Array<{ id: number; cacat: string }>;
 }>();
 
-// Key unik untuk Local Storage agar tidak bentrok antar troli
-const STORAGE_KEY = `scan_cacat_ids_${props.troli.id}`;
+// Konfigurasi Storage
+const PREFIX = "scan_cacat_ids_";
+const STORAGE_KEY = `${PREFIX}${props.troli.id}`;
 
 const qrInput = ref<any>(null);
 
+/**
+ * FUNGSI PEMBERSIH OTOMATIS:
+ * Menghapus data dari troli-troli sebelumnya agar LocalStorage tidak penuh.
+ * Ini penting jika dalam sehari ada ribuan troli.
+ */
+const cleanupOldStorage = () => {
+    try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            // Hapus jika key milik fitur ini tapi bukan untuk troli yang sedang dibuka
+            if (key.startsWith(PREFIX) && key !== STORAGE_KEY) {
+                localStorage.removeItem(key);
+            }
+        });
+    } catch (e) {
+        console.error("Gagal membersihkan storage", e);
+    }
+};
+
 const form = useForm({
     qr: "",
-    // Ambil data dari localStorage saat load, jika tidak ada default []
+    // Ambil data dari localStorage saat halaman dimuat
     cacat_ids: JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as number[],
 });
 
-// Pantau perubahan cacat_ids dan simpan ke localStorage secara otomatis
+// Simpan ke localStorage setiap kali ada perubahan pada pilihan cacat
 watch(() => form.cacat_ids, (newVal) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal));
 }, { deep: true });
@@ -43,6 +61,7 @@ const focusInput = () => {
 };
 
 onMounted(() => {
+    cleanupOldStorage(); // Jalankan pembersihan sampah
     focusInput();
 });
 
@@ -55,7 +74,6 @@ const toggleCacat = (id: number) => {
     }
 };
 
-// Fungsi reset manual untuk membersihkan pilihan dan storage
 const clearSelection = () => {
     form.cacat_ids = [];
     localStorage.removeItem(STORAGE_KEY);
@@ -73,8 +91,8 @@ const handleScan = () => {
                 duration: 2000,
             });
 
-            // PENTING: Jangan pakai form.reset() karena akan menghapus cacat_ids.
-            // Cukup kosongkan QR saja agar pilihan cacat tetap "lengket".
+            // HANYA mengosongkan input QR.
+            // Pilihan cacat tetap ada (sticky) sampai user klik "Bersihkan Semua"
             form.qr = "";
             focusInput();
         },
