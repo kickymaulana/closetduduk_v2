@@ -122,36 +122,36 @@ class SesiKerjaController extends Controller
     }
 
     public function riwayat_scan(Request $request, SesiKerja $sesikerja)
-{
-    // 1. Ambil query dasar dari relasi
-    $query = $sesikerja->pengerjaan_produks()
-        ->with(['produk', 'proses']);
+    {
+        // 1. Ambil query dasar dari relasi
+        $query = $sesikerja->pengerjaan_produks()
+            ->with(['produk', 'proses']);
 
-    // 2. Filter Search (berdasarkan QR Code di tabel produk)
-    if ($request->search) {
-        $query->whereHas('produk', function ($q) use ($request) {
-            $q->where('qrcode', 'like', "%{$request->search}%");
-        });
+        // 2. Filter Search (berdasarkan QR Code di tabel produk)
+        if ($request->search) {
+            $query->whereHas('produk', function ($q) use ($request) {
+                $q->where('qrcode', 'like', "%{$request->search}%");
+            });
+        }
+
+        // 3. Logika Unique: Ambil hanya scan terakhir per produk per proses
+        // Kita gunakan subquery untuk mendapatkan ID terbaru saja
+        $riwayat = $query->whereIn('id', function ($subQuery) use ($sesikerja) {
+            $subQuery->selectRaw('MAX(id)')
+                ->from('pengerjaan_produk') // Pastikan ini nama tabel PengerjaanProduk kamu
+                ->where('sesi_kerja_id', $sesikerja->id)
+                ->groupBy('produk_id', 'proses_id');
+        })
+        ->latest()
+        ->paginate(12)
+        ->withQueryString();
+
+        return Inertia::render('SesiKerjas/RiwayatScan', [
+            'sesikerja' => $sesikerja->load('leader'),
+            'riwayat'   => $riwayat,
+            'filters'   => $request->only(['search'])
+        ]);
     }
-
-    // 3. Logika Unique: Ambil hanya scan terakhir per produk per proses
-    // Kita gunakan subquery untuk mendapatkan ID terbaru saja
-    $riwayat = $query->whereIn('id', function ($subQuery) use ($sesikerja) {
-        $subQuery->selectRaw('MAX(id)')
-            ->from('pengerjaan_produk') // Pastikan ini nama tabel PengerjaanProduk kamu
-            ->where('sesi_kerja_id', $sesikerja->id)
-            ->groupBy('produk_id', 'proses_id');
-    })
-    ->latest()
-    ->paginate(12)
-    ->withQueryString();
-
-    return Inertia::render('SesiKerjas/RiwayatScan', [
-        'sesikerja' => $sesikerja->load('leader'),
-        'riwayat'   => $riwayat,
-        'filters'   => $request->only(['search'])
-    ]);
-}
 
     public function edit(SesiKerja $sesikerja)
     {

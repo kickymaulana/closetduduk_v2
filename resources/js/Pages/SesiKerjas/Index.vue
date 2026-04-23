@@ -13,16 +13,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { IconPlus, IconPencil, IconSearch, IconClock, IconCircleCheck, IconEye,
-IconPlayerStop,
-IconPlayerPlay
+import {
+    IconPlus,
+    IconSearch,
+    IconClock,
+    IconEye,
+    IconPlayerStop,
+    IconPlayerPlay,
+    IconX
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
 defineOptions({ layout: AuthenticatedLayout });
 
 const props = defineProps<{
-    sesikerjas: any;
+    sesikerjas: {
+        data: Array<any>;
+        links: Array<any>;
+        from: number;
+        to: number;
+        total: number;
+    };
     filters: { search: string };
     sesi_kerja_id: number | null;
 }>();
@@ -30,6 +41,7 @@ const props = defineProps<{
 const search = ref(props.filters.search || "");
 let timeout: any;
 
+// Watcher untuk pencarian dengan debounce 500ms
 watch(search, (value) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
@@ -41,14 +53,22 @@ watch(search, (value) => {
     }, 500);
 });
 
+const clearSearch = () => {
+    search.value = "";
+};
+
 const toggleSesi = (id: number) => {
     if (props.sesi_kerja_id === id) {
-        // Jika sedang aktif, maka jalankan fungsi nonaktif
         router.delete(route('sesikerjas.nonaktif', id));
     } else {
-        // Jika tidak aktif, jalankan fungsi aktifkan
         router.post(route('sesikerjas.aktifkan', id));
     }
+};
+
+const cleanLabel = (label: string) => {
+    if (label.includes("Previous")) return "Sebelumnya";
+    if (label.includes("Next")) return "Selanjutnya";
+    return label;
 };
 </script>
 
@@ -71,14 +91,26 @@ const toggleSesi = (id: number) => {
                         <Input
                             v-model="search"
                             placeholder="Cari leader atau jenis..."
-                            class="pl-10"
+                            class="pl-10 pr-10"
                         />
+                        <button
+                            v-if="search"
+                            @click="clearSearch"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                            <IconX class="size-4" />
+                        </button>
                     </div>
-                    <Button as-child class="bg-primary hover:bg-primary/90">
+                    <Button
+                        as-child
+                        class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
+                    >
                         <Link :href="route('sesikerjas.create')">
-                            <IconPlus class="mr-2 size-4" />Tambah
+                            <IconPlus class="mr-2 size-4" />
+                            Tambah
                         </Link>
                     </Button>
+
                 </div>
             </CardHeader>
             <CardContent>
@@ -99,55 +131,44 @@ const toggleSesi = (id: number) => {
                             <TableRow
                                 v-for="item in sesikerjas.data"
                                 :key="item.id"
+                                class="hover:bg-muted/30 transition-colors"
                             >
                                 <TableCell class="font-medium">
                                     {{ item.leader?.name }}
                                 </TableCell>
-                            <TableCell>
-                                <div class="flex flex-wrap gap-1 max-w-[200px]">
-                                    <Badge
-                                        v-for="member in item.sesi_kerja_members"
-                                        :key="member.id"
-                                        variant="outline"
-                                        class="text-[10px] px-2 py-0 bg-muted/50"
-                                    >
-                                        {{ member.user.name }}
-                                    </Badge>
-                                    <span v-if="item.sesi_kerja_members.length === 0" class="text-xs text-muted-foreground italic">
-                                        Tanpa Anggota
-                                    </span>
-                                </div>
-                            </TableCell>
+                                <TableCell>
+                                    <div class="flex flex-wrap gap-1 max-w-[200px]">
+                                        <Badge
+                                            v-for="member in item.sesi_kerja_members"
+                                            :key="member.id"
+                                            variant="outline"
+                                            class="text-[10px] px-2 py-0 bg-muted/50"
+                                        >
+                                            {{ member.user.name }}
+                                        </Badge>
+                                        <span v-if="item.sesi_kerja_members.length === 0" class="text-xs text-muted-foreground italic">
+                                            Tanpa Anggota
+                                        </span>
+                                    </div>
+                                </TableCell>
                                 <TableCell>
                                     <Badge
-                                        :variant="
-                                            item.jenis === 'Body'
-                                                ? 'default'
-                                                : 'secondary'
-                                        "
+                                        :variant="item.jenis === 'Body' ? 'default' : 'secondary'"
                                     >
                                         {{ item.jenis }}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>{{
-                                    item.jam_masuk || "-"
-                                }}</TableCell>
-                                <TableCell>{{
-                                    item.jam_pulang || "-"
-                                }}</TableCell>
-
-
+                                <TableCell>{{ item.jam_masuk || "-" }}</TableCell>
+                                <TableCell>{{ item.jam_pulang || "-" }}</TableCell>
                                 <TableCell>
                                     <div class="flex items-center gap-2">
                                         <Badge variant="outline" class="font-mono text-sm border-primary/50 text-primary">
                                             {{ item.total_pengerjaan }}
                                         </Badge>
-                                        <span class="text-xs text-muted-foreground uppercase italic font-medium">Kali</span>
+                                        <span class="text-xs text-muted-foreground uppercase italic font-medium">Scan</span>
                                     </div>
                                 </TableCell>
-
-
-                                <TableCell class="text-right">
+                                <TableCell class="text-right flex justify-end gap-2">
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -168,7 +189,6 @@ const toggleSesi = (id: number) => {
                                             <IconPlayerStop class="mr-2 size-4" />
                                             Nonaktifkan
                                         </template>
-
                                         <template v-else>
                                             <IconPlayerPlay class="mr-2 size-4 text-primary" />
                                             Aktifkan
@@ -178,14 +198,51 @@ const toggleSesi = (id: number) => {
                             </TableRow>
                             <TableRow v-if="sesikerjas.data.length === 0">
                                 <TableCell
-                                    colspan="5"
-                                    class="text-center py-10 text-muted-foreground"
+                                    colspan="7"
+                                    class="text-center py-10 text-muted-foreground italic"
                                 >
                                     Data tidak ditemukan.
                                 </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                    <p class="text-xs text-muted-foreground italic font-medium">
+                        Menampilkan {{ sesikerjas.from ?? 0 }} -
+                        {{ sesikerjas.to ?? 0 }} dari {{ sesikerjas.total }} sesi kerja
+                    </p>
+
+                    <nav class="flex items-center gap-1">
+                        <template v-for="(link, k) in sesikerjas.links" :key="k">
+                            <Button
+                                v-if="link.url === null"
+                                variant="outline"
+                                size="sm"
+                                disabled
+                                class="opacity-50 text-xs px-3 h-8"
+                                v-html="cleanLabel(link.label)"
+                            />
+                            <Button
+                                v-else
+                                as-child
+                                variant="outline"
+                                size="sm"
+                                class="text-xs px-3 h-8 transition-all"
+                                :class="{
+                                    'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm':
+                                        link.active,
+                                }"
+                            >
+                                <Link
+                                    :href="link.url"
+                                    preserve-state
+                                    v-html="cleanLabel(link.label)"
+                                />
+                            </Button>
+                        </template>
+                    </nav>
                 </div>
             </CardContent>
         </Card>
