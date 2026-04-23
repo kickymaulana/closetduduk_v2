@@ -40,49 +40,54 @@ class TroliFisikController extends Controller
 
     public function ambil(Request $request)
     {
+        // 1. Validasi Input
         $request->validate([
             'id' => 'required|exists:troli_fisik,id',
             'proses_id' => 'required|exists:proses,id',
-            'keperluan'     => 'required|in:In Proses,OK,Scan',
+            'keperluan' => 'required|in:In Proses,OK,Scan',
         ]);
 
         try {
             return DB::transaction(function () use ($request) {
+                // 2. Cari data troli fisik
                 $troliFisik = TroliFisik::findOrFail($request->id);
 
+                // Cek jika status sudah digunakan (Double-check untuk concurrency)
                 if ($troliFisik->status === 'Digunakan') {
                     return back()->with('error', 'Troli sudah sedang digunakan.');
                 }
 
                 $today = Carbon::now();
 
-                // 1. Format Tahun & Bulan (YYYYMM) -> Contoh: 202603
+                // 3. Format Tahun & Bulan (YYYYMM) -> 6 karakter
                 $yearMonth = $today->format('Ym');
 
-                // 2. Hitung Counter berdasarkan Bulan ini (agar reset tiap ganti bulan)
-                // Atau tetap harian? Jika ingin 0001 tiap bulan, gunakan startOfMonth
+                // 4. Hitung Counter bulanan
                 $countThisMonth = Troli::whereMonth('created_at', $today->month)
-                                    ->whereYear('created_at', $today->year)
-                                    ->count();
+                                        ->whereYear('created_at', $today->year)
+                                        ->count();
 
                 $nextCounter = str_pad($countThisMonth + 1, 4, '0', STR_PAD_LEFT);
 
-                // 3. Ambil nomor troli dan pastikan 3 digit (001)
-                $nomorTroli = str_pad($troliFisik->nomor, 3, '0', STR_PAD_LEFT);
+                // 5. Sanitasi Nomor Troli
+                // Jika isi $troliFisik->nomor adalah "D002", kita ambil "002" saja
+                $hanyaAngka = preg_replace('/[^0-9]/', '', $troliFisik->nomor);
+                $nomorTroliClean = str_pad($hanyaAngka, 3, '0', STR_PAD_LEFT);
 
-                // 4. Susun Invoice (Total 16 Karakter)
-                // D + 001 + CT + 202603 + 0001 = 16 karakter
-                $invoice = "D" . $nomorTroli . "CT" . $yearMonth . $nextCounter;
+                // 6. Susun Invoice (Total 16 Karakter)
+                // Format: [D] + [001] + [CT] + [202603] + [0001]
+                // Panjang: 1 + 3 + 2 + 6 + 4 = 16
+                $invoice = "D" . $nomorTroliClean . "CT" . $yearMonth . $nextCounter;
 
-                // 5. Update status troli fisik
+                // 7. Update status troli fisik menjadi Digunakan
                 $troliFisik->update(['status' => 'Digunakan']);
 
-                // 6. Simpan ke tabel troli
+                // 8. Simpan record ke tabel troli
                 Troli::create([
-                    'invoice' => $invoice,
+                    'invoice'   => $invoice,
                     'keperluan' => $request->keperluan,
-                    'jenis' => 'Body',
-                    'status' => 'Proses',
+                    'jenis'     => 'Body',
+                    'status'    => 'Proses',
                     'is_output' => false,
                     'proses_id' => $request->proses_id,
                 ]);
@@ -90,9 +95,11 @@ class TroliFisikController extends Controller
                 return redirect()->route('trolis.index')->with('success', "Berhasil! Invoice: $invoice");
             });
         } catch (\Exception $e) {
+            // Log error jika diperlukan: Log::error($e->getMessage());
             return back()->with('error', 'Gagal memproses: ' . $e->getMessage());
         }
     }
+
 
 }
 
