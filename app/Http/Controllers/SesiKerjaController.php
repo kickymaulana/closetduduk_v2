@@ -89,24 +89,30 @@ class SesiKerjaController extends Controller
         $sesikerja->load([
             'leader',
             'sesi_kerja_members.user',
-            // Urutkan riwayat dari yang terbaru (latest)
             'pengerjaan_produks' => function($query) {
                 $query->with(['produk', 'proses'])->latest();
             }
         ]);
 
-        // Statistik fokus pada jumlah AKTIVITAS SCAN (Unique Produk per Proses)
+        // Ambil koleksi pengerjaan
+        $pengerjaanRows = $sesikerja->pengerjaan_produks;
+
+        // Filter unik berdasarkan produk_id dan proses_id (mengambil yang terbaru)
+        $uniquePengerjaan = $pengerjaanRows->unique(function ($item) {
+            return $item['produk_id'].'-'.$item['proses_id'];
+        })->values();
+
         $stats = [
-            // Total pengerjaan (Produk A di Proses 1 dan Produk A di Proses 2 dihitung 2 kali)
-            'total_scan'      => $sesikerja->pengerjaan_produks()->distinct('produk_id', 'proses_id')->count(),
-            'total_ok'        => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'OK')->distinct('produk_id', 'proses_id')->count(),
-            'total_in_proses' => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'In Proses')->distinct('produk_id', 'proses_id')->count(),
-            'total_reject'    => $sesikerja->pengerjaan_produks()->where('status_kondisi', 'Buang')->distinct('produk_id', 'proses_id')->count(),
+            'total_scan'      => $uniquePengerjaan->count(),
+            'total_ok'        => $uniquePengerjaan->where('status_kondisi', 'OK')->count(),
+            'total_in_proses' => $uniquePengerjaan->where('status_kondisi', 'In Proses')->count(),
+            'total_reject'    => $uniquePengerjaan->where('status_kondisi', 'Buang')->count(),
         ];
 
         return Inertia::render('SesiKerjas/Show', [
             'sesikerja' => $sesikerja,
-            'stats'     => $stats
+            'stats'     => $stats,
+            'pengerjaan_unik' => $uniquePengerjaan // Kirim data yang sudah di-filter unik
         ]);
     }
 

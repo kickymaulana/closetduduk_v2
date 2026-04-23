@@ -55,6 +55,7 @@ const props = defineProps<{
         total_in_proses: number;
         total_reject: number;
     };
+    pengerjaan_unik: any[];
 }>();
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -271,9 +272,9 @@ const getDuration = () => {
                         </TableHeader>
                         <TableBody>
                             <TableRow
-                                v-for="log in (sesikerja.pengerjaan_produks || []).filter(p => p.user_id === sesikerja.leader_id)"
-                                :key="log.id"
-                            >
+                                    v-for="log in pengerjaan_unik"
+                                    :key="log.id"
+                                >
                                 <TableCell class="text-[11px] text-muted-foreground font-mono">
                                     {{ formatDate(log.created_at) }}
                                 </TableCell>
