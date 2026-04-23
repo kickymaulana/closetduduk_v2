@@ -280,38 +280,56 @@ class ProdukController extends Controller
 
     public function scan_inproses_store(Request $request, Troli $troli)
     {
+        // 1. Validasi Input Dasar
         $request->validate([
             'qr' => 'required|string',
             'cacat_ids' => 'nullable|array',
         ]);
 
-        $sesi = SesiKerja::with('sesi_kerja_members')->find(session('sesi_kerja_id'));
-        if (!$sesi) return back()->withErrors(['error' => 'Sesi tidak aktif.']);
+        // 2. Validasi: Cek Sesi Kerja Aktif
+        $sesi_kerja_id = session('sesi_kerja_id');
+        if (!$sesi_kerja_id) {
+            return back()->withErrors(['error' => 'Silakan pilih/aktifkan Sesi Kerja terlebih dahulu!']);
+        }
 
+        $sesi = SesiKerja::with('sesi_kerja_members')->find($sesi_kerja_id);
+        if (!$sesi) {
+            session()->forget('sesi_kerja_id');
+            return back()->withErrors(['error' => 'Sesi kerja tidak ditemukan.']);
+        }
+
+        // 3. Validasi: Keberadaan Produk di Troli
         $produk = $troli->produks()->where('qrcode', $request->qr)->first();
-        if (!$produk) return back()->withErrors(['qr' => 'Produk tidak ditemukan di troli ini.']);
+        if (!$produk) {
+            return back()->withErrors(['qr' => "Produk {$request->qr} tidak ditemukan di dalam troli ini ({$troli->invoice})!"]);
+        }
 
-        // Tentukan status: Jika ada cacat IDs, maka statusnya 'In Proses' (atau 'Buang' jika status troli buang)
-        // Tapi karena ini route 'scan-inproses', kita default ke 'In Proses' jika ada cacat.
+        // 4. Validasi: Cek Status Scan di Tabel Produk
+        // Jika kolom 'sudah_scan' di tabel produk sudah 'Sudah', maka ditolak
+        if ($produk->sudah_scan === 'Sudah') {
+            return back()->withErrors(['qr' => "Produk {$request->qr} sudah discan sebelumnya!"]);
+        }
+
+        // Tentukan status kondisi untuk pengerjaan_produk
         $statusKondisi = !empty($request->cacat_ids) ? 'In Proses' : 'OK';
 
         try {
             DB::transaction(function () use ($request, $troli, $sesi, $produk, $statusKondisi) {
 
-                // 1. Simpan Pengerjaan untuk Leader (Pencatat Utama)
+                // 5. Simpan Pengerjaan untuk Leader (Pencatat Utama)
                 $pengerjaanLeader = PengerjaanProduk::create([
                     'user_id' => auth()->id(),
                     'produk_id' => $produk->id,
                     'sesi_kerja_id' => $sesi->id,
-                    'proses_id' => $troli->proses->id, // Proses troli saat ini
+                    'proses_id' => $troli->proses->id,
                     'status_kondisi' => $statusKondisi,
                 ]);
 
-                // 2. Loop Cacat & Tracking PJ (Penanggung Jawab)
+                // 6. Loop Cacat & Tracking Penanggung Jawab (PJ) Otomatis
                 if (!empty($request->cacat_ids)) {
                     foreach ($request->cacat_ids as $cid) {
 
-                        // Ambil Aturan Penolakan
+                        // Cari Aturan Penolakan
                         $aturan = AturanPenolakan::where('cacat_id', $cid)
                                     ->where('proses_pemeriksa', $troli->proses->id)
                                     ->first();
@@ -320,10 +338,9 @@ class ProdukController extends Controller
                         $prosesPJId = null;
 
                         if ($aturan) {
-                            // Secara default di 'In Proses' kita tembak ke 'proses_toleransi'
                             $prosesPJId = $aturan->proses_toleransi;
 
-                            // CARI USER PJ: Orang terakhir yang mengerjakan barang ini di proses toleransi tsb
+                            // CARI USER PJ: Cari orang terakhir yang mengerjakan produk ini di proses PJ tersebut
                             $lastJob = PengerjaanProduk::where('produk_id', $produk->id)
                                         ->where('proses_id', $prosesPJId)
                                         ->latest('id')
@@ -332,7 +349,7 @@ class ProdukController extends Controller
                             $userPJId = $lastJob ? $lastJob->user_id : null;
                         }
 
-                        // Simpan Detail Cacat
+                        // Simpan detail temuan ke tabel pengerjaan_cacat
                         $pengerjaanLeader->pengerjaan_cacats()->create([
                             'cacat_id' => $cid,
                             'user_scan_id' => auth()->id(),
@@ -343,7 +360,7 @@ class ProdukController extends Controller
                     }
                 }
 
-                // 3. Simpan Pengerjaan untuk Anggota Tim (Auto-Insert)
+                // 7. Auto-Insert Pengerjaan untuk Semua Anggota Tim
                 foreach ($sesi->sesi_kerja_members as $member) {
                     PengerjaanProduk::create([
                         'user_id' => $member->user_id,
@@ -353,11 +370,19 @@ class ProdukController extends Controller
                         'status_kondisi' => $statusKondisi,
                     ]);
                 }
+
+                // 8. Update data Produk Utama
+                // Kita update status scan dan juga status akhir barang (OK/NG)
+                $produk->update([
+                    'sudah_scan' => 'Sudah',
+                    'status_akhir' => 'In Proses'
+                ]);
             });
 
-            return back()->with('success', 'Pemeriksaan in-proses berhasil dicatat.');
+            return back()->with('success', "Produk {$request->qr} berhasil diproses.");
+
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Gagal simpan: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Gagal menyimpan data: ' . $e->getMessage()]);
         }
     }
 
