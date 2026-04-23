@@ -186,29 +186,39 @@ class ProdukController extends Controller
         }
     }
 
+
+
     public function scan_pindah(Troli $troli)
     {
+        // Kita hanya kirim data troli asal saja
         return Inertia::render('Trolis/Produk/ScanPindah', [
-            // Data Troli Asal
-            'troli' => $troli->load('produks'), // opsional load produks jika ingin tampilkan list barang
-
-            // Data Daftar Troli Tujuan (untuk pilihan di sidebar/dropdown)
-            'daftarTroli' => Troli::where('id', '!=', $troli->id)
-                ->get(['id', 'invoice', 'keperluan'])
+            'troli' => $troli->load('produks'),
         ]);
     }
 
     public function scan_pindah_store(Request $request, Troli $troli)
     {
+        // Pastikan nama field di sini 'invoice_tujuan' sesuai dengan di Vue form
         $request->validate([
             'qr' => 'required|string',
-            'troli_tujuan_id' => 'required|exists:troli,id',
+            'invoice_tujuan' => 'required|string|exists:troli,invoice',
+        ], [
+            'invoice_tujuan.required' => 'Invoice tujuan belum diisi/tempel!',
+            'invoice_tujuan.exists'   => 'Invoice troli tujuan tidak terdaftar!',
         ]);
 
-        // Cari produk yang berada di troli asal (troli_id) dengan qrcode tersebut
+        // 1. Ambil data troli tujuan berdasarkan invoice
+        $troliTujuan = Troli::where('invoice', $request->invoice_tujuan)->first();
+
+        // 2. Validasi: Jangan sampai pindah ke troli yang sama
+        if ($troliTujuan->id === $troli->id) {
+            return back()->withErrors(['invoice_tujuan' => 'Troli tujuan tidak boleh sama dengan asal!']);
+        }
+
+        // 3. Cari produk di troli asal (berdasarkan qrcode)
         $produk = Produk::where('troli_id', $troli->id)
-            ->where('qrcode', $request->qr)
-            ->first();
+                        ->where('qrcode', $request->qr)
+                        ->first();
 
         if (!$produk) {
             return back()->withErrors([
@@ -216,15 +226,15 @@ class ProdukController extends Controller
             ]);
         }
 
-        // Eksekusi perpindahan ID
+        // 4. Update pindah troli
         $produk->update([
-            'troli_id' => $request->troli_tujuan_id,
-            // Optional: Jika ingin reset status scan saat pindah troli
-            // 'sudah_scan' => 'Belum'
+            'troli_id' => $troliTujuan->id,
         ]);
 
+        // Berhasil, kembali ke halaman tadi
         return back();
     }
+
 
 
     public function scan_hapus(Troli $troli)
