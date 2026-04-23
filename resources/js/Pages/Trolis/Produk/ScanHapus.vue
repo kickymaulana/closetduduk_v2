@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,29 +27,54 @@ const form = useForm({
     qr: "",
 });
 
+/**
+ * FUNGSI FOKUS UTAMA
+ */
+const focusInput = () => {
+    setTimeout(() => {
+        if (qrInput.value) {
+            qrInput.value.focus();
+        }
+    }, 50);
+};
+
+// 1. Fokus saat halaman dimuat
 onMounted(() => {
-    qrInput.value?.focus();
+    focusInput();
+});
+
+/**
+ * 2. WATCHDOG FOKUS
+ * Mengembalikan kursor secara otomatis setiap kali status 'processing' selesai.
+ */
+watch(() => form.processing, (isProcessing) => {
+    if (!isProcessing) {
+        focusInput();
+    }
 });
 
 const handleRemove = () => {
     if (!form.qr || form.processing) return;
 
+    // Simpan kode sementara untuk history karena form.qr akan direset
+    const currentQr = form.qr.toUpperCase();
+
     form.post(route('trolis.produk.scan_hapus_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
             toast.success("Berhasil Dihapus", {
-                description: `Produk ${form.qr} telah dikeluarkan dari troli.`
+                description: `Produk ${currentQr} telah dikeluarkan dari troli.`
             });
-            addToHistory(form.qr, true);
+            addToHistory(currentQr, true);
             form.reset('qr');
-            nextTick(() => qrInput.value?.focus());
+            // Fokus otomatis ditangani oleh watcher processing
         },
         onError: (errors) => {
             const errorMsg = errors.qr || "Gagal menghapus produk.";
             toast.error("Gagal Hapus", { description: errorMsg });
-            addToHistory(form.qr, false, errorMsg);
+            addToHistory(currentQr, false, errorMsg);
             form.reset('qr');
-            nextTick(() => qrInput.value?.focus());
+            focusInput(); // Paksa fokus jika ada error
         }
     });
 };
@@ -61,8 +86,9 @@ const addToHistory = (code: string, success: boolean, msg?: string) => {
     if (scanHistory.value.length > 8) scanHistory.value.pop();
 };
 
+// Jika user mengklik area mana saja di layar, kursor balik ke input
 const refocus = () => {
-    if (!form.processing) qrInput.value?.focus();
+    if (!form.processing) focusInput();
 };
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -109,9 +135,12 @@ defineOptions({ layout: AuthenticatedLayout });
                                     v-model="form.qr"
                                     :disabled="form.processing"
                                     type="text"
-                                    class="w-full text-center border-b-4 border-t-0 border-x-0 border-slate-100 focus:border-red-600 focus:ring-0 outline-none text-5xl font-black py-4 bg-transparent transition-all placeholder:text-slate-100"
+                                    maxlength="10"
+                                    class="w-full text-center border-b-4 border-t-0 border-x-0 border-slate-100 focus:border-red-600 focus:ring-0 outline-none text-5xl font-black py-4 bg-transparent transition-all placeholder:text-slate-100 uppercase"
                                     placeholder="......"
                                     @keyup.enter="handleRemove"
+                                    @input="form.qr = form.qr.toUpperCase()"
+                                    @blur="focusInput"
                                     autocomplete="off"
                                 >
                             </div>
@@ -158,5 +187,16 @@ defineOptions({ layout: AuthenticatedLayout });
 </template>
 
 <style scoped>
-input:focus { box-shadow: none !important; }
+input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+/* Scrollbar Custom */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: #f1f5f9;
+    border-radius: 20px;
+}
 </style>
