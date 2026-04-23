@@ -18,11 +18,6 @@ class DashboardController extends Controller
             return redirect()->route('persetujuan.manager.index');
         }
 
-        // 2. Arahkan Manager, Supervisor, Leader, dan Operator ke Tugas Produksi
-        if ($user->hasAnyRole(['Manager', 'Supervisor', 'Leader', 'Operator'])) {
-            return redirect()->route('tugas.produksi.index');
-        }
-
         // 3. Jika login sebagai Admin atau Quality Control, tampilkan Dashboard utama
         return Inertia::render('Dashboard/Index');
     }
