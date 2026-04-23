@@ -19,8 +19,11 @@ import {
     IconX,
     IconEye,
     IconDownload,
+    IconCopy,
+    IconCheck,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
+import { toast } from "vue-sonner";
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -35,7 +38,7 @@ const props = defineProps<{
             is_output: boolean;
             proses?: {
                 nama_proses: string;
-                proses?: string; // Menyesuaikan pemanggilan di template kamu
+                proses?: string;
             };
             produks_count: number;
             created_at: string;
@@ -55,6 +58,22 @@ const props = defineProps<{
 }>();
 
 const search = ref(props.filters.search || "");
+const copiedInvoice = ref<number | null>(null);
+
+const copyToClipboard = async (text: string, id: number) => {
+    try {
+        await navigator.clipboard.writeText(text);
+        copiedInvoice.value = id;
+
+        toast.success("Invoice disalin!");
+
+        setTimeout(() => {
+            copiedInvoice.value = null;
+        }, 2000);
+    } catch (err) {
+        toast.error("Gagal menyalin");
+    }
+};
 
 let timeout: ReturnType<typeof setTimeout>;
 watch(search, (value) => {
@@ -136,7 +155,22 @@ const cleanLabel = (label: string) => {
                             </TableRow>
 
                             <TableRow v-for="troli in trolis.data" :key="troli.id" class="hover:bg-muted/30 transition-colors">
-                                <TableCell class="font-bold text-primary">{{ troli.invoice }}</TableCell>
+                                <TableCell>
+                                    <div class="flex items-center gap-3">
+                                        <button
+                                            @click="copyToClipboard(troli.invoice, troli.id)"
+                                            class="inline-flex items-center justify-center size-9 rounded-lg border-2 border-primary/20 bg-primary/5 active:bg-primary active:text-white transition-all shrink-0"
+                                            :class="{ 'bg-green-500 border-green-600 text-white': copiedInvoice === troli.id }"
+                                        >
+                                            <IconCheck v-if="copiedInvoice === troli.id" class="size-5" />
+                                            <IconCopy v-else class="size-5" />
+                                        </button>
+
+                                        <span class="font-bold text-primary text-sm md:text-base leading-none">
+                                            {{ troli.invoice }}
+                                        </span>
+                                    </div>
+                                </TableCell>
                                 <TableCell>{{ troli.keperluan }}</TableCell>
                                 <TableCell>{{ troli.jenis }}</TableCell>
                                 <TableCell>
@@ -154,9 +188,9 @@ const cleanLabel = (label: string) => {
                                     <Badge class="bg-lime-500 text-black">{{ troli.produks_count }}</Badge>
                                 </TableCell>
                                 <TableCell class="text-right">
-                                    <Button variant="ghost" size="icon" as-child>
+                                    <Button variant="ghost" class="size-10" as-child>
                                         <Link :href="route('trolis.produk.index', troli.id)">
-                                            <IconEye class="size-4 text-primary" />
+                                            <IconEye class="size-5 text-primary" />
                                         </Link>
                                     </Button>
                                 </TableCell>
