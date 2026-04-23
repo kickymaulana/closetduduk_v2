@@ -45,18 +45,20 @@ class ProdukController extends Controller
 
     public function scan_awal_store(Request $request, Troli $troli)
     {
+
         $request->validate([
-        'qr' => [
-            'required',
-            'string',
-            'size:10', // Harus pas 10
-            'regex:/^[A-Z0-9]+$/', // Hanya boleh HURUF BESAR dan ANGKA
-            'unique:produk,qrcode'
-        ],
+            'qr' => [
+                'required', 'string', 'size:10', 'regex:/^[A-Z0-9]+$/', 'unique:produk,qrcode'
+            ],
+            // Tambahkan validasi baru
+            'nomor_mesin' => 'required|string',
+            'nomor_mould' => 'required|string',
+            'asal_slip'   => 'required|string',
         ], [
-            'qr.regex' => 'QR Code harus berupa huruf besar dan angka!',
-            'qr.size' => 'QR Code harus tepat 10 karakter.',
             'qr.unique' => 'QR Code ini sudah terdaftar.',
+            'nomor_mesin.required' => 'Pilih nomor mesin!',
+            'nomor_mould.required' => 'Pilih nomor mould!',
+            'asal_slip.required'   => 'Pilih asal slip!',
         ]);
 
         $sesi_kerja_id = session('sesi_kerja_id');
@@ -84,6 +86,10 @@ class ProdukController extends Controller
                     'jenis' => $troli->jenis,
                     'status_akhir' => 'OK',
                     'sudah_scan' => 'Sudah',
+                    // Data tambahan dari input user
+                    'nomor_mesin' => $request->nomor_mesin,
+                    'nomor_mould' => $request->nomor_mould,
+                    'asal_slip'   => $request->asal_slip,
                 ]);
 
                 // 2. Catat untuk Leader (yang sedang login/melakukan scan)
