@@ -4,7 +4,6 @@ import { useForm, Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "vue-sonner";
 import {
     IconScan,
@@ -22,7 +21,9 @@ const props = defineProps<{
 
 const PREFIX = "scan_buang_ids_";
 const STORAGE_KEY = `${PREFIX}${props.troli.id}`;
-const qrInput = ref<any>(null);
+
+// Ref untuk Input Native
+const nativeInput = ref<HTMLInputElement | null>(null);
 
 const cleanupOldStorage = () => {
     try {
@@ -40,13 +41,31 @@ const form = useForm({
     cacat_ids: JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as number[],
 });
 
+// Simpan pilihan cacat ke localStorage
 watch(() => form.cacat_ids, (newVal) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal));
 }, { deep: true });
 
+/**
+ * FUNGSI FOKUS NATIVE
+ */
 const focusInput = () => {
-    qrInput.value?.$el?.querySelector('input')?.focus();
+    setTimeout(() => {
+        if (nativeInput.value) {
+            nativeInput.value.focus();
+        }
+    }, 50);
 };
+
+/**
+ * WATCHDOG FOKUS
+ * Mengembalikan kursor setelah proses simpan (berhasil/gagal) selesai
+ */
+watch(() => form.processing, (isProcessing) => {
+    if (!isProcessing) {
+        focusInput();
+    }
+});
 
 onMounted(() => {
     cleanupOldStorage();
@@ -60,18 +79,23 @@ const toggleCacat = (id: number) => {
     } else {
         form.cacat_ids.push(id);
     }
+    // Paksa kursor balik ke input setelah pilih cacat
+    focusInput();
 };
 
 const clearSelection = () => {
     form.cacat_ids = [];
     localStorage.removeItem(STORAGE_KEY);
     toast.info("Pilihan cacat dibersihkan.");
+    focusInput();
 };
 
 const handleScan = () => {
-    if (!form.qr) return;
+    if (!form.qr || form.processing) return;
+
     if (form.cacat_ids.length === 0) {
         toast.error("Wajib pilih alasan cacat!");
+        focusInput();
         return;
     }
 
@@ -83,7 +107,7 @@ const handleScan = () => {
                 duration: 2000,
             });
             form.qr = "";
-            focusInput();
+            // Fokus otomatis ditangani oleh watcher processing
         },
         onError: (errors) => {
             const message = errors.qr || errors.error || errors.cacat_ids || "Terjadi kesalahan.";
@@ -100,7 +124,7 @@ defineOptions({ layout: AuthenticatedLayout });
 <template>
     <Head title="Scan Buang (Reject)" />
 
-    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4">
+    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4" @click="focusInput">
 
         <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
             <Button as-child variant="outline" class="text-blue-600 border-blue-200 hover:bg-blue-50">
@@ -142,17 +166,24 @@ defineOptions({ layout: AuthenticatedLayout });
                     </div>
 
                     <div class="space-y-4">
-                        <Input
-                            ref="qrInput"
+                        <input
+                            ref="nativeInput"
                             v-model="form.qr"
                             :disabled="form.processing"
                             type="text"
-                            class="w-full text-center border-b-4 border-t-0 border-x-0 border-red-200 focus-visible:ring-0 focus-visible:border-red-600 transition-all font-bold uppercase rounded-none bg-transparent"
+                            maxlength="10"
+                            class="w-full text-center border-b-4 border-t-0 border-x-0 border-red-200 focus:ring-0 focus:border-red-600 transition-all font-bold uppercase rounded-none bg-transparent block outline-none"
                             style="font-size: 1.5rem; height: 60px; color: #b91c1c;"
                             placeholder="TAP DISINI"
                             @keyup.enter="handleScan"
+                            @input="form.qr = form.qr.toUpperCase()"
+                            @blur="focusInput"
                             autocomplete="off"
                         />
+
+                        <p v-if="form.errors.qr" class="text-[11px] text-center font-bold text-red-600 animate-bounce">
+                            {{ form.errors.qr }}
+                        </p>
 
                         <p class="text-[10px] text-center font-bold text-red-400 uppercase tracking-widest">
                             MODE BUANG: {{ troli.invoice }}
@@ -170,7 +201,7 @@ defineOptions({ layout: AuthenticatedLayout });
                 </CardHeader>
 
                 <CardContent class="py-6">
-                    <div v-if="pilihan_cacat.length > 0" class="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto">
+                    <div v-if="pilihan_cacat.length > 0" class="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
                         <button
                             v-for="item in pilihan_cacat"
                             :key="item.id"
@@ -215,7 +246,7 @@ defineOptions({ layout: AuthenticatedLayout });
         </div>
 
         <div v-if="form.processing" class="fixed inset-0 bg-red-900/20 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div class="flex flex-col items-center gap-2 bg-white p-6 rounded-lg shadow-2xl">
+            <div class="flex flex-col items-center gap-2 bg-white p-6 rounded-lg shadow-2xl border-2 border-red-600">
                 <IconLoader2 class="size-10 animate-spin text-red-600" />
                 <span class="font-bold text-red-900">Menghapus Produk...</span>
             </div>
