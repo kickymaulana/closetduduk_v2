@@ -254,10 +254,16 @@ const getDuration = () => {
         </div>
 
         <Card class="border-none shadow-lg">
-            <CardHeader>
+            <CardHeader class="flex flex-row items-center justify-between space-y-0">
                 <CardTitle class="text-lg flex items-center gap-2">
                     <IconHistory class="size-5 text-primary" /> Riwayat Scan Produk
                 </CardTitle>
+
+                <Button variant="ghost" size="sm" as-child class="text-primary hover:text-primary hover:bg-primary/10">
+                    <Link :href="route('sesikerjas.riwayat_scan', sesikerja.id)" class="flex items-center gap-1">
+                        Lihat Semua
+                        <IconArrowRight class="size-4" /> </Link>
+                </Button>
             </CardHeader>
             <CardContent>
                 <div class="rounded-lg border overflow-hidden">

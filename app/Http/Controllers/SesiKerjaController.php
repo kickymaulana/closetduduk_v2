@@ -90,29 +90,54 @@ class SesiKerjaController extends Controller
             'leader',
             'sesi_kerja_members.user',
             'pengerjaan_produks' => function($query) {
+                // Kita ambil semua dulu agar fungsi unique() di bawah akurat
                 $query->with(['produk', 'proses'])->latest();
             }
         ]);
 
-        // Ambil koleksi pengerjaan
+        // 1. Ambil semua baris pengerjaan
         $pengerjaanRows = $sesikerja->pengerjaan_produks;
 
-        // Filter unik berdasarkan produk_id dan proses_id (mengambil yang terbaru)
-        $uniquePengerjaan = $pengerjaanRows->unique(function ($item) {
+        // 2. Filter Unik (Per Produk & Per Proses)
+        $allUnique = $pengerjaanRows->unique(function ($item) {
             return $item['produk_id'].'-'.$item['proses_id'];
         })->values();
 
+        // 3. Limit hasil unik tersebut menjadi 12 untuk tampilan tabel di Show
+        $pengerjaanLimit = $allUnique->take(12);
+
+        // 4. Statistik dihitung dari $allUnique (seluruh data unik tanpa limit 12)
         $stats = [
-            'total_scan'      => $uniquePengerjaan->count(),
-            'total_ok'        => $uniquePengerjaan->where('status_kondisi', 'OK')->count(),
-            'total_in_proses' => $uniquePengerjaan->where('status_kondisi', 'In Proses')->count(),
-            'total_reject'    => $uniquePengerjaan->where('status_kondisi', 'Buang')->count(),
+            'total_scan'      => $allUnique->count(),
+            'total_ok'        => $allUnique->where('status_kondisi', 'OK')->count(),
+            'total_in_proses' => $allUnique->where('status_kondisi', 'In Proses')->count(),
+            'total_reject'    => $allUnique->where('status_kondisi', 'Buang')->count(),
         ];
 
         return Inertia::render('SesiKerjas/Show', [
             'sesikerja' => $sesikerja,
             'stats'     => $stats,
-            'pengerjaan_unik' => $uniquePengerjaan // Kirim data yang sudah di-filter unik
+            'pengerjaan_unik' => $pengerjaanLimit // Ini yang dikirim ke tabel (maksimal 12)
+        ]);
+    }
+
+    public function riwayat_scan(Request $request, SesiKerja $sesikerja)
+    {
+        $riwayat = $sesikerja->pengerjaan_produks()
+            ->with(['produk', 'proses'])
+            ->when($request->search, function ($query, $search) {
+                $query->whereHas('produk', function ($q) use ($search) {
+                    $q->where('qrcode', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(12) // Limit 12 per halaman
+            ->withQueryString();
+
+        return Inertia::render('SesiKerjas/RiwayatScan', [
+            'sesikerja' => $sesikerja->load('leader'),
+            'riwayat'   => $riwayat,
+            'filters'   => $request->only(['search'])
         ]);
     }
 

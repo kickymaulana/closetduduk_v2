@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function () {
     Route::get('sesi-kerjas/create', [SesiKerjaController::class, 'create'])->name('sesikerjas.create');
     Route::post('sesi-kerjas/create', [SesiKerjaController::class, 'store'])->name('sesikerjas.store');
     Route::get('sesi-kerjas/{sesikerja}', [SesiKerjaController::class, 'show'])->name('sesikerjas.show');
+    Route::get('sesi-kerjas/{sesikerja}/riwayat-scan', [SesiKerjaController::class, 'riwayat_scan'])->name('sesikerjas.riwayat_scan');
     Route::get('sesi-kerjas/{sesikerja}/edit', [SesiKerjaController::class, 'edit'])->name('sesikerjas.edit');
     Route::put('sesi-kerjas/{sesikerja}/edit', [SesiKerjaController::class, 'update'])->name('sesikerjas.update');
     Route::post('sesi-kerjas/{sesikerja}/aktifkan', [SesiKerjaController::class, 'aktifkan'])->name('sesikerjas.aktifkan');
