@@ -18,8 +18,6 @@ import {
     IconSearch,
     IconX,
     IconEye,
-    IconPlus,
-    IconBuildingBridge,
     IconDownload,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
@@ -36,12 +34,17 @@ const props = defineProps<{
             status: string;
             is_output: boolean;
             proses?: {
-                nama_proses: string; // Sesuaikan dengan nama kolom di tabel 'proses'
+                nama_proses: string;
+                proses?: string; // Menyesuaikan pemanggilan di template kamu
             };
             produks_count: number;
             created_at: string;
         }>;
-        links: any[];
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
         from: number;
         to: number;
         total: number;
@@ -94,18 +97,17 @@ const cleanLabel = (label: string) => {
                         </button>
                     </div>
 
-                    <Button variant="outline" class="border-primary text-primary hover:bg-primary/10">
-                        <Link :href="route('trolifisiks.index')" class="flex items-center justify-center">
+                    <Button variant="outline" class="border-primary text-primary hover:bg-primary/10" as-child>
+                        <Link :href="route('trolifisiks.index')">
                             <IconShoppingCart class="mr-2 size-4" />
                             Ambil Fisik
                         </Link>
                     </Button>
 
-
-                    <Button class="bg-primary hover:bg-primary/90">
-                        <Link :href="route('trolis.ambil')" class="flex items-center justify-center">
-                        <IconDownload class="mr-2 size-4" />
-                        Ambil Troli
+                    <Button class="bg-primary hover:bg-primary/90" as-child>
+                        <Link :href="route('trolis.ambil')">
+                            <IconDownload class="mr-2 size-4" />
+                            Ambil Troli
                         </Link>
                     </Button>
                 </div>
@@ -128,7 +130,9 @@ const cleanLabel = (label: string) => {
                         </TableHeader>
                         <TableBody>
                             <TableRow v-if="trolis.data.length === 0">
-                                <TableCell colspan="7" class="h-24 text-center text-muted-foreground">Data tidak ditemukan.</TableCell>
+                                <TableCell colspan="8" class="h-24 text-center text-muted-foreground">
+                                    Data tidak ditemukan.
+                                </TableCell>
                             </TableRow>
 
                             <TableRow v-for="troli in trolis.data" :key="troli.id" class="hover:bg-muted/30 transition-colors">
@@ -151,7 +155,8 @@ const cleanLabel = (label: string) => {
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <Button variant="ghost" size="icon" as-child>
-                                        <Link :href="route('trolis.produk.index', troli.id)"> <IconEye class="size-4 text-primary" />
+                                        <Link :href="route('trolis.produk.index', troli.id)">
+                                            <IconEye class="size-4 text-primary" />
                                         </Link>
                                     </Button>
                                 </TableCell>
@@ -159,7 +164,31 @@ const cleanLabel = (label: string) => {
                         </TableBody>
                     </Table>
                 </div>
-                </CardContent>
+
+                <div v-if="trolis.total > 0" class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-sm text-muted-foreground order-2 md:order-1">
+                        Menampilkan <span class="font-medium text-foreground">{{ trolis.from }}</span>
+                        sampai <span class="font-medium text-foreground">{{ trolis.to }}</span>
+                        dari <span class="font-medium text-foreground">{{ trolis.total }}</span> data
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center gap-1 order-1 md:order-2">
+                        <template v-for="(link, k) in trolis.links" :key="k">
+                            <div v-if="link.url === null"
+                                 class="px-3 py-1.5 text-xs border rounded-md text-muted-foreground opacity-50 cursor-not-allowed"
+                                 v-html="cleanLabel(link.label)" />
+
+                            <Link v-else
+                                  :href="link.url"
+                                  class="px-3 py-1.5 text-xs border rounded-md transition-all hover:bg-primary hover:text-white"
+                                  :class="{ 'bg-primary text-white border-primary font-bold': link.active }"
+                                  v-html="cleanLabel(link.label)"
+                                  preserve-scroll
+                            />
+                        </template>
+                    </div>
+                </div>
+            </CardContent>
         </Card>
     </div>
 </template>
