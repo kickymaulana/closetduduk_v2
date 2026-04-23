@@ -14,8 +14,8 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // 1. Arahkan Manager Tingkat Atas ke Persetujuan Manager
-        if ($user->hasAnyRole(['QC Manager', 'Factory Manager', 'General Manager'])) {
-            return redirect()->route('persetujuan.manager.index');
+        if (!$user->hasAnyRole(['admin', 'Manager Produksi'])) {
+            return redirect()->route('trolis.index');
         }
 
         // 3. Jika login sebagai Admin atau Quality Control, tampilkan Dashboard utama
