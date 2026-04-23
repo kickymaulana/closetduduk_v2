@@ -27,4 +27,9 @@ class PengerjaanProduk extends Model
     {
         return $this->belongsTo(Proses::class, 'proses_id');
     }
+
+    public function pengerjaan_cacats(): HasMany
+    {
+        return $this->hasMany(PengerjaanCacat::class, 'pengerjaan_produk_id');
+    }
 }

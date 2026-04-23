@@ -8,6 +8,7 @@ use App\Models\Produk;
 use App\Models\Cacat;
 use App\Models\PengerjaanProduk;
 use App\Models\SesiKerja;
+use App\Models\AturanPenolakan;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -274,6 +275,90 @@ class ProdukController extends Controller
             'troli' => $troli,
             'pilihan_cacat' => $pilihan_cacat
         ]);
+    }
+
+
+    public function scan_inproses_store(Request $request, Troli $troli)
+    {
+        $request->validate([
+            'qr' => 'required|string',
+            'cacat_ids' => 'nullable|array',
+        ]);
+
+        $sesi = SesiKerja::with('sesi_kerja_members')->find(session('sesi_kerja_id'));
+        if (!$sesi) return back()->withErrors(['error' => 'Sesi tidak aktif.']);
+
+        $produk = $troli->produks()->where('qrcode', $request->qr)->first();
+        if (!$produk) return back()->withErrors(['qr' => 'Produk tidak ditemukan di troli ini.']);
+
+        // Tentukan status: Jika ada cacat IDs, maka statusnya 'In Proses' (atau 'Buang' jika status troli buang)
+        // Tapi karena ini route 'scan-inproses', kita default ke 'In Proses' jika ada cacat.
+        $statusKondisi = !empty($request->cacat_ids) ? 'In Proses' : 'OK';
+
+        try {
+            DB::transaction(function () use ($request, $troli, $sesi, $produk, $statusKondisi) {
+
+                // 1. Simpan Pengerjaan untuk Leader (Pencatat Utama)
+                $pengerjaanLeader = PengerjaanProduk::create([
+                    'user_id' => auth()->id(),
+                    'produk_id' => $produk->id,
+                    'sesi_kerja_id' => $sesi->id,
+                    'proses_id' => $troli->proses->id, // Proses troli saat ini
+                    'status_kondisi' => $statusKondisi,
+                ]);
+
+                // 2. Loop Cacat & Tracking PJ (Penanggung Jawab)
+                if (!empty($request->cacat_ids)) {
+                    foreach ($request->cacat_ids as $cid) {
+
+                        // Ambil Aturan Penolakan
+                        $aturan = AturanPenolakan::where('cacat_id', $cid)
+                                    ->where('proses_pemeriksa', $troli->proses->id)
+                                    ->first();
+
+                        $userPJId = null;
+                        $prosesPJId = null;
+
+                        if ($aturan) {
+                            // Secara default di 'In Proses' kita tembak ke 'proses_toleransi'
+                            $prosesPJId = $aturan->proses_toleransi;
+
+                            // CARI USER PJ: Orang terakhir yang mengerjakan barang ini di proses toleransi tsb
+                            $lastJob = PengerjaanProduk::where('produk_id', $produk->id)
+                                        ->where('proses_id', $prosesPJId)
+                                        ->latest('id')
+                                        ->first();
+
+                            $userPJId = $lastJob ? $lastJob->user_id : null;
+                        }
+
+                        // Simpan Detail Cacat
+                        $pengerjaanLeader->pengerjaan_cacats()->create([
+                            'cacat_id' => $cid,
+                            'user_scan_id' => auth()->id(),
+                            'proses_scan_id' => $troli->proses->id,
+                            'user_pj_id' => $userPJId,
+                            'proses_pj_id' => $prosesPJId,
+                        ]);
+                    }
+                }
+
+                // 3. Simpan Pengerjaan untuk Anggota Tim (Auto-Insert)
+                foreach ($sesi->sesi_kerja_members as $member) {
+                    PengerjaanProduk::create([
+                        'user_id' => $member->user_id,
+                        'produk_id' => $produk->id,
+                        'sesi_kerja_id' => $sesi->id,
+                        'proses_id' => $troli->proses->id,
+                        'status_kondisi' => $statusKondisi,
+                    ]);
+                }
+            });
+
+            return back()->with('success', 'Pemeriksaan in-proses berhasil dicatat.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal simpan: ' . $e->getMessage()]);
+        }
     }
 
 }
