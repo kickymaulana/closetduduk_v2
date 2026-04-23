@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// Kita tidak lagi import Input dari shadcn untuk menghindari konflik fokus
 import { toast } from "vue-sonner";
 import {
     IconScan,
@@ -18,37 +18,52 @@ const props = defineProps<{
     troli: any;
 }>();
 
-const qrInput = ref<any>(null);
+// Gunakan ref native
+const nativeInput = ref<HTMLInputElement | null>(null);
 
 const form = useForm({
     qr: "",
 });
 
-// Fungsi untuk memastikan input selalu fokus
+/**
+ * FUNGSI FOKUS NATIVE
+ * Langsung menembak elemen input tanpa perantara wrapper
+ */
 const focusInput = () => {
-    // Shadcn Input adalah wrapper, kita butuh elemen input di dalamnya
-    qrInput.value?.$el?.querySelector('input')?.focus();
+    setTimeout(() => {
+        if (nativeInput.value) {
+            nativeInput.value.focus();
+        }
+    }, 50);
 };
 
 onMounted(() => {
     focusInput();
 });
 
+/**
+ * WATCHDOG FOKUS
+ * Memaksa fokus kembali setiap kali proses submit selesai (berhasil/gagal)
+ */
+watch(() => form.processing, (isProcessing) => {
+    if (!isProcessing) {
+        focusInput();
+    }
+});
+
 const handleScan = () => {
-    if (!form.qr) return;
+    if (!form.qr || form.processing) return;
 
     form.post(route('trolis.produk.scan_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
             toast.success("Terverifikasi!", {
-                description: `Produk ${form.qr} berhasil divalidasi untuk tim.`,
+                description: `Produk ${form.qr} berhasil divalidasi.`,
                 duration: 2000,
             });
             form.reset();
-            focusInput();
         },
         onError: (errors) => {
-            // Menangkap error 'qr' (produk tidak ada) atau 'error' (sesi tidak ada)
             const message = errors.qr || errors.error || "Terjadi kesalahan validasi.";
             toast.error("Gagal Validasi", {
                 description: message,
@@ -65,7 +80,7 @@ defineOptions({ layout: AuthenticatedLayout });
 <template>
     <Head title="Scan Validasi Produk" />
 
-    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4 relative">
+    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4 relative" @click="focusInput">
 
         <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
             <Button as-child variant="default" class="bg-blue-600 hover:bg-blue-700 shadow-lg border-b-4 border-blue-800">
@@ -113,15 +128,18 @@ defineOptions({ layout: AuthenticatedLayout });
                 </div>
 
                 <div class="space-y-4 text-center">
-                    <Input
-                        ref="qrInput"
+                    <input
+                        ref="nativeInput"
                         v-model="form.qr"
                         :disabled="form.processing"
                         type="text"
-                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-blue-200 focus-visible:ring-0 focus-visible:border-blue-600 transition-all outline-none font-bold uppercase placeholder:text-slate-300 rounded-none bg-transparent"
+                        maxlength="10"
+                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-blue-200 focus:ring-0 focus:border-blue-600 transition-all outline-none font-bold uppercase placeholder:text-slate-300 rounded-none bg-transparent block"
                         style="font-size: 2.2rem; color: #1e40af; height: 80px;"
                         placeholder="SCAN DISINI"
                         @keyup.enter="handleScan"
+                        @input="form.qr = form.qr.toUpperCase()"
+                        @blur="focusInput"
                         autocomplete="off"
                     />
 
@@ -134,6 +152,10 @@ defineOptions({ layout: AuthenticatedLayout });
                             <span class="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Mode: Verifikasi Tim</span>
                         </div>
                     </div>
+
+                    <p v-if="form.errors.qr" class="text-sm text-red-600 font-bold animate-bounce">
+                        {{ form.errors.qr }}
+                    </p>
                 </div>
             </CardContent>
         </Card>
@@ -151,7 +173,7 @@ defineOptions({ layout: AuthenticatedLayout });
 </template>
 
 <style scoped>
-/* Hilangkan outline default browser untuk input focus */
+/* Reset style tambahan jika ada */
 input:focus {
     outline: none !important;
     box-shadow: none !important;
