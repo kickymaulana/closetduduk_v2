@@ -4,7 +4,6 @@ import { useForm, Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "vue-sonner";
 import {
     IconScan,
@@ -24,18 +23,13 @@ const props = defineProps<{
 const PREFIX = "scan_cacat_ids_";
 const STORAGE_KEY = `${PREFIX}${props.troli.id}`;
 
-const qrInput = ref<any>(null);
+// Ref untuk Input Native
+const nativeInput = ref<HTMLInputElement | null>(null);
 
-/**
- * FUNGSI PEMBERSIH OTOMATIS:
- * Menghapus data dari troli-troli sebelumnya agar LocalStorage tidak penuh.
- * Ini penting jika dalam sehari ada ribuan troli.
- */
 const cleanupOldStorage = () => {
     try {
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
-            // Hapus jika key milik fitur ini tapi bukan untuk troli yang sedang dibuka
             if (key.startsWith(PREFIX) && key !== STORAGE_KEY) {
                 localStorage.removeItem(key);
             }
@@ -47,21 +41,34 @@ const cleanupOldStorage = () => {
 
 const form = useForm({
     qr: "",
-    // Ambil data dari localStorage saat halaman dimuat
     cacat_ids: JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as number[],
 });
 
-// Simpan ke localStorage setiap kali ada perubahan pada pilihan cacat
+// Simpan ke localStorage
 watch(() => form.cacat_ids, (newVal) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal));
 }, { deep: true });
 
+/**
+ * FUNGSI FOKUS NATIVE
+ */
 const focusInput = () => {
-    qrInput.value?.$el?.querySelector('input')?.focus();
+    setTimeout(() => {
+        if (nativeInput.value) {
+            nativeInput.value.focus();
+        }
+    }, 50);
 };
 
+// Pantau status processing untuk mengembalikan kursor
+watch(() => form.processing, (isProcessing) => {
+    if (!isProcessing) {
+        focusInput();
+    }
+});
+
 onMounted(() => {
-    cleanupOldStorage(); // Jalankan pembersihan sampah
+    cleanupOldStorage();
     focusInput();
 });
 
@@ -72,16 +79,19 @@ const toggleCacat = (id: number) => {
     } else {
         form.cacat_ids.push(id);
     }
+    // Setelah klik tombol cacat, kembalikan fokus ke input QR
+    focusInput();
 };
 
 const clearSelection = () => {
     form.cacat_ids = [];
     localStorage.removeItem(STORAGE_KEY);
     toast.info("Pilihan cacat telah dibersihkan.");
+    focusInput();
 };
 
 const handleScan = () => {
-    if (!form.qr) return;
+    if (!form.qr || form.processing) return;
 
     form.post(route('trolis.produk.scan_inproses_store', props.troli.id), {
         preserveScroll: true,
@@ -90,11 +100,8 @@ const handleScan = () => {
                 description: `Produk ${form.qr} berhasil diproses.`,
                 duration: 2000,
             });
-
-            // HANYA mengosongkan input QR.
-            // Pilihan cacat tetap ada (sticky) sampai user klik "Bersihkan Semua"
             form.qr = "";
-            focusInput();
+            // Fokus otomatis ditangani watcher processing
         },
         onError: (errors) => {
             const message = errors.qr || errors.error || "Terjadi kesalahan.";
@@ -111,7 +118,7 @@ defineOptions({ layout: AuthenticatedLayout });
 <template>
     <Head title="Scan In-Proses" />
 
-    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4">
+    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4" @click="focusInput">
 
         <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
             <Button as-child variant="outline" class="text-blue-600 border-blue-200 hover:bg-blue-50">
@@ -153,17 +160,24 @@ defineOptions({ layout: AuthenticatedLayout });
                     </div>
 
                     <div class="space-y-4">
-                        <Input
-                            ref="qrInput"
+                        <input
+                            ref="nativeInput"
                             v-model="form.qr"
                             :disabled="form.processing"
                             type="text"
-                            class="w-full text-center border-b-4 border-t-0 border-x-0 border-orange-200 focus-visible:ring-0 focus-visible:border-orange-500 transition-all font-bold uppercase rounded-none bg-transparent"
+                            maxlength="10"
+                            class="w-full text-center border-b-4 border-t-0 border-x-0 border-orange-200 focus:ring-0 focus:border-orange-500 transition-all font-bold uppercase rounded-none bg-transparent block outline-none"
                             style="font-size: 1.5rem; height: 60px;"
                             placeholder="TAP DISINI"
                             @keyup.enter="handleScan"
+                            @input="form.qr = form.qr.toUpperCase()"
+                            @blur="focusInput"
                             autocomplete="off"
                         />
+
+                        <p v-if="form.errors.qr" class="text-[11px] text-center font-bold text-red-600 animate-bounce">
+                            {{ form.errors.qr }}
+                        </p>
 
                         <p class="text-[10px] text-center font-bold text-orange-400 uppercase tracking-widest">
                             In-Proses: {{ troli.invoice }}
@@ -172,18 +186,17 @@ defineOptions({ layout: AuthenticatedLayout });
                 </CardContent>
             </Card>
 
-
             <Card class="md:col-span-7 border-2 border-slate-200 shadow-xl">
                 <CardHeader class="bg-slate-50 border-b">
                     <CardTitle class="text-sm font-bold flex items-center gap-2">
                         <IconAlertTriangle class="size-4 text-red-500" />
                         LAPORAN CACAT (OPSIONAL)
                     </CardTitle>
-                    <p class="text-xs text-muted-foreground italic">Pilihan tersimpan otomatis (F5 tidak akan hilang)</p>
+                    <p class="text-xs text-muted-foreground italic">Pilihan tersimpan otomatis</p>
                 </CardHeader>
 
                 <CardContent class="py-6">
-                    <div v-if="pilihan_cacat.length > 0" class="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto">
+                    <div v-if="pilihan_cacat.length > 0" class="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
                         <button
                             v-for="item in pilihan_cacat"
                             :key="item.id"
@@ -242,7 +255,6 @@ input:focus {
     outline: none !important;
     box-shadow: none !important;
 }
-/* Custom scrollbar untuk list cacat */
 .overflow-y-auto::-webkit-scrollbar {
     width: 4px;
 }
