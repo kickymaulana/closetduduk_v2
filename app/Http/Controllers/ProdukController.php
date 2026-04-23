@@ -46,13 +46,21 @@ class ProdukController extends Controller
     public function scan_awal_store(Request $request, Troli $troli)
     {
         $request->validate([
-            'qr' => 'required|string|max:10|unique:produk,qrcode',
+        'qr' => [
+            'required',
+            'string',
+            'size:10', // Harus pas 10
+            'regex:/^[A-Z0-9]+$/', // Hanya boleh HURUF BESAR dan ANGKA
+            'unique:produk,qrcode'
+        ],
         ], [
-            'qr.unique' => 'QR Code ini sudah pernah discan/terdaftar!',
-            'qr.max' => 'Format QR Code salah (maksimal 10 karakter).'
+            'qr.regex' => 'QR Code harus berupa huruf besar dan angka!',
+            'qr.size' => 'QR Code harus tepat 10 karakter.',
+            'qr.unique' => 'QR Code ini sudah terdaftar.',
         ]);
 
         $sesi_kerja_id = session('sesi_kerja_id');
+        $qrUpper = strtoupper($request->qr);
 
         if (!$sesi_kerja_id) {
             return back()->withErrors(['error' => 'Silakan pilih/aktifkan Sesi Kerja terlebih dahulu di menu Sesi Kerja!']);
