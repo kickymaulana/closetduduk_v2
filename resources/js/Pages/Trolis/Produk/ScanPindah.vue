@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ import {
     IconAlertCircle
 } from "@tabler/icons-vue";
 
-// Props yang diterima dari Controller (ProdukController@scan_pindah)
+// Props yang diterima dari Controller
 const props = defineProps<{
     troli: any;        // Troli ASAL
     daftarTroli: any[]; // Daftar troli selain asal
@@ -33,13 +33,34 @@ const form = useForm({
     troli_tujuan_id: "", // Dipilih secara manual oleh user di sidebar
 });
 
-// Fokuskan ke input scan saat pertama kali buka
+/**
+ * FUNGSI FOKUS UTAMA
+ */
+const focusInput = () => {
+    setTimeout(() => {
+        if (qrInput.value) {
+            qrInput.value.focus();
+        }
+    }, 50);
+};
+
 onMounted(() => {
-    qrInput.value?.focus();
+    focusInput();
+});
+
+/**
+ * WATCHDOG FOKUS
+ * Mengembalikan kursor saat proses selesai atau saat troli tujuan diganti
+ */
+watch(() => form.processing, (isProcessing) => {
+    if (!isProcessing) focusInput();
+});
+
+watch(() => form.troli_tujuan_id, () => {
+    focusInput();
 });
 
 const handleTransfer = () => {
-    // Validasi Sederhana di Client
     if (!form.troli_tujuan_id) {
         toast.error("Pilih Troli Tujuan", {
             description: "Silahkan pilih troli target perpindahan barang terlebih dahulu."
@@ -47,31 +68,29 @@ const handleTransfer = () => {
         return;
     }
 
-    if (!form.qr) return;
+    if (!form.qr || form.processing) return;
 
-    // Eksekusi POST ke route scan_pindah_store
+    const currentQr = form.qr.toUpperCase();
+
     form.post(route('trolis.produk.scan_pindah_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
             toast.success("Berhasil Dipindahkan", {
-                description: `Produk ${form.qr} berhasil dipindahkan ke tujuan.`
+                description: `Produk ${currentQr} berhasil dipindahkan ke tujuan.`
             });
 
-            // Tambahkan ke riwayat lokal
-            addToHistory(form.qr, true);
-
+            addToHistory(currentQr, true);
             form.reset('qr');
-            nextTick(() => qrInput.value?.focus());
+            // Fokus otomatis ditangani oleh watcher
         },
         onError: (errors) => {
             toast.error("Gagal Pindah", {
                 description: errors.qr || "Terjadi kesalahan saat memproses data."
             });
 
-            addToHistory(form.qr, false);
-
+            addToHistory(currentQr, false);
             form.reset('qr');
-            nextTick(() => qrInput.value?.focus());
+            focusInput();
         }
     });
 };
@@ -83,14 +102,11 @@ const addToHistory = (code: string, success: boolean) => {
                        now.getSeconds().toString().padStart(2, '0');
 
     scanHistory.value.unshift({ code, time: timeString, success });
-    if (scanHistory.value.length > 5) scanHistory.value.pop(); // Simpan 5 terakhir saja
+    if (scanHistory.value.length > 5) scanHistory.value.pop();
 };
 
-// Menghindari klik tidak sengaja yang mematikan fokus input
 const refocus = () => {
-    if (!form.processing) {
-        qrInput.value?.focus();
-    }
+    if (!form.processing) focusInput();
 };
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -109,7 +125,7 @@ defineOptions({ layout: AuthenticatedLayout });
                     </Link>
                 </Button>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">Transfer Antar Troli</h1>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-800">Transfer Antar Troli</h1>
                     <div class="flex items-center gap-2 mt-1">
                         <Badge variant="destructive" class="px-1.5 py-0 text-[10px]">SUMBER</Badge>
                         <span class="text-sm font-mono font-semibold text-slate-600">{{ troli.invoice }}</span>
@@ -214,9 +230,12 @@ defineOptions({ layout: AuthenticatedLayout });
                                         v-model="form.qr"
                                         :disabled="!form.troli_tujuan_id || form.processing"
                                         type="text"
-                                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-slate-100 focus:border-blue-600 focus:ring-0 outline-none text-5xl font-black py-4 bg-transparent transition-all placeholder:text-slate-100"
+                                        maxlength="10"
+                                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-slate-100 focus:border-blue-600 focus:ring-0 outline-none text-5xl font-black py-4 bg-transparent transition-all placeholder:text-slate-100 uppercase"
                                         placeholder="......"
                                         @keyup.enter="handleTransfer"
+                                        @input="form.qr = form.qr.toUpperCase()"
+                                        @blur="focusInput"
                                         autocomplete="off"
                                     >
                                 </div>
@@ -231,6 +250,10 @@ defineOptions({ layout: AuthenticatedLayout });
                                         <span class="text-xs font-medium uppercase tracking-tight">Tekan ENTER setelah scan</span>
                                     </div>
                                 </div>
+
+                                <p v-if="form.errors.qr" class="text-xs font-bold text-red-600 animate-bounce">
+                                    {{ form.errors.qr }}
+                                </p>
                             </div>
                         </div>
 
@@ -239,7 +262,6 @@ defineOptions({ layout: AuthenticatedLayout });
                                 <IconHistory class="size-4" />
                                 <span class="text-xs font-bold uppercase tracking-tighter">Riwayat Sesi Ini</span>
                             </div>
-                            <span class="text-[10px] text-slate-400 font-mono italic tracking-tighter">v.1.0-stable</span>
                         </div>
 
                         <div class="divide-y border-t">
@@ -268,12 +290,10 @@ defineOptions({ layout: AuthenticatedLayout });
 </template>
 
 <style scoped>
-/* Reset Ring Shadcn untuk input custom */
 input:focus {
     box-shadow: none !important;
 }
 
-/* Kustomisasi scrollbar untuk sidebar */
 .overflow-y-auto::-webkit-scrollbar {
   width: 4px;
 }
