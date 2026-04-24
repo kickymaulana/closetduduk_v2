@@ -11,6 +11,7 @@ import {
     IconArrowsSplit2,
     IconShoppingCartCopy,
     IconHistory,
+    IconReportAnalytics
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -66,6 +67,13 @@ const filteredNavMain = computed(() => {
         url: route("riwayat.scan.masuk"),
         icon: IconHistory,
         root: "RiwayatScanMasuk",
+    });
+
+    menus.push({
+        title: "Total Pengerjaan User",
+        url: route("total.pengerjaan.user"),
+        icon: IconReportAnalytics,
+        root: "TotalPengerjaan",
     });
     return menus;
 });
