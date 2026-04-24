@@ -11,7 +11,8 @@ import {
     IconArrowsSplit2,
     IconShoppingCartCopy,
     IconHistory,
-    IconReportAnalytics
+    IconReportAnalytics,
+    IconClipboardList,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -74,6 +75,13 @@ const filteredNavMain = computed(() => {
         url: route("total.pengerjaan.user"),
         icon: IconReportAnalytics,
         root: "TotalPengerjaan",
+    });
+
+    menus.push({
+        title: "Log Temuan Reject",
+        url: route("log.temuan.reject"),
+        icon: IconClipboardList,
+        root: "LogTemuanReject",
     });
     return menus;
 });

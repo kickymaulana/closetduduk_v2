@@ -19,6 +19,7 @@ use App\Http\Controllers\TroliFisikController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\RiwayatScanMasukController;
 use App\Http\Controllers\TotalPengerjaanUserController;
+use App\Http\Controllers\LogTemuanRejectController;
 
 
 
@@ -126,4 +127,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
     Route::get('total-pengerjaan-user', [TotalPengerjaanUserController::class, 'index'])->name('total.pengerjaan.user');
+    Route::get('log-temuan-reject', [LogTemuanRejectController::class, 'index'])->name('log.temuan.reject');
 });
