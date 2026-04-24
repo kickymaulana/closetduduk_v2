@@ -16,16 +16,20 @@ class SesiKerjaController extends Controller
     public function index(Request $request)
     {
         $sesikerjas = SesiKerja::query()
+            // Syarat utama: Harus milik user yang sedang login
             ->where('leader_id', auth()->id())
             ->with(['leader', 'sesi_kerja_members.user'])
             ->withCount(['pengerjaan_produks as total_pengerjaan' => function ($query) {
                 $query->select(DB::raw('count(distinct produk_id, proses_id)'));
             }])
             ->when($request->search, function ($query, $search) {
-                $query->whereHas('leader', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })
-                ->orWhere('jenis', 'like', "%{$search}%");
+                // Kita bungkus WHERE pencarian di dalam grup agar tidak merusak leader_id
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('leader', function ($sub) use ($search) {
+                        $sub->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhere('jenis', 'like', "%{$search}%");
+                });
             })
             ->latest()
             ->paginate(10)
