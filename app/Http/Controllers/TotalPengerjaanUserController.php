@@ -10,19 +10,26 @@ use App\Models\PengerjaanProduk;
 
 class TotalPengerjaanUserController extends Controller
 {
+
+
     public function index(Request $request)
     {
         $rekap = PengerjaanProduk::query()
-            ->with(['user']) // Kita butuh data user untuk menampilkan nama
+            ->with(['user'])
             ->select('user_id', \DB::raw('count(*) as total_pengerjaan'))
-            // Pencarian berdasarkan nama user
+
+            // Filter Tanggal (Baru)
+            ->when($request->date_start && $request->date_end, function ($query) use ($request) {
+                $query->whereBetween('created_at', [$request->date_start, $request->date_end]);
+            })
+
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 });
             })
             ->groupBy('user_id')
-            ->orderBy('total_pengerjaan', 'desc') // Urutkan dari yang paling rajin
+            ->orderBy('total_pengerjaan', 'desc')
             ->paginate(15)
             ->withQueryString()
             ->through(fn ($item) => [
@@ -35,7 +42,7 @@ class TotalPengerjaanUserController extends Controller
 
         return Inertia::render('TotalPengerjaan/Index', [
             'rekap' => $rekap,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'date_start', 'date_end']),
         ]);
     }
 }
