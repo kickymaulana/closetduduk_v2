@@ -159,13 +159,18 @@ class SesiKerjaController extends Controller
 
     public function edit(SesiKerja $sesikerja)
     {
-        // Load members supaya checkbox-nya tercentang otomatis di Vue
+        // 1. Ambil departemen_id dari user yang sedang login
+        $departemenId = auth()->user()->departemen_id;
+
+        // 2. Load members agar checkbox di Vue terisi
         $sesikerja->load('sesi_kerja_members');
 
         return Inertia::render('SesiKerjas/Edit', [
             'sesikerja' => $sesikerja,
-            // Kirim daftar user lagi
-            'users' => User::where('id', '!=', auth()->id())->get(['id', 'name'])
+            'users' => User::query()
+                ->where('id', '!=', auth()->id()) // Kecuali diri sendiri
+                ->where('departemen_id', $departemenId) // Harus satu departemen
+                ->get(['id', 'name'])
         ]);
     }
 
