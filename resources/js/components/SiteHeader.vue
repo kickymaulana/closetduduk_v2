@@ -33,7 +33,7 @@ const toggleDark = useToggle(isDark);
                         target="_blank"
                         class="dark:text-foreground"
                     >
-                        Closet Duduk V2
+                        Simanduk
                     </a>
                 </Button>
                 <Button variant="ghost" size="icon" @click="toggleDark()">

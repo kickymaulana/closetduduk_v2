@@ -157,7 +157,7 @@ const masterData = [
                         >
                             <IconInnerShadowTop class="!size-5" />
                             <span class="font-bold tracking-tight"
-                                >Closet Duduk V2</span
+                                >Simanduk</span
                             >
                         </Link>
                     </SidebarMenuButton>
