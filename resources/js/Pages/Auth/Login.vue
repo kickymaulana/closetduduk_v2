@@ -9,11 +9,11 @@ import LoginForm from "@/components/LoginForm.vue";
 import { Button } from "@/components/ui/button";
 import { useDark, useToggle } from "@vueuse/core";
 import { IconSun, IconMoon, IconUserCircle } from "@tabler/icons-vue";
+import bgImage from "../../images/bg-login.png";
 
 // Menerima props dari Laravel/Inertia
 defineProps<{
     users: Array<{ id: number; name: string; username: string }>;
-    backgroundImage: string;
 }>();
 
 const isDark = useDark();
@@ -30,7 +30,7 @@ const handleSelectUser = (username: string) => {
 <template>
     <div
         class="relative flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-cover bg-center bg-no-repeat transition-all duration-500"
-        style="background-image: url(&quot;images/bg-login.png&quot;)"
+        :style="{ backgroundImage: `url(${bgImage})` }"
     >
         <div
             class="absolute inset-0 bg-blue-950/20 dark:bg-black/80 backdrop-blur-[1px]"
