@@ -63,16 +63,16 @@ const displayStats = computed(() => [
 </script>
 
 <template>
-    <Head title="Dashboard SIMANSUR" />
+    <Head title="Dashboard SIMANDUK" />
 
     <div class="flex flex-col gap-6 p-4 md:p-8 pt-4 transition-colors duration-500">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase italic">
-                    Dashboard SIMANSUR
+                    Dashboard SIMANDUK
                 </h1>
                 <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em]">
-                    SIstem Monitoring Alur Nilai Scan Unit Reject Closet Duduk
+                    SIstem Monitoring Alur Nilai Defect Unit Kloset Duduk
                 </p>
             </div>
             <div class="flex gap-2">
