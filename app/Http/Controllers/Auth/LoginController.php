@@ -9,10 +9,11 @@ use Inertia\Inertia;
 
 class LoginController extends Controller
 {
-    // Menampilkan halaman login
     public function index()
     {
-        return Inertia::render('Auth/Login'); // Sesuaikan path file Vue kamu
+        return Inertia::render('Auth/Login', [
+            'users' => \App\Models\User::select('id', 'name', 'username')->get()
+        ]);
     }
 
     // Menangani proses login
