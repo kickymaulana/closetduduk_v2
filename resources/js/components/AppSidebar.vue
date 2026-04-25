@@ -13,6 +13,7 @@ import {
     IconHistory,
     IconReportAnalytics,
     IconClipboardList,
+    IconQrcode,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -82,6 +83,13 @@ const filteredNavMain = computed(() => {
         url: route("log.temuan.reject"),
         icon: IconClipboardList,
         root: "LogTemuanReject",
+    });
+
+    menus.push({
+        title: "Daftar Produk",
+        url: route("produk.index"),
+        icon: IconQrcode,
+        root: "Produk",
     });
     return menus;
 });

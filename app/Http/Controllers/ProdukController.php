@@ -518,4 +518,50 @@ class ProdukController extends Controller
         }
     }
 
+
+    public function show($id)
+    {
+        $produk = Produk::with([
+            'pengerjaan_produks' => function($query) {
+                $query->with(['proses', 'user', 'pengerjaan_cacats.cacat'])
+                    ->orderBy('created_at', 'desc'); // History terbaru di atas
+            },
+            'troli'
+        ])->findOrFail($id);
+
+        return Inertia::render('Produk/Show', [
+            'produk' => $produk
+        ]);
+    }
+
+
+    public function dataprodukindex(Request $request)
+    {
+        $search = $request->search;
+
+        $query = Produk::query()
+            ->with(['troli.proses']) // Load relasi troli dan prosesnya
+            ->latest();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                // 1. Cari berdasarkan QR Code Produk (Scan Langsung)
+                $q->where('qrcode', 'like', "%{$search}%")
+                // 2. Cari berdasarkan Nama Produk
+                ->orWhere('nama', 'like', "%{$search}%")
+                // 3. Cari berdasarkan Invoice Troli-nya (Relasi)
+                ->orWhereHas('troli', function ($tq) use ($search) {
+                    $tq->where('invoice', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $produks = $query->paginate(15)->withQueryString();
+
+        return Inertia::render('Produk/Index', [
+            'produks' => $produks,
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
 }

@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Produk extends Model
 {
-    public function troli_invoice(): BelongsTo
+    public function troli(): BelongsTo
     {
         return $this->belongsTo(Troli::class, 'troli_id');
     }
 
-    public function pengerjaan_produks(): HashMany
+    public function pengerjaan_produks(): HasMany
     {
         return $this->hasMany(PengerjaanProduk::class, 'produk_id');
     }

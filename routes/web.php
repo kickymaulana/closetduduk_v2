@@ -129,4 +129,8 @@ Route::middleware('auth')->group(function () {
     Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
     Route::get('total-pengerjaan-user', [TotalPengerjaanUserController::class, 'index'])->name('total.pengerjaan.user');
     Route::get('log-temuan-reject', [LogTemuanRejectController::class, 'index'])->name('log.temuan.reject');
+    Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
+
+    Route::get('produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
+    Route::get('produk', [ProdukController::class, 'dataprodukindex'])->name('produk.index');
 });

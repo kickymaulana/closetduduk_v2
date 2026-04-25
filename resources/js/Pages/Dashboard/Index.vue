@@ -76,8 +76,17 @@ const displayStats = computed(() => [
                 </p>
             </div>
             <div class="flex gap-2">
-                <Button variant="outline" size="sm" class="font-bold uppercase text-[10px] h-9 dark:border-slate-800">
-                    <IconChartBar class="mr-2 size-4" /> Laporan Produksi
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    class="font-black uppercase text-[10px] h-9 shadow-lg shadow-primary/20"
+                    as-child
+                    >
+                    <Link :href="route('produk.index')" class="flex items-center px-4">
+                        <IconChartBar class="mr-2 size-4" />
+                        <span>Daftar Produk</span>
+                    </Link>
                 </Button>
 
                 <Button
