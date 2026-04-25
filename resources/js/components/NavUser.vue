@@ -42,6 +42,7 @@ interface User {
     name: string;
     email: string;
     avatar: string;
+    departemen?: string;
 }
 
 defineProps<{
@@ -89,7 +90,7 @@ const getInitials = (name: string) => {
                                 <span
                                     class="text-muted-foreground truncate text-xs"
                                 >
-                                    {{ user.email }}
+                                    {{ user.departemen }}
                                 </span>
                             </div>
                             <IconDotsVertical class="ml-auto size-4" />
@@ -124,7 +125,7 @@ const getInitials = (name: string) => {
                                     <span
                                         class="text-muted-foreground truncate text-xs"
                                     >
-                                        {{ user.email }}
+                                        {{ user.departemen }}
                                     </span>
                                 </div>
                             </div>
