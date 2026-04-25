@@ -20,6 +20,7 @@ class SesiKerjaController extends Controller
             // Syarat utama: Harus milik user yang sedang login
             ->where('leader_id', auth()->id())
             ->with(['leader', 'sesi_kerja_members.user'])
+            ->with(['shift', 'shift'])
             ->withCount(['pengerjaan_produks as total_pengerjaan' => function ($query) {
                 $query->select(DB::raw('count(distinct produk_id, proses_id)'));
             }])
@@ -48,6 +49,7 @@ class SesiKerjaController extends Controller
     public function create()
     {
         return Inertia::render('SesiKerjas/Create', [
+            'shifts' => Shift::all(['id', 'shift']),
             'users' => User::where('id', '!=', auth()->id())->get(['id', 'name'])
         ]);
 
@@ -56,8 +58,7 @@ class SesiKerjaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'jam_masuk' => 'required|date',
-            'jam_pulang' => 'nullable|date|after:jam_masuk',
+            'shift_id' => 'required|exists:shift,id',
             'jenis' => 'required|in:Body,Tangki',
             'user_ids'  => 'nullable|array', // ID anggota yang dipilih
             'user_ids.*'=> 'exists:users,id'
@@ -69,8 +70,7 @@ class SesiKerjaController extends Controller
         \DB::transaction(function () use ($validated) {
             $sesi = SesiKerja::create([
                 'leader_id' => $validated['leader_id'],
-                'jam_masuk' => $validated['jam_masuk'],
-                'jam_pulang' => $validated['jam_pulang'],
+                'shift_id'  => $validated['shift_id'],
                 'jenis' => $validated['jenis'],
             ]);
 

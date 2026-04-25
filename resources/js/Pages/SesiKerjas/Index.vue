@@ -20,7 +20,7 @@ import {
     IconEye,
     IconPlayerStop,
     IconPlayerPlay,
-    IconX
+    IconX,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
@@ -59,9 +59,9 @@ const clearSearch = () => {
 
 const toggleSesi = (id: number) => {
     if (props.sesi_kerja_id === id) {
-        router.delete(route('sesikerjas.nonaktif', id));
+        router.delete(route("sesikerjas.nonaktif", id));
     } else {
-        router.post(route('sesikerjas.aktifkan', id));
+        router.post(route("sesikerjas.aktifkan", id));
     }
 };
 
@@ -110,7 +110,6 @@ const cleanLabel = (label: string) => {
                             Tambah
                         </Link>
                     </Button>
-
                 </div>
             </CardHeader>
             <CardContent>
@@ -121,8 +120,7 @@ const cleanLabel = (label: string) => {
                                 <TableHead>Leader</TableHead>
                                 <TableHead>Anggota</TableHead>
                                 <TableHead>Jenis</TableHead>
-                                <TableHead>Jam Masuk</TableHead>
-                                <TableHead>Jam Pulang</TableHead>
+                                <TableHead>Shift</TableHead>
                                 <TableHead>Total Scan</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
@@ -137,7 +135,9 @@ const cleanLabel = (label: string) => {
                                     {{ item.leader?.name }}
                                 </TableCell>
                                 <TableCell>
-                                    <div class="flex flex-wrap gap-1 max-w-[200px]">
+                                    <div
+                                        class="flex flex-wrap gap-1 max-w-[200px]"
+                                    >
                                         <Badge
                                             v-for="member in item.sesi_kerja_members"
                                             :key="member.id"
@@ -146,51 +146,89 @@ const cleanLabel = (label: string) => {
                                         >
                                             {{ member.user.name }}
                                         </Badge>
-                                        <span v-if="item.sesi_kerja_members.length === 0" class="text-xs text-muted-foreground italic">
+                                        <span
+                                            v-if="
+                                                item.sesi_kerja_members
+                                                    .length === 0
+                                            "
+                                            class="text-xs text-muted-foreground italic"
+                                        >
                                             Tanpa Anggota
                                         </span>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <Badge
-                                        :variant="item.jenis === 'Body' ? 'default' : 'secondary'"
+                                        :variant="
+                                            item.jenis === 'Body'
+                                                ? 'default'
+                                                : 'secondary'
+                                        "
                                     >
                                         {{ item.jenis }}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>{{ item.jam_masuk || "-" }}</TableCell>
-                                <TableCell>{{ item.jam_pulang || "-" }}</TableCell>
+                                <TableCell>{{
+                                    item.shift.shift || "-"
+                                }}</TableCell>
                                 <TableCell>
                                     <div class="flex items-center gap-2">
-                                        <Badge variant="outline" class="font-mono text-sm border-primary/50 text-primary">
+                                        <Badge
+                                            variant="outline"
+                                            class="font-mono text-sm border-primary/50 text-primary"
+                                        >
                                             {{ item.total_pengerjaan }}
                                         </Badge>
-                                        <span class="text-xs text-muted-foreground uppercase italic font-medium">Scan</span>
+                                        <span
+                                            class="text-xs text-muted-foreground uppercase italic font-medium"
+                                            >Scan</span
+                                        >
                                     </div>
                                 </TableCell>
-                                <TableCell class="text-right flex justify-end gap-2">
+                                <TableCell
+                                    class="text-right flex justify-end gap-2"
+                                >
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         as-child
                                     >
-                                        <Link :href="route('sesikerjas.show', item.id)">
-                                            <IconEye class="size-4 text-primary" />
+                                        <Link
+                                            :href="
+                                                route(
+                                                    'sesikerjas.show',
+                                                    item.id,
+                                                )
+                                            "
+                                        >
+                                            <IconEye
+                                                class="size-4 text-primary"
+                                            />
                                         </Link>
                                     </Button>
 
                                     <Button
                                         @click="toggleSesi(item.id)"
-                                        :variant="sesi_kerja_id === item.id ? 'destructive' : 'outline'"
+                                        :variant="
+                                            sesi_kerja_id === item.id
+                                                ? 'destructive'
+                                                : 'outline'
+                                        "
                                         size="sm"
                                         class="w-32"
                                     >
-                                        <template v-if="sesi_kerja_id === item.id">
-                                            <IconPlayerStop class="mr-2 size-4" />
+                                        <template
+                                            v-if="sesi_kerja_id === item.id"
+                                        >
+                                            <IconPlayerStop
+                                                class="mr-2 size-4"
+                                            />
                                             Nonaktifkan
                                         </template>
                                         <template v-else>
-                                            <IconPlayerPlay class="mr-2 size-4 text-primary" />
+                                            <IconPlayerPlay
+                                                class="mr-2 size-4 text-primary"
+                                            />
                                             Aktifkan
                                         </template>
                                     </Button>
@@ -208,14 +246,20 @@ const cleanLabel = (label: string) => {
                     </Table>
                 </div>
 
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                <div
+                    class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6"
+                >
                     <p class="text-xs text-muted-foreground italic font-medium">
                         Menampilkan {{ sesikerjas.from ?? 0 }} -
-                        {{ sesikerjas.to ?? 0 }} dari {{ sesikerjas.total }} sesi kerja
+                        {{ sesikerjas.to ?? 0 }} dari
+                        {{ sesikerjas.total }} sesi kerja
                     </p>
 
                     <nav class="flex items-center gap-1">
-                        <template v-for="(link, k) in sesikerjas.links" :key="k">
+                        <template
+                            v-for="(link, k) in sesikerjas.links"
+                            :key="k"
+                        >
                             <Button
                                 v-if="link.url === null"
                                 variant="outline"
