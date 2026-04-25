@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import { computed } from "vue";
 import {
     Card,
@@ -79,8 +79,16 @@ const displayStats = computed(() => [
                 <Button variant="outline" size="sm" class="font-bold uppercase text-[10px] h-9 dark:border-slate-800">
                     <IconChartBar class="mr-2 size-4" /> Laporan Produksi
                 </Button>
-                <Button size="sm" class="font-black uppercase text-[10px] h-9 shadow-lg shadow-primary/20">
-                    <IconPlus class="mr-2 size-4" /> Scan Produk
+
+                <Button
+                    size="sm"
+                    class="font-black uppercase text-[10px] h-9 shadow-lg shadow-primary/20"
+                    as-child
+                    >
+                    <Link :href="route('trolis.index')" class="flex items-center px-4">
+                        <IconPlus class="mr-2 size-4" />
+                        <span>Scan Produk</span>
+                    </Link>
                 </Button>
             </div>
         </div>

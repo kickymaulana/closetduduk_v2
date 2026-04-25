@@ -19,9 +19,9 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // Security Gate sesuai permintaanmu
-        if (!$user->hasAnyRole(['admin', 'Manager Produksi'])) {
-            return redirect()->route('trolis.index');
-        }
+        // if (!$user->hasAnyRole(['admin', 'Manager Produksi'])) {
+        //     return redirect()->route('trolis.index');
+        // }
 
         // 1. Ambil Stats Utama (Row Atas)
         $stats = [
