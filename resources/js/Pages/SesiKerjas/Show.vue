@@ -26,7 +26,9 @@ import {
     IconHistory,
     IconLoader,
     IconTrash,
-    IconDotsVertical
+    IconDotsVertical,
+    IconArrowRight,
+    IconClockCheck,
 } from "@tabler/icons-vue";
 import {
     AlertDialog,
@@ -46,11 +48,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-
 const props = defineProps<{
     sesikerja: any;
     stats: {
-        total_produk: number;
+        total_scan: number;
         total_ok: number;
         total_in_proses: number;
         total_reject: number;
@@ -60,11 +61,12 @@ const props = defineProps<{
 
 defineOptions({ layout: AuthenticatedLayout });
 
-// Fungsi Hapus
+// Fungsi Hapus Sesi
 const deleteSesi = () => {
     router.delete(route("sesikerjas.destroy", props.sesikerja.id));
 };
 
+// Format tanggal ke Indonesia
 const formatDate = (dateString: string | null) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleString("id-ID", {
@@ -73,6 +75,7 @@ const formatDate = (dateString: string | null) => {
     });
 };
 
+// Hitung durasi jika diperlukan
 const getDuration = () => {
     if (!props.sesikerja.jam_masuk || !props.sesikerja.jam_pulang) return null;
     const start = new Date(props.sesikerja.jam_masuk);
@@ -88,38 +91,60 @@ const getDuration = () => {
     <Head title="Detail Sesi Kerja" />
 
     <div class="flex flex-col gap-6 p-4 md:p-8 pt-1">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div
+            class="flex flex-col md:flex-row md:items-center justify-between gap-4"
+        >
             <div class="flex items-center gap-4">
-                <Button variant="outline" size="icon" as-child class="rounded-full">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    as-child
+                    class="rounded-full"
+                >
                     <Link :href="route('sesikerjas.index')">
                         <IconArrowLeft class="size-4" />
                     </Link>
                 </Button>
                 <div>
-                    <h2 class="text-3xl font-bold tracking-tight">Detail Sesi</h2>
-                    <p class="text-muted-foreground italic">Monitor pengerjaan unit lengkap</p>
+                    <h2 class="text-3xl font-bold tracking-tight">
+                        Detail Sesi
+                    </h2>
+                    <p class="text-muted-foreground italic">
+                        Monitor pengerjaan unit lengkap
+                    </p>
                 </div>
             </div>
-
-
 
             <div class="flex items-center gap-2">
                 <AlertDialog>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
-                            <Button variant="ghost" size="icon" class="rounded-full">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="rounded-full"
+                            >
                                 <IconDotsVertical class="size-5" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-40">
                             <DropdownMenuItem as-child>
-                                <Link :href="route('sesikerjas.edit', sesikerja.id)" class="flex items-center cursor-pointer">
-                                    <IconEdit class="mr-2 size-4 text-primary" />
+                                <Link
+                                    :href="
+                                        route('sesikerjas.edit', sesikerja.id)
+                                    "
+                                    class="flex items-center cursor-pointer"
+                                >
+                                    <IconEdit
+                                        class="mr-2 size-4 text-primary"
+                                    />
                                     <span>Edit Sesi</span>
                                 </Link>
                             </DropdownMenuItem>
                             <AlertDialogTrigger as-child>
-                                <DropdownMenuItem class="flex items-center cursor-pointer text-destructive focus:text-destructive">
+                                <DropdownMenuItem
+                                    class="flex items-center cursor-pointer text-destructive focus:text-destructive"
+                                >
                                     <IconTrash class="mr-2 size-4" />
                                     <span>Hapus Sesi</span>
                                 </DropdownMenuItem>
@@ -129,69 +154,101 @@ const getDuration = () => {
 
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>Hapus Sesi Kerja?</AlertDialogTitle>
+                            <AlertDialogTitle
+                                >Hapus Sesi Kerja?</AlertDialogTitle
+                            >
                             <AlertDialogDescription>
-                                Tindakan ini tidak dapat dibatalkan. Sesi ini akan dihapus secara permanen.
-                                <span v-if="stats.total_produk > 0" class="block mt-2 font-bold text-destructive underline italic">
-                                    Peringatan: Sesi ini sudah memiliki {{ stats.total_produk }} data pengerjaan!
+                                Tindakan ini tidak dapat dibatalkan. Sesi ini
+                                akan dihapus secara permanen dari sistem
+                                **SISAMSUL**.
+                                <span
+                                    v-if="stats.total_scan > 0"
+                                    class="block mt-2 font-bold text-destructive underline italic"
+                                >
+                                    Peringatan: Sesi ini sudah memiliki
+                                    {{ stats.total_scan }} data pengerjaan!
                                 </span>
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction @click="deleteSesi" class="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            <AlertDialogAction
+                                @click="deleteSesi"
+                                class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
                                 Ya, Hapus
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
-
-
-
-
-
         </div>
 
-
-
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <Card class="border-none shadow-md bg-blue-50/50 border-blue-100 text-blue-700">
+            <Card
+                class="border-none shadow-md bg-blue-50/50 border-blue-100 text-blue-700"
+            >
                 <CardContent class="p-6 flex items-center gap-4">
                     <IconPackage class="size-8 opacity-70" />
                     <div>
-                        <p class="text-xs font-bold uppercase opacity-70">Total Scan</p>
-                        <p class="text-3xl font-bold">{{ stats.total_scan }} <span class="text-sm font-normal">Kali</span></p>
+                        <p class="text-xs font-bold uppercase opacity-70">
+                            Total Scan
+                        </p>
+                        <p class="text-3xl font-bold">
+                            {{ stats.total_scan }}
+                            <span class="text-sm font-normal">Unit</span>
+                        </p>
                     </div>
                 </CardContent>
             </Card>
 
-            <Card class="border-none shadow-md bg-green-50/50 border-green-100 text-green-700">
+            <Card
+                class="border-none shadow-md bg-green-50/50 border-green-100 text-green-700"
+            >
                 <CardContent class="p-6 flex items-center gap-4">
                     <IconCheck class="size-8 opacity-70" />
                     <div>
-                        <p class="text-xs font-bold uppercase opacity-70">Scan OK</p>
-                        <p class="text-3xl font-bold">{{ stats.total_ok }} <span class="text-sm font-normal">Kali</span></p>
+                        <p class="text-xs font-bold uppercase opacity-70">
+                            Scan OK
+                        </p>
+                        <p class="text-3xl font-bold">
+                            {{ stats.total_ok }}
+                            <span class="text-sm font-normal">Unit</span>
+                        </p>
                     </div>
                 </CardContent>
             </Card>
 
-            <Card class="border-none shadow-md bg-amber-50/50 border-amber-100 text-amber-700">
+            <Card
+                class="border-none shadow-md bg-amber-50/50 border-amber-100 text-amber-700"
+            >
                 <CardContent class="p-6 flex items-center gap-4">
                     <IconLoader class="size-8 opacity-70 animate-spin-slow" />
                     <div>
-                        <p class="text-xs font-bold uppercase opacity-70">In Proses</p>
-                        <p class="text-3xl font-bold">{{ stats.total_in_proses }} <span class="text-sm font-normal">Kali</span></p>
+                        <p class="text-xs font-bold uppercase opacity-70">
+                            In Proses
+                        </p>
+                        <p class="text-3xl font-bold">
+                            {{ stats.total_in_proses }}
+                            <span class="text-sm font-normal">Unit</span>
+                        </p>
                     </div>
                 </CardContent>
             </Card>
 
-            <Card class="border-none shadow-md bg-red-50/50 border-red-100 text-red-700">
+            <Card
+                class="border-none shadow-md bg-red-50/50 border-red-100 text-red-700"
+            >
                 <CardContent class="p-6 flex items-center gap-4">
                     <IconX class="size-8 opacity-70" />
                     <div>
-                        <p class="text-xs font-bold uppercase opacity-70">Reject</p>
-                        <p class="text-3xl font-bold">{{ stats.total_reject }} <span class="text-sm font-normal">Kali</span></p>
+                        <p class="text-xs font-bold uppercase opacity-70">
+                            Reject / Buang
+                        </p>
+                        <p class="text-3xl font-bold">
+                            {{ stats.total_reject }}
+                            <span class="text-sm font-normal">Unit</span>
+                        </p>
                     </div>
                 </CardContent>
             </Card>
@@ -200,25 +257,56 @@ const getDuration = () => {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card class="md:col-span-2 border-none shadow-lg">
                 <CardHeader>
-                    <CardTitle class="flex items-center gap-2 text-primary text-lg">
-                        <IconCalendarTime class="size-5" /> Log Waktu Kerja
+                    <CardTitle
+                        class="flex items-center gap-2 text-primary text-lg"
+                    >
+                        <IconCalendarTime class="size-5" /> Informasi Sesi &
+                        Shift
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div class="space-y-1">
-                            <p class="text-sm text-muted-foreground">Waktu Masuk</p>
-                            <p class="text-lg font-semibold">{{ formatDate(sesikerja.jam_masuk) }}</p>
-                        </div>
-                        <div class="space-y-1">
-                            <p class="text-sm text-muted-foreground">Waktu Pulang</p>
-                            <p class="text-lg font-semibold">
-                                {{ sesikerja.jam_pulang ? formatDate(sesikerja.jam_pulang) : "Sedang Berlangsung..." }}
+                            <p
+                                class="text-sm text-muted-foreground flex items-center gap-1"
+                            >
+                                <IconClockCheck class="size-4" /> Shift Terpilih
+                            </p>
+                            <p class="text-xl font-bold text-primary uppercase">
+                                {{ sesikerja.shift?.shift || "NON-SHIFT" }}
                             </p>
                         </div>
-                        <div v-if="sesikerja.jam_pulang" class="sm:col-span-2 mt-2 p-3 bg-primary/5 rounded-lg border-l-4 border-primary">
-                            <p class="text-sm font-medium flex items-center gap-2">
-                                <IconClock class="size-4" /> Durasi Kerja: {{ getDuration() }}
+                        <div class="space-y-1">
+                            <p class="text-sm text-muted-foreground">
+                                Waktu Masuk Sesi
+                            </p>
+                            <p class="text-lg font-semibold">
+                                {{ formatDate(sesikerja.jam_masuk) }}
+                            </p>
+                        </div>
+                        <div
+                            v-if="sesikerja.jam_pulang"
+                            class="sm:col-span-2 mt-2 p-3 bg-primary/5 rounded-lg border-l-4 border-primary"
+                        >
+                            <p
+                                class="text-sm font-medium flex items-center gap-2 text-primary"
+                            >
+                                <IconClock class="size-4" /> Sesi Selesai:
+                                {{ formatDate(sesikerja.jam_pulang) }}
+                                <span class="ml-auto text-xs opacity-70"
+                                    >Durasi: {{ getDuration() }}</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            v-else
+                            class="sm:col-span-2 mt-2 p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500"
+                        >
+                            <p
+                                class="text-sm font-medium flex items-center gap-2 text-amber-700 italic"
+                            >
+                                <IconLoader class="size-4 animate-spin-slow" />
+                                Sesi Sedang Berlangsung (Open)
                             </p>
                         </div>
                     </div>
@@ -229,24 +317,50 @@ const getDuration = () => {
                 <Card class="border-none shadow-lg">
                     <CardContent class="p-6 space-y-4">
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-muted-foreground flex items-center gap-2"><IconCategory class="size-4"/> Jenis</span>
-                            <Badge variant="outline" class="font-bold font-mono">{{ sesikerja.jenis }}</Badge>
+                            <span
+                                class="text-muted-foreground flex items-center gap-2"
+                                ><IconCategory class="size-4" /> Jenis</span
+                            >
+                            <Badge
+                                variant="outline"
+                                class="font-bold font-mono"
+                                >{{ sesikerja.jenis }}</Badge
+                            >
                         </div>
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-muted-foreground flex items-center gap-2"><IconUser class="size-4"/> Leader</span>
-                            <span class="font-bold">{{ sesikerja.leader?.name }}</span>
+                            <span
+                                class="text-muted-foreground flex items-center gap-2"
+                                ><IconUser class="size-4" /> Leader Sesi</span
+                            >
+                            <span class="font-bold text-primary">{{
+                                sesikerja.leader?.name
+                            }}</span>
                         </div>
                     </CardContent>
                 </Card>
 
                 <Card class="border-none shadow-lg">
-                    <CardHeader class="pb-2"><CardTitle class="text-base flex items-center gap-2"><IconUsers class="size-4"/> Anggota Tim</CardTitle></CardHeader>
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-base flex items-center gap-2">
+                            <IconUsers class="size-4" /> Anggota Tim
+                        </CardTitle>
+                    </CardHeader>
                     <CardContent>
                         <div class="flex flex-wrap gap-1.5">
-                            <Badge v-for="member in sesikerja.sesi_kerja_members" :key="member.id" variant="secondary" class="font-normal">
+                            <Badge
+                                v-for="member in sesikerja.sesi_kerja_members"
+                                :key="member.id"
+                                variant="secondary"
+                                class="font-normal"
+                            >
                                 {{ member.user?.name }}
                             </Badge>
-                            <p v-if="!sesikerja.sesi_kerja_members?.length" class="text-xs text-muted-foreground italic">Tidak ada anggota.</p>
+                            <p
+                                v-if="!sesikerja.sesi_kerja_members?.length"
+                                class="text-xs text-muted-foreground italic"
+                            >
+                                Tidak ada anggota tim tambahan.
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -254,15 +368,27 @@ const getDuration = () => {
         </div>
 
         <Card class="border-none shadow-lg">
-            <CardHeader class="flex flex-row items-center justify-between space-y-0">
+            <CardHeader
+                class="flex flex-row items-center justify-between space-y-0"
+            >
                 <CardTitle class="text-lg flex items-center gap-2">
-                    <IconHistory class="size-5 text-primary" /> Riwayat Scan Produk
+                    <IconHistory class="size-5 text-primary" /> Riwayat Scan
+                    Produk (Terbaru)
                 </CardTitle>
 
-                <Button variant="ghost" size="sm" as-child class="text-primary hover:text-primary hover:bg-primary/10">
-                    <Link :href="route('sesikerjas.riwayat_scan', sesikerja.id)" class="flex items-center gap-1">
-                        Lihat Semua
-                        <IconArrowRight class="size-4" /> </Link>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    as-child
+                    class="text-primary hover:text-primary hover:bg-primary/10"
+                >
+                    <Link
+                        :href="route('sesikerjas.riwayat_scan', sesikerja.id)"
+                        class="flex items-center gap-1"
+                    >
+                        Lihat Semua Riwayat
+                        <IconArrowRight class="size-4" />
+                    </Link>
                 </Button>
             </CardHeader>
             <CardContent>
@@ -270,35 +396,65 @@ const getDuration = () => {
                     <Table>
                         <TableHeader>
                             <TableRow class="bg-muted/50">
-                                <TableHead class="w-[180px]">Waktu Scan</TableHead>
+                                <TableHead class="w-[180px]"
+                                    >Waktu Scan</TableHead
+                                >
                                 <TableHead>QR Code</TableHead>
-                                <TableHead>Departemen / Proses</TableHead>
-                                <TableHead class="text-right">Kondisi</TableHead>
+                                <TableHead>Proses Terakhir</TableHead>
+                                <TableHead class="text-right"
+                                    >Kondisi</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             <TableRow
-                                    v-for="log in pengerjaan_unik"
-                                    :key="log.id"
+                                v-for="log in pengerjaan_unik"
+                                :key="log.id"
+                                class="hover:bg-muted/30 transition-colors"
+                            >
+                                <TableCell
+                                    class="text-[11px] text-muted-foreground font-mono"
                                 >
-                                <TableCell class="text-[11px] text-muted-foreground font-mono">
                                     {{ formatDate(log.created_at) }}
                                 </TableCell>
-                                <TableCell class="font-bold text-primary">{{ log.produk?.qrcode }}</TableCell>
+                                <TableCell class="font-bold text-primary">{{
+                                    log.produk?.qrcode
+                                }}</TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" class="font-normal">{{ log.proses?.proses || 'N/A' }}</Badge>
+                                    <Badge
+                                        variant="outline"
+                                        class="font-normal"
+                                        >{{
+                                            log.proses?.proses || "N/A"
+                                        }}</Badge
+                                    >
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <Badge
-                                        :variant="log.status_kondisi === 'OK' ? 'default' : (log.status_kondisi === 'Buang' ? 'destructive' : 'secondary')"
-                                        :class="log.status_kondisi === 'In Proses' ? 'bg-amber-500 text-white hover:bg-amber-600 border-none' : ''"
+                                        :variant="
+                                            log.status_kondisi === 'OK'
+                                                ? 'default'
+                                                : log.status_kondisi === 'Buang'
+                                                  ? 'destructive'
+                                                  : 'secondary'
+                                        "
+                                        :class="
+                                            log.status_kondisi === 'In Proses'
+                                                ? 'bg-amber-500 text-white hover:bg-amber-600 border-none'
+                                                : ''
+                                        "
                                     >
                                         {{ log.status_kondisi }}
                                     </Badge>
                                 </TableCell>
                             </TableRow>
-                            <TableRow v-if="!sesikerja.pengerjaan_produks?.length">
-                                <TableCell colspan="4" class="text-center py-12 text-muted-foreground italic">Belum ada aktivitas scan pada sesi ini.</TableCell>
+                            <TableRow v-if="!pengerjaan_unik.length">
+                                <TableCell
+                                    colspan="4"
+                                    class="text-center py-12 text-muted-foreground italic font-medium"
+                                >
+                                    Belum ada aktivitas scan pada sesi ini.
+                                </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -313,7 +469,11 @@ const getDuration = () => {
     animation: spin 3s linear infinite;
 }
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>

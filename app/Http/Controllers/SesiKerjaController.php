@@ -93,25 +93,22 @@ class SesiKerjaController extends Controller
     {
         $sesikerja->load([
             'leader',
+            'shift', // Tambahkan relasi shift
             'sesi_kerja_members.user',
             'pengerjaan_produks' => function($query) {
-                // Kita ambil semua dulu agar fungsi unique() di bawah akurat
                 $query->with(['produk', 'proses'])->latest();
             }
         ]);
 
-        // 1. Ambil semua baris pengerjaan
         $pengerjaanRows = $sesikerja->pengerjaan_produks;
 
-        // 2. Filter Unik (Per Produk & Per Proses)
+        // Filter Unik (Per Produk & Per Proses)
         $allUnique = $pengerjaanRows->unique(function ($item) {
             return $item['produk_id'].'-'.$item['proses_id'];
         })->values();
 
-        // 3. Limit hasil unik tersebut menjadi 12 untuk tampilan tabel di Show
         $pengerjaanLimit = $allUnique->take(12);
 
-        // 4. Statistik dihitung dari $allUnique (seluruh data unik tanpa limit 12)
         $stats = [
             'total_scan'      => $allUnique->count(),
             'total_ok'        => $allUnique->where('status_kondisi', 'OK')->count(),
@@ -122,9 +119,10 @@ class SesiKerjaController extends Controller
         return Inertia::render('SesiKerjas/Show', [
             'sesikerja' => $sesikerja,
             'stats'     => $stats,
-            'pengerjaan_unik' => $pengerjaanLimit // Ini yang dikirim ke tabel (maksimal 12)
+            'pengerjaan_unik' => $pengerjaanLimit
         ]);
     }
+
 
     public function riwayat_scan(Request $request, SesiKerja $sesikerja)
     {
