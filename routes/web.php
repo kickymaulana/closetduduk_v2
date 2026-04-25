@@ -14,6 +14,7 @@ use App\Http\Controllers\Master\AturanPenolakanController;
 use App\Http\Controllers\SesiKerjaController;
 use App\Http\Controllers\Master\TroliFisikController as MasterTroliFisikController;
 use App\Http\Controllers\Master\ProsesController;
+use App\Http\Controllers\Master\ShiftController;
 use App\Http\Controllers\TroliController;
 use App\Http\Controllers\TroliFisikController;
 use App\Http\Controllers\ProdukController;
@@ -42,6 +43,13 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('master/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('master/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('master/shifts', [ShiftController::class, 'index'])->name('shifts.index');
+    Route::get('master/shifts/create', [ShiftController::class, 'create'])->name('shifts.create');
+    Route::post('master/shifts/create', [ShiftController::class, 'store'])->name('shifts.store');
+    Route::get('master/shifts/{shift}/edit', [ShiftController::class, 'edit'])->name('shifts.edit');
+    Route::put('master/shifts/{shift}', [ShiftController::class, 'update'])->name('shifts.update');
+    Route::delete('master/shifts/{shift}', [ShiftController::class, 'destroy'])->name('shifts.destroy');
 
     Route::get('master/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::get('master/roles/create', [RoleController::class, 'create'])->name('roles.create');

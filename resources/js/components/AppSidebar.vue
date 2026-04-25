@@ -103,6 +103,12 @@ const masterData = [
         root: "Master/Users",
     },
     {
+        name: "Shift",
+        url: route("shifts.index"),
+        icon: IconClock,
+        root: "Master/Shifts",
+    },
+    {
         name: "Departemen",
         url: route("departemens.index"),
         icon: IconGitMerge,

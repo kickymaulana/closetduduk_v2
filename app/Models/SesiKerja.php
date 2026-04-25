@@ -26,4 +26,9 @@ class SesiKerja extends Model
     {
         return $this->hasMany(PengerjaanProduk::class, 'sesi_kerja_id');
     }
+
+    public function shift(): BelongsTo
+    {
+        return $this->belongsTo(Shift::class, 'shift_id');
+    }
 }
