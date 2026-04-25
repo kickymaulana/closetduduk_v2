@@ -41,7 +41,8 @@ const props = defineProps<{
                 proses?: string;
             };
             produks_count: number;
-            created_at: string;
+            tanggal_jam: string;
+            create_time: string;
         }>;
         links: Array<{
             url: string | null;
@@ -64,9 +65,7 @@ const copyToClipboard = async (text: string, id: number) => {
     try {
         await navigator.clipboard.writeText(text);
         copiedInvoice.value = id;
-
         toast.success("Invoice disalin!");
-
         setTimeout(() => {
             copiedInvoice.value = null;
         }, 2000);
@@ -112,14 +111,14 @@ const cleanLabel = (label: string) => {
                 </CardTitle>
 
                 <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-                    <div class="relative w-full md:w-64">
+                    <div class="relative w-full md:w-80">
                         <IconSearch
                             class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
                         />
                         <Input
                             v-model="search"
-                            placeholder="Cari invoice..."
-                            class="pl-10 pr-10"
+                            placeholder="Cari invoice atau scan produk..."
+                            class="pl-10 pr-10 border-primary/20 focus-visible:ring-primary"
                         />
                         <button
                             v-if="search"
@@ -157,8 +156,6 @@ const cleanLabel = (label: string) => {
                             <TableRow class="bg-muted/50">
                                 <TableHead>Invoice</TableHead>
                                 <TableHead>Keperluan</TableHead>
-                                <!-- <TableHead>Jenis</TableHead> -->
-                                <!-- <TableHead>Tipe</TableHead> -->
                                 <TableHead>Proses</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Total</TableHead>
@@ -185,75 +182,35 @@ const cleanLabel = (label: string) => {
                                 <TableCell>
                                     <div class="flex items-center gap-3">
                                         <button
-                                            @click="
-                                                copyToClipboard(
-                                                    troli.invoice,
-                                                    troli.id,
-                                                )
-                                            "
+                                            @click="copyToClipboard(troli.invoice, troli.id)"
                                             class="inline-flex items-center justify-center size-9 rounded-lg border-2 border-primary/20 bg-primary/5 active:bg-primary active:text-white transition-all shrink-0"
-                                            :class="{
-                                                'bg-green-500 border-green-600 text-white':
-                                                    copiedInvoice === troli.id,
-                                            }"
+                                            :class="{ 'bg-green-500 border-green-600 text-white': copiedInvoice === troli.id }"
                                         >
-                                            <IconCheck
-                                                v-if="
-                                                    copiedInvoice === troli.id
-                                                "
-                                                class="size-5"
-                                            />
+                                            <IconCheck v-if="copiedInvoice === troli.id" class="size-5" />
                                             <IconCopy v-else class="size-5" />
                                         </button>
 
-                                        <span
-                                            class="font-bold text-primary text-sm md:text-base leading-none"
-                                        >
+                                        <span class="font-bold text-primary text-sm md:text-base leading-none">
                                             {{ troli.invoice }}
                                         </span>
                                     </div>
                                 </TableCell>
                                 <TableCell>{{ troli.keperluan }}</TableCell>
-                                <!-- <TableCell>{{ troli.jenis }}</TableCell> -->
-                                <!-- <TableCell> -->
-                                <!--     <Badge :variant="troli.is_output ? 'default' : 'outline'"> -->
-                                <!--         {{ troli.is_output ? 'Output (Wadah)' : 'Sumber' }} -->
-                                <!--     </Badge> -->
-                                <!-- </TableCell> -->
                                 <TableCell>
-                                    <Badge class="bg-lime-500 text-black">{{
-                                        troli.proses.proses ?? "-"
-                                    }}</Badge>
+                                    <Badge class="bg-lime-500 text-black">{{ troli.proses?.proses ?? "-" }}</Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge class="bg-lime-500 text-black">{{
-                                        troli.status
-                                    }}</Badge>
+                                    <Badge class="bg-lime-500 text-black">{{ troli.status }}</Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge class="bg-lime-500 text-black">{{
-                                        troli.produks_count
-                                    }}</Badge>
+                                    <Badge class="bg-lime-500 text-black">{{ troli.produks_count }}</Badge>
                                 </TableCell>
-                                <TableCell>{{ troli.tanggal_jam }} </TableCell>
+                                <TableCell>{{ troli.tanggal_jam }}</TableCell>
                                 <TableCell>{{ troli.create_time }}</TableCell>
                                 <TableCell class="text-right">
-                                    <Button
-                                        variant="ghost"
-                                        class="size-10"
-                                        as-child
-                                    >
-                                        <Link
-                                            :href="
-                                                route(
-                                                    'trolis.produk.index',
-                                                    troli.id,
-                                                )
-                                            "
-                                        >
-                                            <IconEye
-                                                class="size-5 text-primary"
-                                            />
+                                    <Button variant="ghost" class="size-10" as-child>
+                                        <Link :href="route('trolis.produk.index', troli.id)">
+                                            <IconEye class="size-5 text-primary" />
                                         </Link>
                                     </Button>
                                 </TableCell>
@@ -262,49 +219,17 @@ const cleanLabel = (label: string) => {
                     </Table>
                 </div>
 
-                <div
-                    v-if="trolis.total > 0"
-                    class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4"
-                >
-                    <div
-                        class="text-sm text-muted-foreground order-2 md:order-1"
-                    >
-                        Menampilkan
-                        <span class="font-medium text-foreground">{{
-                            trolis.from
-                        }}</span>
-                        sampai
-                        <span class="font-medium text-foreground">{{
-                            trolis.to
-                        }}</span>
-                        dari
-                        <span class="font-medium text-foreground">{{
-                            trolis.total
-                        }}</span>
-                        data
+                <div v-if="trolis.total > 0" class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-sm text-muted-foreground order-2 md:order-1">
+                        Menampilkan <span class="font-medium text-foreground">{{ trolis.from }}</span> sampai
+                        <span class="font-medium text-foreground">{{ trolis.to }}</span> dari
+                        <span class="font-medium text-foreground">{{ trolis.total }}</span> data
                     </div>
 
-                    <div
-                        class="flex flex-wrap items-center justify-center gap-1 order-1 md:order-2"
-                    >
+                    <div class="flex flex-wrap items-center justify-center gap-1 order-1 md:order-2">
                         <template v-for="(link, k) in trolis.links" :key="k">
-                            <div
-                                v-if="link.url === null"
-                                class="px-3 py-1.5 text-xs border rounded-md text-muted-foreground opacity-50 cursor-not-allowed"
-                                v-html="cleanLabel(link.label)"
-                            />
-
-                            <Link
-                                v-else
-                                :href="link.url"
-                                class="px-3 py-1.5 text-xs border rounded-md transition-all hover:bg-primary hover:text-white"
-                                :class="{
-                                    'bg-primary text-white border-primary font-bold':
-                                        link.active,
-                                }"
-                                v-html="cleanLabel(link.label)"
-                                preserve-scroll
-                            />
+                            <div v-if="link.url === null" class="px-3 py-1.5 text-xs border rounded-md text-muted-foreground opacity-50 cursor-not-allowed" v-html="cleanLabel(link.label)" />
+                            <Link v-else :href="link.url" class="px-3 py-1.5 text-xs border rounded-md transition-all hover:bg-primary hover:text-white" :class="{ 'bg-primary text-white border-primary font-bold': link.active }" v-html="cleanLabel(link.label)" preserve-scroll />
                         </template>
                     </div>
                 </div>
