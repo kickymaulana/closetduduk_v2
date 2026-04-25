@@ -118,6 +118,23 @@ const confirmSelesai = () => {
     });
 };
 
+const confirmHapus = () => {
+    router.post(route('trolis.hapus_store', props.troli.id), {}, {
+        onSuccess: () => {
+            toast.success("Berhasil!", {
+                description: "Troli berhasil dihapus.",
+            });
+        },
+        onError: (errors) => {
+            // Ini akan menangkap error "Troli masih berisi produk" dari controller
+            const message = errors.error || "Gagal menghapus troli.";
+            toast.error("Gagal", {
+                description: message,
+            });
+        }
+    });
+};
+
 </script>
 
 <template>
@@ -187,6 +204,32 @@ const confirmSelesai = () => {
                     <span>Hapus Produk</span>
                 </Link>
                 </DropdownMenuItem>
+
+
+                <DropdownMenuSeparator />
+                <AlertDialog>
+                    <AlertDialogTrigger as-child>
+                        <DropdownMenuItem @select.prevent class="text-red-600 focus:text-red-600">
+                            <IconTrash class="mr-2 size-4" />
+                            <span>Hapus Troli</span>
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Troli {{ troli.invoice }}?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Tindakan ini tidak dapat dibatalkan. Troli hanya bisa dihapus jika <b>tidak ada produk</b> di dalamnya.
+                                Status fisik troli di sistem akan diubah menjadi <b>"Tidak"</b> (Tersedia).
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction @click="confirmHapus" class="bg-red-600 hover:bg-red-700">
+                                Ya, Hapus Troli
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </DropdownMenuContent>
             </DropdownMenu>
 

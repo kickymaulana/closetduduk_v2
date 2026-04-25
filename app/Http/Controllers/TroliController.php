@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Troli;
+use App\Models\TroliFisik;
 use App\Models\Proses;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
@@ -203,6 +204,49 @@ class TroliController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors([
                 'proses_id' => 'Gagal mengembalikan troli. Silahkan coba lagi.'
+            ]);
+        }
+    }
+
+
+    // Menampilkan halaman konfirmasi hapus (Inertia/View)
+    public function hapus(Troli $troli)
+    {
+        return inertia('Troli/Hapus', [
+            'troli' => $troli->loadCount('produks')
+        ]);
+    }
+
+
+
+    public function hapus_store(Troli $troli)
+    {
+        // 1. Cek apakah ada produk
+        // Pakai withErrors agar ditangkap oleh onError di Inertia
+        if ($troli->produks()->exists()) {
+            return back()->withErrors([
+                'error' => 'Troli tidak bisa dihapus karena masih berisi ' . $troli->produks()->count() . ' produk.'
+            ]);
+        }
+
+        try {
+            DB::transaction(function () use ($troli) {
+                // 2. Ambil kode nomor troli fisik (4 karakter pertama)
+                $nomorFisik = substr($troli->invoice, 0, 4);
+
+                // 3. Update status di table troli_fisik
+                TroliFisik::where('nomor', $nomorFisik)
+                    ->update(['status' => 'Tidak']);
+
+                // 4. Hapus data troli
+                $troli->delete();
+            });
+
+            return redirect()->route('trolis.index')->with('success', 'Troli berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'error' => 'Gagal menghapus data: ' . $e->getMessage()
             ]);
         }
     }
