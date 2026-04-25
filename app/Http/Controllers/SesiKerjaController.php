@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SesiKerja;
+use App\Models\Shift;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\MasterDepartemen;
@@ -167,6 +168,7 @@ class SesiKerjaController extends Controller
 
         return Inertia::render('SesiKerjas/Edit', [
             'sesikerja' => $sesikerja,
+            'shifts' => Shift::all(['id', 'shift']),
             'users' => User::query()
                 ->where('id', '!=', auth()->id()) // Kecuali diri sendiri
                 ->where('departemen_id', $departemenId) // Harus satu departemen
@@ -177,8 +179,7 @@ class SesiKerjaController extends Controller
     public function update(Request $request, SesiKerja $sesikerja)
     {
         $validated = $request->validate([
-            'jam_masuk' => 'required|date',
-            'jam_pulang' => 'nullable|date|after:jam_masuk',
+            'shift_id' => 'required|exists:shift,id',
             'jenis' => 'required|in:Body,Tangki',
             'user_ids' => 'nullable|array',
             'user_ids.*' => 'exists:users,id',
@@ -187,8 +188,7 @@ class SesiKerjaController extends Controller
         DB::transaction(function () use ($validated, $sesikerja) {
             // Update data utama
             $sesikerja->update([
-                'jam_masuk' => $validated['jam_masuk'],
-                'jam_pulang' => $validated['jam_pulang'],
+                'shift_id' => $validated['shift_id'],
                 'jenis' => $validated['jenis'],
             ]);
 

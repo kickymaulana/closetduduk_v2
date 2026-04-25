@@ -18,29 +18,31 @@ import {
     IconLoader2,
     IconEdit,
     IconUsers,
+    IconClock,
 } from "@tabler/icons-vue";
 
 const props = defineProps<{
     sesikerja: {
         id: number;
-        jam_masuk: string;
-        jam_pulang: string | null;
+        shift_id: number;
         jenis: string;
         // Kita butuh data member yang sudah ada
         sesi_kerja_members: Array<{ user_id: number }>;
     };
     // Kita butuh daftar user untuk dipilih kembali
+    shifts: Array<{ id: number; shift: string }>;
     users: Array<{ id: number; name: string }>;
 }>();
 
 defineOptions({ layout: AuthenticatedLayout });
 
 // Ambil ID user yang sudah terdaftar sebagai member untuk default value
-const existingMemberIds = props.sesikerja.sesi_kerja_members.map(m => m.user_id);
+const existingMemberIds = props.sesikerja.sesi_kerja_members.map(
+    (m) => m.user_id,
+);
 
 const form = useForm({
-    jam_masuk: props.sesikerja.jam_masuk ? props.sesikerja.jam_masuk.slice(0, 16) : "",
-    jam_pulang: props.sesikerja.jam_pulang ? props.sesikerja.jam_pulang.slice(0, 16) : "",
+    shift_id: props.sesikerja.shift_id,
     jenis: props.sesikerja.jenis,
     user_ids: existingMemberIds, // Masukkan anggota yang sudah ada
 });
@@ -65,7 +67,9 @@ const submit = () => {
         <div class="max-w-2xl">
             <Card class="border-none shadow-lg">
                 <CardHeader>
-                    <CardTitle class="text-primary text-lg flex items-center gap-2">
+                    <CardTitle
+                        class="text-primary text-lg flex items-center gap-2"
+                    >
                         <IconEdit class="size-5" />
                         Ubah Detail Sesi
                     </CardTitle>
@@ -75,53 +79,71 @@ const submit = () => {
                     <form @submit.prevent="submit" class="space-y-6">
                         <div class="grid grid-cols-1 gap-6">
                             <div class="grid gap-2">
-                                <Label>Jenis Pekerjaan</Label>
+                                <Label class="flex items-center gap-2">
+                                    <IconClock class="size-4" /> Jenis Pekerjaan
+                                </Label>
+
                                 <Select v-model="form.jenis">
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Pilih Jenis" />
+                                        <SelectValue
+                                            placeholder="Pilih Jenis"
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Body">Body</SelectItem>
-                                        <SelectItem value="Tangki">Tangki</SelectItem>
+                                        <SelectItem value="Body"
+                                            >Body</SelectItem
+                                        >
+                                        <SelectItem value="Tangki"
+                                            >Tangki</SelectItem
+                                        >
                                     </SelectContent>
                                 </Select>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="grid gap-2">
-                                    <Label for="jam_masuk">Jam Masuk</Label>
-                                    <Input
-                                        id="jam_masuk"
-                                        type="datetime-local"
-                                        v-model="form.jam_masuk"
-                                        :class="{ 'border-destructive': form.errors.jam_masuk }"
-                                    />
-                                    <p v-if="form.errors.jam_masuk" class="text-xs text-destructive italic">
-                                        {{ form.errors.jam_masuk }}
-                                    </p>
-                                </div>
-
-                                <div class="grid gap-2">
-                                    <Label for="jam_pulang">Jam Pulang</Label>
-                                    <Input
-                                        id="jam_pulang"
-                                        type="datetime-local"
-                                        v-model="form.jam_pulang"
-                                        :class="{ 'border-destructive': form.errors.jam_pulang }"
-                                    />
-                                    <p v-if="form.errors.jam_pulang" class="text-xs text-destructive italic">
-                                        {{ form.errors.jam_pulang }}
-                                    </p>
-                                </div>
+                            <div class="grid gap-2">
+                                <Label class="flex items-center gap-2">
+                                    <IconClock class="size-4" /> Pilih Shift
+                                </Label>
+                                <Select v-model="form.shift_id">
+                                    <SelectTrigger
+                                        :class="{
+                                            'border-destructive':
+                                                form.errors.shift_id,
+                                        }"
+                                    >
+                                        <SelectValue
+                                            placeholder="Pilih Shift Kerja"
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem
+                                            v-for="s in shifts"
+                                            :key="s.id"
+                                            :value="s.id"
+                                        >
+                                            {{ s.shift }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p
+                                    v-if="form.errors.shift_id"
+                                    class="text-xs text-destructive italic"
+                                >
+                                    {{ form.errors.shift_id }}
+                                </p>
                             </div>
 
                             <div class="grid gap-4 pt-4 border-t">
-                                <Label class="text-base flex items-center gap-2">
+                                <Label
+                                    class="text-base flex items-center gap-2"
+                                >
                                     <IconUsers class="size-5 text-primary" />
                                     Perbarui Anggota Tim
                                 </Label>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 bg-muted/30 rounded-lg border">
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-4 bg-muted/30 rounded-lg border"
+                                >
                                     <div
                                         v-for="user in users"
                                         :key="user.id"
@@ -142,7 +164,10 @@ const submit = () => {
                                         </label>
                                     </div>
                                 </div>
-                                <p v-if="form.errors.user_ids" class="text-xs text-destructive italic">
+                                <p
+                                    v-if="form.errors.user_ids"
+                                    class="text-xs text-destructive italic"
+                                >
                                     {{ form.errors.user_ids }}
                                 </p>
                             </div>
@@ -154,7 +179,10 @@ const submit = () => {
                                 :disabled="form.processing"
                                 class="w-full bg-primary h-11"
                             >
-                                <IconLoader2 v-if="form.processing" class="mr-2 animate-spin" />
+                                <IconLoader2
+                                    v-if="form.processing"
+                                    class="mr-2 animate-spin"
+                                />
                                 <IconDeviceFloppy v-else class="mr-2" />
                                 Simpan Perubahan
                             </Button>

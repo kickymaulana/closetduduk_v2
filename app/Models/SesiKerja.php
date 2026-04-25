@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['leader_id', 'jam_masuk', 'jam_pulang', 'jenis'])]
+#[Fillable(['leader_id', 'jam_masuk', 'jam_pulang', 'jenis', 'shift_id'])]
 #[Table('sesi_kerja')]
 class SesiKerja extends Model
 {
