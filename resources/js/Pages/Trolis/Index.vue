@@ -159,8 +159,7 @@ const cleanLabel = (label: string) => {
                                 <TableHead>Proses</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Total</TableHead>
-                                <TableHead>Tanggal</TableHead>
-                                <TableHead>Kapan</TableHead>
+                                <TableHead>Terakhir diperbaharui</TableHead>
                                 <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -205,8 +204,7 @@ const cleanLabel = (label: string) => {
                                 <TableCell>
                                     <Badge class="bg-lime-500 text-black">{{ troli.produks_count }}</Badge>
                                 </TableCell>
-                                <TableCell>{{ troli.tanggal_jam }}</TableCell>
-                                <TableCell>{{ troli.create_time }}</TableCell>
+                                <TableCell>{{ troli.terakhir_diperbaharui_jam }} | {{ troli.terakhir_diperbaharui }}</TableCell>
                                 <TableCell class="text-right">
                                     <Button variant="ghost" class="size-10" as-child>
                                         <Link :href="route('trolis.produk.index', troli.id)">

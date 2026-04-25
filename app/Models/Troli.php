@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Troli extends Model
 {
-    protected $appends = ['create_time', 'tanggal_jam']; // Biar otomatis muncul di JSON/Inertia
+    protected $appends = ['terakhir_diperbaharui', 'terakhir_diperbaharui_jam',]; // Biar otomatis muncul di JSON/Inertia
 
     public function produks(): HasMany
     {
@@ -27,17 +27,17 @@ class Troli extends Model
         return $this->belongsTo(Proses::class, 'proses_id', 'id');
     }
 
-    protected function createTime(): Attribute
+    protected function terakhirDiperbaharui(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->created_at?->diffForHumans(),
+            get: fn () => $this->updated_at?->diffForHumans(),
         );
     }
 
-    protected function tanggalJam(): Attribute
+    protected function terakhirDiperbaharuiJam(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->created_at?->translatedFormat('d F Y, H:i'),
+            get: fn () => $this->updated_at?->translatedFormat('d F Y, H:i'),
         );
     }
 
