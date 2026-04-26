@@ -13,7 +13,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
     IconSearch,
@@ -21,10 +25,15 @@ import {
     IconX,
     IconTrophy,
     IconCalendar,
-    IconFilterOff
+    IconFilterOff,
+    IconClock,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
-import { DateFormatter, getLocalTimeZone, parseDate } from '@internationalized/date';
+import {
+    DateFormatter,
+    getLocalTimeZone,
+    parseDate,
+} from "@internationalized/date";
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -38,48 +47,69 @@ const props = defineProps<{
     };
     filters: {
         search?: string;
-        date_start?: string;
-        date_end?: string;
+        date_start?: string; // Format: "YYYY-MM-DD HH:mm:ss"
+        date_end?: string; // Format: "YYYY-MM-DD HH:mm:ss"
     };
 }>();
 
-// Formatter untuk tampilan tanggal di button (Bahasa Indonesia)
-const df = new DateFormatter('id-ID', { dateStyle: 'medium' });
+const df = new DateFormatter("id-ID", { dateStyle: "medium" });
 
-// State untuk filter
+// --- Logic Parsing Tanggal & Jam dari Props ---
+const splitDateTime = (
+    dateTimeStr: string | undefined,
+    defaultTime: string,
+) => {
+    if (!dateTimeStr) return { date: undefined, time: defaultTime };
+    const parts = dateTimeStr.split(" "); // Memisahkan "YYYY-MM-DD" dan "HH:mm:ss"
+    return {
+        date: parts[0] ? parseDate(parts[0]) : undefined,
+        time: parts[1] ? parts[1].substring(0, 5) : defaultTime,
+    };
+};
+
+const initialStart = splitDateTime(props.filters.date_start, "00:00");
+const initialEnd = splitDateTime(props.filters.date_end, "23:59");
+
+// State
 const search = ref(props.filters.search || "");
-const dateStart = ref(props.filters.date_start ? parseDate(props.filters.date_start) : undefined);
-const dateEnd = ref(props.filters.date_end ? parseDate(props.filters.date_end) : undefined);
+const dateStart = ref(initialStart.date);
+const timeStart = ref(initialStart.time);
+const dateEnd = ref(initialEnd.date);
+const timeEnd = ref(initialEnd.time);
 
 let timeout: any;
 
-// Fungsi utama untuk kirim data ke Laravel
 const updateFilters = () => {
+    // Gabungkan kembali tanggal dan jam sebelum dikirim ke backend
+    const fullDateStart = dateStart.value
+        ? `${dateStart.value.toString()} ${timeStart.value}:00`
+        : undefined;
+    const fullDateEnd = dateEnd.value
+        ? `${dateEnd.value.toString()} ${timeEnd.value}:59`
+        : undefined;
+
     router.get(
         route("total.pengerjaan.user"),
         {
             search: search.value,
-            date_start: dateStart.value?.toString(),
-            date_end: dateEnd.value?.toString()
+            date_start: fullDateStart,
+            date_end: fullDateEnd,
         },
         {
             preserveState: true,
             replace: true,
-            only: ['rekap', 'filters'] // Agar lebih cepat, hanya update data table
-        }
+            only: ["rekap", "filters"],
+        },
     );
 };
 
-// Watcher untuk search (dengan debounce)
-watch(search, (value) => {
+// Watchers
+watch(search, () => {
     clearTimeout(timeout);
-    timeout = setTimeout(() => {
-        updateFilters();
-    }, 500);
+    timeout = setTimeout(() => updateFilters(), 500);
 });
 
-// Watcher untuk tanggal (langsung update saat dipilih)
-watch([dateStart, dateEnd], () => {
+watch([dateStart, timeStart, dateEnd, timeEnd], () => {
     updateFilters();
 });
 
@@ -90,7 +120,9 @@ const clearSearch = () => {
 const resetFilters = () => {
     search.value = "";
     dateStart.value = undefined;
+    timeStart.value = "00:00";
     dateEnd.value = undefined;
+    timeEnd.value = "23:59";
 };
 
 const cleanLabel = (label: string) => {
@@ -113,31 +145,116 @@ const cleanLabel = (label: string) => {
                     Pencapaian Kerja Per Personel
                 </CardTitle>
 
-                <div class="flex flex-col md:flex-row items-center gap-3 w-full lg:w-auto">
+                <div
+                    class="flex flex-col md:flex-row items-center gap-3 w-full lg:w-auto"
+                >
                     <div class="flex items-center gap-2 w-full md:w-auto">
                         <Popover>
                             <PopoverTrigger as-child>
-                                <Button variant="outline" class="w-full md:w-[160px] justify-start text-left font-normal h-10">
-                                    <IconCalendar class="mr-2 size-4 text-muted-foreground" />
-                                    {{ dateStart ? df.format(dateStart.toDate(getLocalTimeZone())) : "Mulai" }}
+                                <Button
+                                    variant="outline"
+                                    class="w-full md:w-[200px] justify-start text-left font-normal h-12"
+                                >
+                                    <IconCalendar
+                                        class="mr-2 size-4 text-muted-foreground"
+                                    />
+                                    <div class="flex flex-col items-start">
+                                        <span
+                                            class="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-1"
+                                            >Mulai</span
+                                        >
+                                        <span class="text-xs">
+                                            {{
+                                                dateStart
+                                                    ? df.format(
+                                                          dateStart.toDate(
+                                                              getLocalTimeZone(),
+                                                          ),
+                                                      )
+                                                    : "Pilih Tanggal"
+                                            }}
+                                            <span
+                                                class="text-primary font-medium"
+                                                >({{ timeStart }})</span
+                                            >
+                                        </span>
+                                    </div>
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent class="w-auto p-0" align="start">
                                 <Calendar v-model="dateStart" />
+                                <div
+                                    class="p-3 border-t bg-muted/20 flex items-center gap-2"
+                                >
+                                    <IconClock
+                                        class="size-4 text-muted-foreground"
+                                    />
+                                    <span class="text-xs font-medium"
+                                        >Jam:</span
+                                    >
+                                    <Input
+                                        type="time"
+                                        v-slot="timeStart"
+                                        v-model="timeStart"
+                                        class="h-8 py-1"
+                                    />
+                                </div>
                             </PopoverContent>
                         </Popover>
 
-                        <span class="text-muted-foreground text-xs font-bold">s/d</span>
+                        <span class="text-muted-foreground text-xs font-bold"
+                            >s/d</span
+                        >
 
                         <Popover>
                             <PopoverTrigger as-child>
-                                <Button variant="outline" class="w-full md:w-[160px] justify-start text-left font-normal h-10">
-                                    <IconCalendar class="mr-2 size-4 text-muted-foreground" />
-                                    {{ dateEnd ? df.format(dateEnd.toDate(getLocalTimeZone())) : "Selesai" }}
+                                <Button
+                                    variant="outline"
+                                    class="w-full md:w-[200px] justify-start text-left font-normal h-12"
+                                >
+                                    <IconCalendar
+                                        class="mr-2 size-4 text-muted-foreground"
+                                    />
+                                    <div class="flex flex-col items-start">
+                                        <span
+                                            class="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-1"
+                                            >Selesai</span
+                                        >
+                                        <span class="text-xs">
+                                            {{
+                                                dateEnd
+                                                    ? df.format(
+                                                          dateEnd.toDate(
+                                                              getLocalTimeZone(),
+                                                          ),
+                                                      )
+                                                    : "Pilih Tanggal"
+                                            }}
+                                            <span
+                                                class="text-primary font-medium"
+                                                >({{ timeEnd }})</span
+                                            >
+                                        </span>
+                                    </div>
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent class="w-auto p-0" align="end">
                                 <Calendar v-model="dateEnd" />
+                                <div
+                                    class="p-3 border-t bg-muted/20 flex items-center gap-2"
+                                >
+                                    <IconClock
+                                        class="size-4 text-muted-foreground"
+                                    />
+                                    <span class="text-xs font-medium"
+                                        >Jam:</span
+                                    >
+                                    <Input
+                                        type="time"
+                                        v-model="timeEnd"
+                                        class="h-8 py-1"
+                                    />
+                                </div>
                             </PopoverContent>
                         </Popover>
                     </div>
@@ -166,8 +283,7 @@ const cleanLabel = (label: string) => {
                             variant="ghost"
                             size="icon"
                             @click="resetFilters"
-                            title="Reset Filter"
-                            class="text-red-500 hover:text-red-600 hover:bg-red-50"
+                            class="text-red-500 hover:bg-red-50"
                         >
                             <IconFilterOff class="size-5" />
                         </Button>
@@ -180,9 +296,18 @@ const cleanLabel = (label: string) => {
                     <Table>
                         <TableHeader>
                             <TableRow class="bg-muted/50">
-                                <TableHead class="w-[80px] text-center text-xs uppercase font-bold tracking-wider">Rank</TableHead>
-                                <TableHead class="text-xs uppercase font-bold tracking-wider">Nama Personel</TableHead>
-                                <TableHead class="text-center text-xs uppercase font-bold tracking-wider">Total Output</TableHead>
+                                <TableHead
+                                    class="w-[80px] text-center text-xs uppercase font-bold tracking-wider"
+                                    >Rank</TableHead
+                                >
+                                <TableHead
+                                    class="text-xs uppercase font-bold tracking-wider"
+                                    >Nama Personel</TableHead
+                                >
+                                <TableHead
+                                    class="text-center text-xs uppercase font-bold tracking-wider"
+                                    >Total Output</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -191,19 +316,32 @@ const cleanLabel = (label: string) => {
                                 :key="item.user.id"
                                 class="hover:bg-muted/30 transition-colors"
                             >
-                                <TableCell class="text-center font-bold text-muted-foreground">
+                                <TableCell
+                                    class="text-center font-bold text-muted-foreground"
+                                >
                                     {{ rekap.from + index }}
                                 </TableCell>
                                 <TableCell>
                                     <div class="flex items-center gap-3">
-                                        <div class="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
-                                            {{ item.user.name.substring(0, 2).toUpperCase() }}
+                                        <div
+                                            class="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20"
+                                        >
+                                            {{
+                                                item.user.name
+                                                    .substring(0, 2)
+                                                    .toUpperCase()
+                                            }}
                                         </div>
-                                        <span class="font-semibold text-slate-700 tracking-tight">{{ item.user.name }}</span>
+                                        <span
+                                            class="font-semibold text-slate-700 tracking-tight"
+                                            >{{ item.user.name }}</span
+                                        >
                                     </div>
                                 </TableCell>
                                 <TableCell class="text-center">
-                                    <Badge class="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 px-4 py-1">
+                                    <Badge
+                                        class="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 px-4 py-1"
+                                    >
                                         <IconTrophy class="size-3.5 mr-1.5" />
                                         {{ item.total_pengerjaan }} Produk
                                     </Badge>
@@ -211,10 +349,20 @@ const cleanLabel = (label: string) => {
                             </TableRow>
 
                             <TableRow v-if="rekap.data.length === 0">
-                                <TableCell colspan="3" class="text-center py-20">
-                                    <div class="flex flex-col items-center gap-2 text-muted-foreground">
-                                        <IconFilterOff class="size-10 opacity-20" />
-                                        <p>Data tidak ditemukan untuk periode ini.</p>
+                                <TableCell
+                                    colspan="3"
+                                    class="text-center py-20"
+                                >
+                                    <div
+                                        class="flex flex-col items-center gap-2 text-muted-foreground"
+                                    >
+                                        <IconFilterOff
+                                            class="size-10 opacity-20"
+                                        />
+                                        <p>
+                                            Data tidak ditemukan untuk periode
+                                            dan jam ini.
+                                        </p>
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -222,25 +370,38 @@ const cleanLabel = (label: string) => {
                     </Table>
                 </div>
 
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                <div
+                    class="flex flex-col md:flex-row items-center justify-between gap-4 mt-6"
+                >
                     <p class="text-xs text-muted-foreground font-medium">
-                        Menampilkan {{ rekap.from }} - {{ rekap.to }} dari {{ rekap.total }} personel
+                        Menampilkan {{ rekap.from }} - {{ rekap.to }} dari
+                        {{ rekap.total }} personel
                     </p>
                     <nav class="flex items-center gap-1">
                         <template v-for="(link, k) in rekap.links" :key="k">
                             <Button
                                 v-if="link.url === null"
-                                variant="outline" size="sm" disabled
+                                variant="outline"
+                                size="sm"
+                                disabled
                                 class="opacity-50 text-xs px-3 h-8"
                                 v-html="cleanLabel(link.label)"
                             />
                             <Button
                                 v-else
-                                as-child variant="outline" size="sm"
+                                as-child
+                                variant="outline"
+                                size="sm"
                                 class="text-xs px-3 h-8"
-                                :class="{ 'bg-primary text-white border-primary': link.active }"
+                                :class="{
+                                    'bg-primary text-white border-primary':
+                                        link.active,
+                                }"
                             >
-                                <Link :href="link.url" v-html="cleanLabel(link.label)" />
+                                <Link
+                                    :href="link.url"
+                                    v-html="cleanLabel(link.label)"
+                                />
                             </Button>
                         </template>
                     </nav>

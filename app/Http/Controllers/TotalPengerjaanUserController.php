@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\PengerjaanProduk;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -16,10 +17,11 @@ class TotalPengerjaanUserController extends Controller
     {
         $rekap = PengerjaanProduk::query()
             ->with(['user'])
-            ->select('user_id', \DB::raw('count(*) as total_pengerjaan'))
+            ->select('user_id', DB::raw('count(*) as total_pengerjaan'))
 
-            // Filter Tanggal (Baru)
+            // Filter Tanggal dan Jam
             ->when($request->date_start && $request->date_end, function ($query) use ($request) {
+                // Format yang diharapkan: "YYYY-MM-DD HH:mm:ss"
                 $query->whereBetween('created_at', [$request->date_start, $request->date_end]);
             })
 
@@ -45,4 +47,5 @@ class TotalPengerjaanUserController extends Controller
             'filters' => $request->only(['search', 'date_start', 'date_end']),
         ]);
     }
+
 }
