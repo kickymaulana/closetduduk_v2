@@ -305,11 +305,25 @@ const cleanLabel = (label: string) => {
                                     >Nama Personel</TableHead
                                 >
                                 <TableHead
+                                    class="text-center text-xs uppercase font-bold tracking-wider text-green-600"
+                                    >OK</TableHead
+                                >
+                                <TableHead
+                                    class="text-center text-xs uppercase font-bold tracking-wider text-amber-600"
+                                    >In Proses</TableHead
+                                >
+                                <TableHead
+                                    class="text-center text-xs uppercase font-bold tracking-wider text-red-600"
+                                    >Buang</TableHead
+                                >
+
+                                <TableHead
                                     class="text-center text-xs uppercase font-bold tracking-wider"
                                     >Total Output</TableHead
                                 >
                             </TableRow>
                         </TableHeader>
+
                         <TableBody>
                             <TableRow
                                 v-for="(item, index) in rekap.data"
@@ -338,6 +352,25 @@ const cleanLabel = (label: string) => {
                                         >
                                     </div>
                                 </TableCell>
+
+                                <TableCell class="text-center">
+                                    <span class="font-bold text-green-600">{{
+                                        item.total_ok
+                                    }}</span>
+                                </TableCell>
+
+                                <TableCell class="text-center">
+                                    <span class="font-bold text-amber-600">{{
+                                        item.total_proses
+                                    }}</span>
+                                </TableCell>
+
+                                <TableCell class="text-center">
+                                    <span class="font-bold text-red-600">{{
+                                        item.total_buang
+                                    }}</span>
+                                </TableCell>
+
                                 <TableCell class="text-center">
                                     <Badge
                                         class="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 px-4 py-1"
@@ -345,25 +378,6 @@ const cleanLabel = (label: string) => {
                                         <IconTrophy class="size-3.5 mr-1.5" />
                                         {{ item.total_pengerjaan }} Produk
                                     </Badge>
-                                </TableCell>
-                            </TableRow>
-
-                            <TableRow v-if="rekap.data.length === 0">
-                                <TableCell
-                                    colspan="3"
-                                    class="text-center py-20"
-                                >
-                                    <div
-                                        class="flex flex-col items-center gap-2 text-muted-foreground"
-                                    >
-                                        <IconFilterOff
-                                            class="size-10 opacity-20"
-                                        />
-                                        <p>
-                                            Data tidak ditemukan untuk periode
-                                            dan jam ini.
-                                        </p>
-                                    </div>
                                 </TableCell>
                             </TableRow>
                         </TableBody>
