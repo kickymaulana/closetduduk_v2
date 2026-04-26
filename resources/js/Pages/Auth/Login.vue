@@ -101,12 +101,12 @@ const handleSelectUser = (username: string) => {
                     <h1
                         class="text-4xl font-extrabold tracking-tighter bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent"
                     >
-                        CLOSET DUDUK <span class="text-accent">V2</span>
+                        SIMAN<span class="text-accent">DUK</span>
                     </h1>
                     <p
                         class="text-sm font-semibold text-white uppercase tracking-widest mt-1.5 opacity-90"
                     >
-                        Production Control System
+                        SIstem Monitoring Alur Nilai Defect Unit Kloset Duduk
                     </p>
                 </div>
 
