@@ -46,7 +46,6 @@ class RegisterController extends Controller
             'name' => $request->name,
             'username' => $request->username,
             'email' => $autoEmail, // Pakai email yang di-generate otomatis
-            'whatsapp' => '-', // Beri nilai default jika kolom ini wajib diisi
             'password' => Hash::make($request->password),
             'departemen_id' => $request->departemen_id,
         ]);

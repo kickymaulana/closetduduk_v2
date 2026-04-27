@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button"
 import { useDark, useToggle } from '@vueuse/core'
 import { IconSun, IconMoon } from '@tabler/icons-vue'
 import { Head } from '@inertiajs/vue3'
+import bgImage from "../../images/bg-login.png";
 
-// Menerima data dari RegisterController
+
 defineProps<{
-  departemens: Array<{ id: number, nama: string }>,
+  departemens: Array<{ id: number, departemen: string }>,
   roles: Array<{ id: number, name: string }>
 }>()
 
@@ -20,7 +21,7 @@ const toggleDark = useToggle(isDark)
 
   <div
     class="relative flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-cover bg-center bg-no-repeat transition-all duration-500"
-    style="background-image: url('https://images.unsplash.com/photo-1582524886475-7730d3092a88?q=80&w=2029&auto=format&fit=crop');"
+    :style="{ backgroundImage: `url(${bgImage})` }"
   >
     <div class="absolute inset-0 bg-white/30 dark:bg-black/70 backdrop-blur-[2px] transition-colors duration-500"></div>
 
@@ -43,15 +44,5 @@ const toggleDark = useToggle(isDark)
     <div class="absolute bottom-4 text-xs text-muted-foreground z-10">
       &copy; 2026 PT Mark Dynamics Indonesia Tbk. All rights reserved.
     </div>
-
   </div>
 </template>
-
-<style scoped>
-/* Transisi halus saat pindah mode gelap/terang */
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 500ms;
-}
-</style>

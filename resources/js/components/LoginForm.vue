@@ -15,7 +15,7 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useForm } from "@inertiajs/vue3";
+import { useForm, Link } from "@inertiajs/vue3";
 
 // Tambahkan 'externalUsername' di props
 const props = defineProps<{
@@ -77,9 +77,12 @@ const submit = () => {
                                 <FieldLabel class="font-semibold text-primary dark:text-primary-foreground/90">
                                     Password
                                 </FieldLabel>
-                                <a href="#" class="text-xs text-primary hover:text-accent font-medium hover:underline transition-colors">
-                                    Lupa sandi?
-                                </a>
+                                <Link
+  :href="route('register')"
+  class="text-xs text-primary hover:text-accent font-medium hover:underline transition-colors"
+>
+  Register
+</Link>
                             </div>
                             <Input
                                 id="password"
