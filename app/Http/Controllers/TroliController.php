@@ -64,29 +64,30 @@ class TroliController extends Controller
         $prosesSekarang = Proses::where('urutan', $urutanSekarang)->first();
 
         $prosesBerikutnya = Proses::where('urutan', $urutanSekarang + 1)->first();
-
-        if (!$prosesBerikutnya) {
+        //harus di cek dulu proses dengan urutan berikutnya apakah punya departemen yang login atau tidak
+        //cek apakah proses berikutnya milih departemen yang login?
+        if($prosesBerikutnya->departemen_id != auth()->user()->departemen_id){
             $troli->update([
                 'status' => 'Selesai',
                 'is_output' => true,
             ]);
             return redirect()->route('trolis.index')->with('success', 'Troli mencapai tahap akhir dan telah diselesaikan.');
+        } else {
+            DB::transaction(function () use ($troli, $prosesBerikutnya) {
+                $troli->update([
+                    'status' => 'Selesai', // Atau mungkin statusnya jadi 'Pending' lagi untuk proses berikutnya?
+                    'proses_id' => $prosesBerikutnya->id
+                ]);
+
+                $troli->produks()->update([
+                    'sudah_scan' => 'Belum'
+                ]);
+            });
+            return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
+
         }
 
-        // 5. Jalankan update ke proses berikutnya
-        DB::transaction(function () use ($troli, $prosesBerikutnya) {
-            $troli->update([
-                'status' => 'Selesai', // Atau mungkin statusnya jadi 'Pending' lagi untuk proses berikutnya?
-                'proses_id' => $prosesBerikutnya->id
-            ]);
 
-            // Reset status scan produk menjadi 'Belum' agar bisa discan ulang di proses baru
-            /*$troli->produks()->update([
-                'sudah_scan' => 'Belum'
-            ]);*/
-        });
-
-        return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
 
     }
 

@@ -17,19 +17,19 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = User::query()
-            ->select('id', 'name', 'username', 'email', 'departemen_id', 'created_at')
-            ->with([
-                'roles:id,name',
-                'departemen:id,departemen'
-            ])
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('username', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString(); // Sangat penting agar filter pencarian tidak hilang saat klik page 2
+        ->select('id', 'name', 'username', 'email', 'departemen_id', 'created_at')
+        ->with([
+            'roles:id,name',
+            'departemen:id,departemen'
+        ])
+        ->when($request->search, function ($query, $search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('username', 'like', "%{$search}%");
+        })
+        ->orderBy('departemen_id', 'asc') // Urutkan berdasarkan ID Departemen
+        ->paginate(10)
+        ->withQueryString();
 
         return Inertia::render('Master/Users/Index', [
             'users' => $users,
