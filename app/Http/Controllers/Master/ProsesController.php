@@ -13,17 +13,18 @@ class ProsesController extends Controller
     public function index(Request $request)
     {
         $proses = Proses::query()
-            ->with('departemen:id,departemen') // Ambil data departemen
-            ->when($request->search, function ($query, $search) {
-                $query->where('proses', 'like', "%{$search}%")
-                    ->orWhereHas('departemen', function ($q) use ($search) {
-                        $q->where('departemen', 'like', "%{$search}%");
-                    });
-            })
-            ->orderBy('departemen_id')
-            ->orderBy('urutan')
-            ->paginate(10)
-            ->withQueryString();
+        ->with('departemen:id,departemen')
+        ->when($request->search, function ($query, $search) {
+            $query->where(function($q) use ($search) { // Bungkus orWhere dalam grup agar tidak merusak urutan
+                $q->where('proses', 'like', "%{$search}%")
+                ->orWhereHas('departemen', function ($sub) use ($search) {
+                    $sub->where('departemen', 'like', "%{$search}%");
+                });
+            });
+        })
+        ->orderBy('urutan', 'asc') // Urutkan berdasarkan kolom urutan secara absolut
+        ->paginate(10)
+        ->withQueryString();
 
         return Inertia::render('Master/Proses/Index', [
             'proses' => $proses,
