@@ -27,7 +27,7 @@ class TroliController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 // 1. Cari berdasarkan nomor invoice troli
-                $q->where('invoice', 'like', "%{$search}%")
+                $q->where('nomor', 'like', "%{$search}%")
 
                 // 2. ATAU cari berdasarkan qrcode produk yang ada di dalam troli
                 // Gunakan orWhereHas untuk mencari ke tabel relasi 'produks'
