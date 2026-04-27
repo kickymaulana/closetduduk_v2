@@ -63,10 +63,7 @@ class TroliController extends Controller
 
         $prosesSekarang = Proses::where('urutan', $urutanSekarang)->first();
 
-        $prosesBerikutnya = \App\Models\Proses::where('departemen_id', $troli->proses->departemen_id)
-            ->where('urutan', '>', $urutanSekarang)
-            ->orderBy('urutan', 'asc')
-            ->first();
+        $prosesBerikutnya = Proses::where('urutan', $urutanSekarang + 1)->first();
 
         if (!$prosesBerikutnya) {
             $troli->update([
@@ -84,9 +81,9 @@ class TroliController extends Controller
             ]);
 
             // Reset status scan produk menjadi 'Belum' agar bisa discan ulang di proses baru
-            $troli->produks()->update([
+            /*$troli->produks()->update([
                 'sudah_scan' => 'Belum'
-            ]);
+            ]);*/
         });
 
         return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');

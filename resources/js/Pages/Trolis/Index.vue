@@ -140,12 +140,12 @@ const cleanLabel = (label: string) => {
                         </Link>
                     </Button>
 
-                    <Button class="bg-primary hover:bg-primary/90" as-child>
+                    <!--<Button class="bg-primary hover:bg-primary/90" as-child>
                         <Link :href="route('trolis.ambil')">
                             <IconDownload class="mr-2 size-4" />
                             Ambil Troli
                         </Link>
-                    </Button>
+                    </Button>-->
                 </div>
             </CardHeader>
 
