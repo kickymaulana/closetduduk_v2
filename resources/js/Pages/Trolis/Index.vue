@@ -59,15 +59,15 @@ const props = defineProps<{
 }>();
 
 const search = ref(props.filters.search || "");
-const copiedInvoice = ref<number | null>(null);
+const copiedNomor = ref<number | null>(null);
 
 const copyToClipboard = async (text: string, id: number) => {
     try {
         await navigator.clipboard.writeText(text);
-        copiedInvoice.value = id;
-        toast.success("Invoice disalin!");
+        copiedNomor.value = id;
+        toast.success("Nomor disalin!");
         setTimeout(() => {
-            copiedInvoice.value = null;
+            copiedNomor.value = null;
         }, 2000);
     } catch (err) {
         toast.error("Gagal menyalin");
@@ -117,7 +117,7 @@ const cleanLabel = (label: string) => {
                         />
                         <Input
                             v-model="search"
-                            placeholder="Cari invoice atau scan produk..."
+                            placeholder="Cari nomor atau scan produk..."
                             class="pl-10 pr-10 border-primary/20 focus-visible:ring-primary"
                         />
                         <button
@@ -183,20 +183,18 @@ const cleanLabel = (label: string) => {
                                         <button
                                             @click="
                                                 copyToClipboard(
-                                                    troli.invoice,
+                                                    troli.nomor,
                                                     troli.id,
                                                 )
                                             "
                                             class="inline-flex items-center justify-center size-9 rounded-lg border-2 border-primary/20 bg-primary/5 active:bg-primary active:text-white transition-all shrink-0"
                                             :class="{
                                                 'bg-green-500 border-green-600 text-white':
-                                                    copiedInvoice === troli.id,
+                                                    copiedNomor === troli.id,
                                             }"
                                         >
                                             <IconCheck
-                                                v-if="
-                                                    copiedInvoice === troli.id
-                                                "
+                                                v-if="copiedNomor === troli.id"
                                                 class="size-5"
                                             />
                                             <IconCopy v-else class="size-5" />
