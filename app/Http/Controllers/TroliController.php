@@ -125,7 +125,7 @@ class TroliController extends Controller
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     // Cari berdasarkan invoice troli
-                    $q->where('invoice', 'like', "%{$search}%")
+                    $q->where('nomor', 'like', "%{$search}%")
                     // ATAU cari produk di dalam troli tersebut
                     ->orWhereHas('produks', function ($pq) use ($search) {
                         $pq->where('qrcode', 'like', "%{$search}%");
