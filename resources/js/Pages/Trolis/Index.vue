@@ -134,9 +134,9 @@ const cleanLabel = (label: string) => {
                         class="border-primary text-primary hover:bg-primary/10"
                         as-child
                     >
-                        <Link :href="route('trolifisiks.index')">
+                        <Link :href="route('trolis.trolikosong')">
                             <IconShoppingCart class="mr-2 size-4" />
-                            Ambil Fisik
+                            Troli Kosong
                         </Link>
                     </Button>
 

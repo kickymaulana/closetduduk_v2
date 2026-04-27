@@ -113,6 +113,8 @@ Route::middleware('auth')->group(function () {
     Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
     Route::get('trolis/ambil', [TroliController::class, 'ambil'])->name('trolis.ambil');
     Route::post('trolis/ambilproses', [TroliController::class, 'ambilproses'])->name('trolis.ambilproses');
+    Route::get('trolis/trolikosong', [TroliController::class, 'trolikosong'])->name('trolis.trolikosong');
+    Route::post('trolis/trolikosong', [TroliController::class, 'trolikosong_store'])->name('trolis.trolikosong.store');
     Route::post('trolis/{troli}/selesaikan', [TroliController::class, 'selesaikan_troli'])->name('trolis.selesaikan');
     Route::get('trolis/{troli}/kembalikan', [TroliController::class, 'kembalikan'])->name('trolis.kembalikan');
     Route::post('trolis/{troli}/kembalikan', [TroliController::class, 'kembalikan_store'])->name('trolis.kembalikan_store');

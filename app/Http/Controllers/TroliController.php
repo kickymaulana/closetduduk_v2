@@ -262,4 +262,60 @@ class TroliController extends Controller
         }
     }
 
+
+    public function trolikosong(Request $request)
+    {
+        $user = auth()->user(); // Ambil data user yang sedang login
+
+        // 1. Ambil query troli yang belum digunakan (proses_id NULL)
+        $query = Troli::query()->whereNull('proses_id');
+
+        // 2. Filter Search
+        if ($request->search) {
+            $query->where('nomor', 'like', '%' . $request->search . '%');
+        }
+
+        // 3. Paginate data
+        $troliFisiks = $query->paginate(10)->withQueryString()->through(fn ($troli) => [
+            'id' => $troli->id,
+            'nomor' => $troli->nomor,
+            'status' => 'Tidak',
+            'created_at' => $troli->created_at,
+        ]);
+
+        // 4. Ambil daftar proses HANYA untuk departemen user tersebut
+        $prosesList = \App\Models\Proses::where('departemen_id', $user->departemen_id)
+            ->orderBy('urutan', 'asc')
+            ->get(['id', 'proses']); // Ambil kolom yang diperlukan saja
+
+        return Inertia::render('Trolis/TroliKosong', [
+            'troliFisiks' => $troliFisiks,
+            'prosesList' => $prosesList,
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
+
+    public function trolikosong_store(Request $request)
+    {
+        // 1. Validasi input
+        $request->validate([
+            'id' => 'required|exists:troli,id',
+            'proses_id' => 'required|exists:proses,id',
+            'keperluan' => 'required|in:OK,In Proses,Scan',
+        ]);
+
+        // 2. Update data troli
+        $troli = Troli::findOrFail($request->id);
+
+        $troli->update([
+            'proses_id' => $request->proses_id,
+            'keperluan' => $request->keperluan,
+            'status' => 'Proses', // Set status ke Proses karena baru diambil
+            'is_output' => 1,      // Biasanya kalau diambil jadi wadah baru (is_output = true)
+        ]);
+
+        return redirect()->back()->with('success', 'Troli berhasil diambil dan didaftarkan ke proses.');
+    }
+
 }
