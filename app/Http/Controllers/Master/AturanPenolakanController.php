@@ -11,16 +11,22 @@ use Inertia\Inertia;
 
 class AturanPenolakanController extends Controller
 {
+
     public function index(Request $request)
     {
         $aturanPenolakans = AturanPenolakan::query()
+            // Kita join tabel proses (asumsikan nama tabelnya 'proses')
+            // untuk mengurutkan berdasarkan nama proses pemeriksa
+            ->select('aturan_penolakan.*') // Pastikan select id agar tidak bentrok
+            ->join('proses as pemeriksa', 'aturan_penolakan.proses_pemeriksa', '=', 'pemeriksa.id')
             ->with(['cacat', 'proses_toleransi', 'proses_buang', 'proses_pemeriksa'])
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('cacat', function ($q) use ($search) {
                     $q->where('cacat', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            // Urutkan berdasarkan kolom 'proses' di tabel yang di-join
+            ->orderBy('pemeriksa.proses', 'asc')
             ->paginate(10)
             ->withQueryString();
 
