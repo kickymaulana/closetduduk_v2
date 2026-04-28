@@ -36,7 +36,7 @@ const props = defineProps<{
             sudah_scan: string;
             troli_id: number | null;
             troli?: {
-                invoice: string;
+                nomor: string;
                 proses?: {
                     proses: string;
                 }
@@ -92,7 +92,7 @@ const cleanLabel = (label: string) => {
                     <IconSearch class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         v-model="search"
-                        placeholder="Scan QR Produk atau cari invoice troli..."
+                        placeholder="Scan QR Produk atau cari nomor troli..."
                         class="pl-10 pr-10"
                     />
                     <button v-if="search" @click="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -139,7 +139,7 @@ const cleanLabel = (label: string) => {
                                     <div v-if="item.troli" class="flex flex-col gap-1">
                                         <div class="flex items-center gap-1 text-sm font-bold">
                                             <IconShoppingCart class="size-3" />
-                                            {{ item.troli.invoice }}
+                                            {{ item.troli.nomor }}
                                         </div>
                                         <span class="text-xs text-muted-foreground">{{ item.troli.proses?.proses ?? '-' }}</span>
                                     </div>
