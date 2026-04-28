@@ -27,12 +27,12 @@ const scanHistory = ref<Array<{ code: string; time: string; success: boolean; ta
 
 const form = useForm({
     qr: "",
-    invoice_tujuan: "", // Pastikan sama dengan di Controller
+    nomor_tujuan: "", // Pastikan sama dengan di Controller
 });
 
 const focusInput = () => {
     setTimeout(() => {
-        if (!form.invoice_tujuan) {
+        if (!form.nomor_tujuan) {
             tujuanInput.value?.focus();
         } else {
             qrInput.value?.focus();
@@ -47,13 +47,13 @@ watch(() => form.processing, (isProc) => { if (!isProc) focusInput(); });
 
 /**
  * FUNGSI PASTE
- * Menempelkan isi clipboard ke input invoice tujuan
+ * Menempelkan isi clipboard ke input nomor tujuan
  */
 const handlePaste = async () => {
     try {
         const text = await navigator.clipboard.readText();
-        form.invoice_tujuan = text.trim().toUpperCase();
-        toast.info("Invoice ditempel (Paste)");
+        form.nomor_tujuan = text.trim().toUpperCase();
+        toast.info("Nomor ditempel (Paste)");
         focusInput();
     } catch (err) {
         toast.error("Gagal membaca clipboard. Pastikan izin browser aktif.");
@@ -61,7 +61,7 @@ const handlePaste = async () => {
 };
 
 const handleTransfer = () => {
-    if (!form.invoice_tujuan) {
+    if (!form.nomor_tujuan) {
         toast.error("Isi Troli Tujuan!");
         tujuanInput.value?.focus();
         return;
@@ -69,7 +69,7 @@ const handleTransfer = () => {
     if (!form.qr || form.processing) return;
 
     const currentQr = form.qr.toUpperCase();
-    const currentTarget = form.invoice_tujuan;
+    const currentTarget = form.nomor_tujuan;
 
     form.post(route('trolis.produk.scan_pindah_store', props.troli.id), {
         preserveScroll: true,
@@ -79,7 +79,7 @@ const handleTransfer = () => {
             form.qr = ""; // Hanya reset QR agar tujuan tetap sticky
         },
         onError: (errors) => {
-            const errorMsg = errors.qr || errors.invoice_tujuan || "Gagal memproses data.";
+            const errorMsg = errors.qr || errors.nomor_tujuan || "Gagal memproses data.";
             toast.error("Gagal", { description: errorMsg });
             addToHistory(currentQr, false, currentTarget);
             form.reset('qr');
@@ -113,7 +113,7 @@ defineOptions({ layout: AuthenticatedLayout });
                     <h1 class="text-xl font-bold text-slate-800">Transfer Antar Troli</h1>
                     <div class="flex items-center gap-2">
                         <Badge variant="destructive">ASAL</Badge>
-                        <span class="font-mono font-bold text-slate-600">{{ troli.invoice }}</span>
+                        <span class="font-mono font-bold text-slate-600">{{ troli.nomor }}</span>
                     </div>
                 </div>
             </div>
@@ -124,18 +124,18 @@ defineOptions({ layout: AuthenticatedLayout });
             <Card class="lg:col-span-5 border-2 border-slate-200 shadow-sm">
                 <CardHeader class="bg-slate-50 py-4">
                     <CardTitle class="text-sm font-bold flex items-center gap-2 text-slate-600">
-                        <IconShoppingCart class="size-4" /> INVOICE TUJUAN
+                        <IconShoppingCart class="size-4" /> NOMOR TUJUAN
                     </CardTitle>
                 </CardHeader>
                 <CardContent class="p-6 space-y-4">
                     <div class="relative group">
                         <input
                             ref="tujuanInput"
-                            v-model="form.invoice_tujuan"
+                            v-model="form.nomor_tujuan"
                             type="text"
                             class="w-full text-center border-b-4 border-t-0 border-x-0 border-slate-200 focus:border-blue-600 focus:ring-0 font-mono font-bold py-4 text-2xl uppercase transition-all outline-none bg-transparent block"
                             placeholder="INPUT / PASTE"
-                            @input="form.invoice_tujuan = form.invoice_tujuan.toUpperCase()"
+                            @input="form.nomor_tujuan = form.nomor_tujuan.toUpperCase()"
                         />
                         <button
                             @click.stop="handlePaste"
@@ -146,13 +146,13 @@ defineOptions({ layout: AuthenticatedLayout });
                         </button>
                     </div>
 
-                    <div v-if="form.errors.invoice_tujuan" class="p-2 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 animate-in fade-in zoom-in">
+                    <div v-if="form.errors.nomor_tujuan" class="p-2 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600 animate-in fade-in zoom-in">
                         <IconAlertCircle class="size-4 shrink-0" />
-                        <span class="text-[11px] font-bold uppercase leading-tight">{{ form.errors.invoice_tujuan }}</span>
+                        <span class="text-[11px] font-bold uppercase leading-tight">{{ form.errors.nomor_tujuan }}</span>
                     </div>
 
                     <p class="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest leading-relaxed">
-                        Silakan salin invoice dari Index, lalu klik tombol biru untuk menempel.
+                        Silakan salin nomor dari Index, lalu klik tombol biru untuk menempel.
                     </p>
                 </CardContent>
             </Card>
@@ -160,8 +160,8 @@ defineOptions({ layout: AuthenticatedLayout });
             <Card class="lg:col-span-7 border-2 border-blue-600 shadow-xl overflow-hidden">
                 <CardContent class="p-0">
                     <div class="py-12 flex flex-col items-center justify-center space-y-6 relative">
-                        <div v-if="!form.invoice_tujuan" class="absolute inset-0 z-30 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
-                            <Badge variant="secondary" class="shadow-sm">Isi Invoice Tujuan Dahulu</Badge>
+                        <div v-if="!form.nomor_tujuan" class="absolute inset-0 z-30 bg-white/50 backdrop-blur-[1px] flex items-center justify-center">
+                            <Badge variant="secondary" class="shadow-sm">Isi Nomor Tujuan Dahulu</Badge>
                         </div>
 
                         <div :class="['p-6 rounded-full transition-all duration-500', form.processing ? 'bg-blue-600 text-white scale-110' : 'bg-blue-50 text-blue-600']">
@@ -173,7 +173,7 @@ defineOptions({ layout: AuthenticatedLayout });
                             <input
                                 ref="qrInput"
                                 v-model="form.qr"
-                                :disabled="!form.invoice_tujuan || form.processing"
+                                :disabled="!form.nomor_tujuan || form.processing"
                                 type="text"
                                 maxlength="10"
                                 class="w-full text-center border-b-4 border-t-0 border-x-0 border-slate-100 focus:border-blue-600 focus:ring-0 outline-none text-4xl font-black py-2 bg-transparent uppercase"

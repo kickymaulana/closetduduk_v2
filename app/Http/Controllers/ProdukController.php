@@ -207,18 +207,18 @@ class ProdukController extends Controller
         // Pastikan nama field di sini 'invoice_tujuan' sesuai dengan di Vue form
         $request->validate([
             'qr' => 'required|string',
-            'invoice_tujuan' => 'required|string|exists:troli,invoice',
+            'nomor_tujuan' => 'required|string|exists:troli,nomor',
         ], [
-            'invoice_tujuan.required' => 'Invoice tujuan belum diisi/tempel!',
-            'invoice_tujuan.exists'   => 'Invoice troli tujuan tidak terdaftar!',
+            'nomor_tujuan.required' => 'Nomor tujuan belum diisi/tempel!',
+            'nomor_tujuan.exists'   => 'Nomor troli tujuan tidak terdaftar!',
         ]);
 
         // 1. Ambil data troli tujuan berdasarkan invoice
-        $troliTujuan = Troli::where('invoice', $request->invoice_tujuan)->first();
+        $troliTujuan = Troli::where('nomor', $request->nomor_tujuan)->first();
 
         // 2. Validasi: Jangan sampai pindah ke troli yang sama
         if ($troliTujuan->id === $troli->id) {
-            return back()->withErrors(['invoice_tujuan' => 'Troli tujuan tidak boleh sama dengan asal!']);
+            return back()->withErrors(['nomor_tujuan' => 'Troli tujuan tidak boleh sama dengan asal!']);
         }
 
         // 3. Cari produk di troli asal (berdasarkan qrcode)
