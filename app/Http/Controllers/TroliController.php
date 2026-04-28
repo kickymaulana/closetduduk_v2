@@ -228,36 +228,31 @@ class TroliController extends Controller
         ]);
     }
 
-
-
     public function hapus_store(Troli $troli)
     {
-        // 1. Cek apakah ada produk
-        // Pakai withErrors agar ditangkap oleh onError di Inertia
+        // 1. Cek apakah ada produk di dalamnya
         if ($troli->produks()->exists()) {
             return back()->withErrors([
-                'error' => 'Troli tidak bisa dihapus karena masih berisi ' . $troli->produks()->count() . ' produk.'
+                'error' => 'Troli tidak bisa dilepaskan karena masih berisi ' . $troli->produks()->count() . ' produk. Kosongkan isi troli terlebih dahulu!'
             ]);
         }
 
         try {
             DB::transaction(function () use ($troli) {
-                // 2. Ambil kode nomor troli fisik (4 karakter pertama)
-                $nomorFisik = substr($troli->invoice, 0, 4);
-
-                // 3. Update status di table troli_fisik
-                TroliFisik::where('nomor', $nomorFisik)
-                    ->update(['status' => 'Tidak']);
-
-                // 4. Hapus data troli
-                $troli->delete();
+                // Kita tidak menghapus baris, tapi mengosongkan relasinya
+                $troli->update([
+                    'proses_id' => null,        // Melepas dari departemen/proses
+                    'status'    => 'Proses',    // Reset ke status default
+                    'keperluan' => 'OK',        // Reset ke keperluan default
+                    'is_output' => false,      // Kembalikan ke status bukan wadah output
+                ]);
             });
 
-            return redirect()->route('trolis.index')->with('success', 'Troli berhasil dihapus.');
+            return redirect()->route('trolis.index')->with('success', 'Troli berhasil dilepaskan dan sekarang berstatus Tersedia.');
 
         } catch (\Exception $e) {
             return back()->withErrors([
-                'error' => 'Gagal menghapus data: ' . $e->getMessage()
+                'error' => 'Gagal mengosongkan data: ' . $e->getMessage()
             ]);
         }
     }
