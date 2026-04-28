@@ -21,6 +21,7 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\RiwayatScanMasukController;
 use App\Http\Controllers\TotalPengerjaanUserController;
 use App\Http\Controllers\LogTemuanRejectController;
+use App\Http\Controllers\ProsesProduksiController;
 
 
 
@@ -143,4 +144,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
     Route::get('produk', [ProdukController::class, 'dataprodukindex'])->name('produk.index');
+
+    Route::get('proses-produksi', [ProsesProduksiController::class, 'index'])->name('proses.produksi');
 });

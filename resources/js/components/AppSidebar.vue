@@ -14,6 +14,7 @@ import {
     IconReportAnalytics,
     IconClipboardList,
     IconQrcode,
+    IconRoute,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -90,6 +91,13 @@ const filteredNavMain = computed(() => {
         url: route("produk.index"),
         icon: IconQrcode,
         root: "Produk",
+    });
+
+    menus.push({
+        title: "Proses Produksi",
+        url: route("proses.produksi"),
+        icon: IconRoute,
+        root: "ProsesProduksi",
     });
     return menus;
 });
