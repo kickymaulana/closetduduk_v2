@@ -16,7 +16,7 @@ class RiwayatScanMasukController extends Controller
             // Pencarian berdasarkan kode produk (invoice) atau nama operator
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('produk', function ($q) use ($search) {
-                    $q->where('invoice', 'like', "%{$search}%");
+                    $q->where('qrcode', 'like', "%{$search}%");
                 })->orWhereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 });
