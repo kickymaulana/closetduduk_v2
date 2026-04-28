@@ -15,6 +15,7 @@ import {
     IconClipboardList,
     IconQrcode,
     IconRoute,
+    IconBoxSeam,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -99,6 +100,14 @@ const filteredNavMain = computed(() => {
         icon: IconRoute,
         root: "ProsesProduksi",
     });
+
+    menus.push({
+        title: "Stok",
+        url: route("stok"),
+        icon: IconBoxSeam,
+        root: "Stok",
+    });
+
     return menus;
 });
 
