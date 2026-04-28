@@ -551,7 +551,7 @@ class ProdukController extends Controller
                 ->orWhere('nama', 'like', "%{$search}%")
                 // 3. Cari berdasarkan Invoice Troli-nya (Relasi)
                 ->orWhereHas('troli', function ($tq) use ($search) {
-                    $tq->where('invoice', 'like', "%{$search}%");
+                    $tq->where('nomor', 'like', "%{$search}%");
                 });
             });
         }
