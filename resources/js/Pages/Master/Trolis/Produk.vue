@@ -127,14 +127,20 @@ const updateScanStatus = (sudah_scan: "Sudah" | "Belum") => {
 
 const moveProducts = () => {
     if (!targetTroliId.value) return toast.error("Pilih troli tujuan!");
+
     router.post(
         route("master.troli.move_products", props.troli.id),
-        { ids: selectedIds.value, target_troli_id: targetTroliId.value },
+        {
+            ids: selectedIds.value,
+            troli_id: targetTroliId.value, // Sesuaikan dengan request->validate di controller
+        },
         {
             onSuccess: () => {
-                toast.success("Produk dipindahkan");
+                toast.success("Produk berhasil dipindahkan");
                 showMoveDialog.value = false;
                 selectedIds.value = [];
+                targetTroliId.value = "";
+                searchTroli.value = ""; // Reset pencarian
             },
         },
     );
@@ -173,6 +179,15 @@ watch(search, (val) => {
         route("master.troli.produk", props.troli.id),
         { search: val },
         { preserveState: true },
+    );
+});
+
+const searchTroli = ref(""); // State untuk input pencarian troli
+
+// Computed untuk memfilter daftar troli berdasarkan input user
+const filteredTrolis = computed(() => {
+    return props.availableTrolis.filter((t) =>
+        t.nomor.toLowerCase().includes(searchTroli.value.toLowerCase()),
     );
 });
 </script>
@@ -380,33 +395,60 @@ watch(search, (val) => {
     </AlertDialog>
 
     <AlertDialog :open="showMoveDialog" @update:open="showMoveDialog = $event">
-        <AlertDialogContent>
-            <AlertDialogHeader
-                ><AlertDialogTitle
-                    >Pindahkan Produk</AlertDialogTitle
-                ></AlertDialogHeader
-            >
-            <div class="py-4">
-                <Select v-model="targetTroliId"
-                    ><SelectTrigger
-                        ><SelectValue
-                            placeholder="Pilih Troli" /></SelectTrigger
-                    ><SelectContent
-                        ><SelectItem
-                            v-for="t in availableTrolis"
+        <AlertDialogContent class="max-w-md">
+            <AlertDialogHeader>
+                <AlertDialogTitle>Pindahkan ke Troli Lain</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Pindahkan {{ selectedIds.length }} produk terpilih.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <div class="py-4 space-y-4">
+                <div class="relative">
+                    <IconSearch
+                        class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
+                    />
+                    <Input
+                        v-model="searchTroli"
+                        placeholder="Ketik nomor troli..."
+                        class="pl-10"
+                    />
+                </div>
+
+                <Select v-model="targetTroliId">
+                    <SelectTrigger>
+                        <SelectValue placeholder="Pilih Nomor Troli" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem
+                            v-for="t in filteredTrolis"
                             :key="t.id"
                             :value="t.id.toString()"
-                            >{{ t.nomor }}</SelectItem
-                        ></SelectContent
-                    ></Select
-                >
+                        >
+                            {{ t.nomor }}
+                        </SelectItem>
+                        <div
+                            v-if="filteredTrolis.length === 0"
+                            class="p-2 text-center text-sm text-muted-foreground"
+                        >
+                            Troli tidak ditemukan
+                        </div>
+                    </SelectContent>
+                </Select>
             </div>
-            <AlertDialogFooter
-                ><AlertDialogCancel>Batal</AlertDialogCancel
-                ><AlertDialogAction @click="moveProducts"
-                    >Pindah</AlertDialogAction
-                ></AlertDialogFooter
-            >
+
+            <AlertDialogFooter>
+                <AlertDialogCancel @click="searchTroli = ''"
+                    >Batal</AlertDialogCancel
+                >
+                <AlertDialogAction
+                    @click="moveProducts"
+                    :disabled="!targetTroliId"
+                    class="bg-primary"
+                >
+                    Konfirmasi Pindah
+                </AlertDialogAction>
+            </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
 

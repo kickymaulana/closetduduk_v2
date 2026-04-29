@@ -55,9 +55,11 @@ class MasterTroliController extends Controller
     }
 
 
+
     public function produk(Request $request, Troli $troli)
     {
         $troli->load('proses');
+        $user = auth()->user(); // Ambil data user login
 
         $produks = Produk::query()
             ->where('troli_id', $troli->id)
@@ -68,11 +70,15 @@ class MasterTroliController extends Controller
                 });
             })
             ->latest()
-            ->get(); // Ambil semua data
+            ->get();
 
+        // Filter troli: Departemen sama, bukan troli saat ini, dan sudah ada prosesnya
         $availableTrolis = Troli::where('id', '!=', $troli->id)
-            ->whereNotNull('proses_id')
+            ->whereHas('proses', function ($q) use ($user) {
+                $q->where('departemen_id', $user->departemen_id);
+            })
             ->select('id', 'nomor')
+            ->orderBy('nomor', 'asc') // Urutkan agar mudah dicari
             ->get();
 
         $allProses = \App\Models\Proses::select('id', 'proses')->get();
@@ -138,7 +144,7 @@ class MasterTroliController extends Controller
     {
         $request->validate([
             'ids' => 'required|array',
-            'troli_id' => 'required|exists:trolis,id'
+            'troli_id' => 'required|exists:troli,id'
         ]);
 
         Produk::whereIn('id', $request->ids)->update([
