@@ -55,39 +55,39 @@ class MasterTroliController extends Controller
     }
 
 
-public function produk(Request $request, Troli $troli)
-{
-    $troli->load('proses');
+    public function produk(Request $request, Troli $troli)
+    {
+        $troli->load('proses');
 
-    $produks = Produk::query()
-        ->where('troli_id', $troli->id)
-        ->when($request->search, function ($query, $search) {
-            $query->where(function($q) use ($search) {
-                $q->where('qrcode', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%");
-            });
-        })
-        ->latest()
-        ->get(); // Ambil semua data
+        $produks = Produk::query()
+            ->where('troli_id', $troli->id)
+            ->when($request->search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('qrcode', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->get(); // Ambil semua data
 
-    $availableTrolis = Troli::where('id', '!=', $troli->id)
-        ->whereNotNull('proses_id')
-        ->select('id', 'nomor')
-        ->get();
+        $availableTrolis = Troli::where('id', '!=', $troli->id)
+            ->whereNotNull('proses_id')
+            ->select('id', 'nomor')
+            ->get();
 
-    $allProses = \App\Models\Proses::select('id', 'proses')->get();
+        $allProses = \App\Models\Proses::select('id', 'proses')->get();
 
-    return Inertia::render('Master/Trolis/Produk', [
-        'troli' => $troli,
-        'produks' => [
-            'data' => $produks,
-            'total' => $produks->count()
-        ],
-        'availableTrolis' => $availableTrolis,
-        'allProses' => $allProses,
-        'filters' => $request->only(['search']),
-    ]);
-}
+        return Inertia::render('Master/Trolis/Produk', [
+            'troli' => $troli,
+            'produks' => [
+                'data' => $produks,
+                'total' => $produks->count()
+            ],
+            'availableTrolis' => $availableTrolis,
+            'allProses' => $allProses,
+            'filters' => $request->only(['search']),
+        ]);
+    }
 
 
 
