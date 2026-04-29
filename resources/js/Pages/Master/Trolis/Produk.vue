@@ -185,15 +185,26 @@ const removeProducts = () => {
     );
 };
 
-// 5. Reset/Hapus Status Troli (Set proses = null)
 const deleteTroli = () => {
     router.post(
         route("master.troli.hapus_troli", props.troli.id),
         {},
         {
-            onSuccess: () => {
-                toast.success("Troli berhasil direset");
-                router.get(route("master.troli.index"));
+            onSuccess: (page) => {
+                // Ambil pesan flash dari props
+                const flash = page.props.flash as any;
+
+                if (flash.error) {
+                    // Jika ada pesan error dari back()->with('error', ...)
+                    toast.error(flash.error);
+                } else {
+                    // Jika benar-benar berhasil
+                    toast.success("Troli berhasil dihapus");
+                    router.get(route("master.troli.index"));
+                }
+            },
+            onError: () => {
+                toast.error("Terjadi kesalahan sistem.");
             },
         },
     );
@@ -296,8 +307,7 @@ watch(search, (value) => {
                                 @click="showDeleteTroliDialog = true"
                                 class="text-red-600 font-medium"
                             >
-                                <IconTrash class="mr-2 size-4" /> Reset /
-                                Kosongkan Troli
+                                <IconTrash class="mr-2 size-4" /> Hapus Troli
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator />
@@ -521,10 +531,10 @@ watch(search, (value) => {
     >
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Hapus/Reset Status Troli?</AlertDialogTitle>
+                <AlertDialogTitle>Hapus Troli?</AlertDialogTitle>
                 <AlertDialogDescription
-                    >Melepaskan ikatan proses pada troli ini. Status troli akan
-                    kembali menjadi "Kosong".</AlertDialogDescription
+                    >Melepaskan ikatan proses pada troli
+                    ini.</AlertDialogDescription
                 >
             </AlertDialogHeader>
             <AlertDialogFooter>

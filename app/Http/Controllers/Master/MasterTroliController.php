@@ -148,21 +148,23 @@ class MasterTroliController extends Controller
         return back()->with('success', 'Produk berhasil dipindahkan ke troli lain.');
     }
 
-    /**
-    * Menghapus/Kosongkan troli (set proses_id = null)
-    */
+
     public function hapusTroli(Troli $troli)
     {
-        // Opsional: Cek apakah troli masih ada isinya?
-        // Jika ingin paksa kosongkan, kita null-kan dulu produknya
-        DB::transaction(function () use ($troli) {
-            Produk::where('troli_id', $troli->id)->update(['troli_id' => null]);
+        // 1. Cek apakah masih ada produk yang terikat dengan troli ini
+        $adaProduk = \App\Models\Produk::where('troli_id', $troli->id)->exists();
 
-            $troli->update([
-                'proses_id' => null,
-                'status' => 'Kosong', // Sesuaikan dengan enum status kamu
-            ]);
-        });
+        if ($adaProduk) {
+            // Jika masih ada isinya, kirim pesan error (bisa ditangkap toast di Inertia)
+            return back()->with('error', 'Troli tidak bisa direset karena masih berisi produk. Keluarkan atau pindahkan produk terlebih dahulu.');
+        }
+
+        // 2. Jika kosong, lakukan reset status troli
+        $troli->update([
+            'proses_id' => null,
+            'status' => 'Selesai Bongkar', // Atau 'Kosong' sesuai enum kamu
+            'is_output' => false,
+        ]);
 
         return redirect()->route('master.troli.index')
             ->with('success', 'Troli berhasil dikosongkan dan dilepas dari proses.');
