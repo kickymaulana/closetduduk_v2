@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Troli;
+use App\Models\Produk;
 
 class MasterTroliController extends Controller
 {
@@ -49,6 +50,37 @@ class MasterTroliController extends Controller
 
         return Inertia::render('Master/Trolis/Index', [
             'trolis' => $trolis,
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
+
+    public function produk(Request $request, Troli $troli)
+    {
+        $troli->load('proses');
+
+        $produks = Produk::query()
+            ->where('troli_id', $troli->id)
+            ->when($request->search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('qrcode', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        // Ambil daftar troli lain untuk keperluan "Pindahkan ke Troli Lain"
+        $availableTrolis = Troli::where('id', '!=', $troli->id)
+            ->whereNotNull('proses_id')
+            ->select('id', 'nomor')
+            ->get();
+
+        return Inertia::render('Master/Trolis/Produk', [
+            'troli' => $troli,
+            'produks' => $produks,
+            'availableTrolis' => $availableTrolis,
             'filters' => $request->only(['search']),
         ]);
     }

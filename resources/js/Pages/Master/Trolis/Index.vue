@@ -229,7 +229,7 @@ const cleanLabel = (label: string) => {
                                         <Link
                                             :href="
                                                 route(
-                                                    'trolis.produk.index',
+                                                    'master.troli.produk',
                                                     troli.id,
                                                 )
                                             "

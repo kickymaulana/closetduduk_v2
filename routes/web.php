@@ -97,6 +97,7 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::delete('master/troli-fisiks/{trolifisik}', [MasterTroliFisikController::class, 'destroy'])->name('master.trolifisiks.destroy');
 
     Route::get('master/troli', [MasterTroliController::class, 'index'])->name('master.troli.index');
+    Route::get('master/troli/{troli}/produk', [MasterTroliController::class, 'produk'])->name('master.troli.produk');
 });
 
 Route::middleware('auth')->group(function () {
