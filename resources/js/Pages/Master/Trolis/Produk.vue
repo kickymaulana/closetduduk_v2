@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
+import { ref, watch } from "vue";
+import { toast } from "vue-sonner";
 import {
     Table,
     TableBody,
@@ -19,11 +21,11 @@ import {
     IconSearch,
     IconX,
     IconArrowLeft,
-    IconDotsVertical,
     IconTrash,
     IconTransfer,
     IconCheck,
     IconSettings,
+    IconRefresh,
 } from "@tabler/icons-vue";
 import {
     DropdownMenu,
@@ -50,8 +52,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { ref, watch } from "vue";
-import { toast } from "vue-sonner";
 
 defineOptions({ layout: AuthenticatedLayout });
 
@@ -59,6 +59,7 @@ const props = defineProps<{
     troli: {
         id: number;
         nomor: string;
+        proses_id?: number;
         proses?: {
             proses: string;
         };
@@ -75,28 +76,28 @@ const props = defineProps<{
         total: number;
     };
     availableTrolis: Array<{ id: number; nomor: string }>;
+    allProses: Array<{ id: number; proses: string }>;
     filters: {
         search: string;
     };
 }>();
 
+// States
 const search = ref(props.filters.search || "");
 const selectedIds = ref<number[]>([]);
 const targetTroliId = ref<string>("");
+const selectedProsesId = ref<string>(props.troli.proses_id?.toString() || "");
 
-// Dialog States
+// Dialog Visibility States
 const showMoveDialog = ref(false);
 const showDeleteTroliDialog = ref(false);
+const showChangeProsesDialog = ref(false);
 
 /**
- * LOGIKA CHECKBOX (DIPERBAIKI)
+ * LOGIKA SELEKSI PRODUK
  */
 const toggleAll = (checked: boolean) => {
-    if (checked) {
-        selectedIds.value = props.produks.data.map((p) => p.id);
-    } else {
-        selectedIds.value = [];
-    }
+    selectedIds.value = checked ? props.produks.data.map((p) => p.id) : [];
 };
 
 const toggleSelect = (id: number) => {
@@ -104,13 +105,34 @@ const toggleSelect = (id: number) => {
     if (index > -1) {
         selectedIds.value = selectedIds.value.filter((i) => i !== id);
     } else {
-        selectedIds.value = [...selectedIds.value, id];
+        selectedIds.value.push(id);
     }
 };
 
 /**
- * ACTIONS
+ * ACTIONS (API CALLS)
  */
+
+// 1. Ganti Proses Troli
+const changeProses = () => {
+    if (!selectedProsesId.value)
+        return toast.error("Pilih proses terlebih dahulu");
+
+    router.post(
+        route("master.troli.update_proses", props.troli.id),
+        {
+            proses_id: selectedProsesId.value,
+        },
+        {
+            onSuccess: () => {
+                toast.success("Proses troli berhasil diperbarui");
+                showChangeProsesDialog.value = false;
+            },
+        },
+    );
+};
+
+// 2. Update Status Scan Produk Terpilih
 const updateScanStatus = (status: string) => {
     router.post(
         route("master.troli.update_scan", props.troli.id),
@@ -120,13 +142,14 @@ const updateScanStatus = (status: string) => {
         },
         {
             onSuccess: () => {
-                toast.success(`Status berhasil diubah ke ${status}`);
+                toast.success(`Status scan diubah ke ${status}`);
                 selectedIds.value = [];
             },
         },
     );
 };
 
+// 3. Pindahkan Produk ke Troli Lain
 const moveProducts = () => {
     if (!targetTroliId.value) return toast.error("Pilih troli tujuan!");
 
@@ -146,6 +169,7 @@ const moveProducts = () => {
     );
 };
 
+// 4. Keluarkan Produk dari Troli (set troli_id = null)
 const removeProducts = () => {
     router.post(
         route("master.troli.remove_products", props.troli.id),
@@ -161,6 +185,7 @@ const removeProducts = () => {
     );
 };
 
+// 5. Reset/Hapus Status Troli (Set proses = null)
 const deleteTroli = () => {
     router.post(
         route("master.troli.hapus_troli", props.troli.id),
@@ -218,7 +243,7 @@ watch(search, (value) => {
                             variant="outline"
                             class="bg-blue-50 text-blue-700 border-blue-200"
                         >
-                            Proses: {{ troli.proses?.proses ?? "-" }}
+                            Proses: {{ troli.proses?.proses ?? "Belum Set" }}
                         </Badge>
                         <span class="text-sm text-muted-foreground"
                             >Total: {{ produks.total }} Produk</span
@@ -239,7 +264,7 @@ watch(search, (value) => {
                         <button
                             v-if="search"
                             @click="search = ''"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                         >
                             <IconX class="size-4" />
                         </button>
@@ -255,14 +280,33 @@ watch(search, (value) => {
                                 <IconSettings class="size-4 text-primary" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-56">
+                        <DropdownMenuContent align="end" class="w-64">
                             <DropdownMenuLabel
-                                >Aksi ({{
+                                >Pengaturan Troli</DropdownMenuLabel
+                            >
+                            <DropdownMenuItem
+                                @click="showChangeProsesDialog = true"
+                            >
+                                <IconRefresh
+                                    class="mr-2 size-4 text-orange-500"
+                                />
+                                Ganti Proses Troli
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                @click="showDeleteTroliDialog = true"
+                                class="text-red-600 font-medium"
+                            >
+                                <IconTrash class="mr-2 size-4" /> Reset /
+                                Kosongkan Troli
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel
+                                >Aksi Produk ({{
                                     selectedIds.length
                                 }}
                                 Terpilih)</DropdownMenuLabel
                             >
-                            <DropdownMenuSeparator />
 
                             <DropdownMenuItem
                                 @click="showMoveDialog = true"
@@ -296,15 +340,6 @@ watch(search, (value) => {
                                 class="text-red-600"
                             >
                                 <IconTrash class="mr-2 size-4" /> Keluarkan dari
-                                Troli
-                            </DropdownMenuItem>
-
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                @click="showDeleteTroliDialog = true"
-                                class="text-red-600 font-bold"
-                            >
-                                <IconTrash class="mr-2 size-4" /> Hapus/Reset
                                 Troli
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -385,7 +420,7 @@ watch(search, (value) => {
                                                 ? 'bg-green-500 hover:bg-green-600'
                                                 : 'bg-yellow-500 hover:bg-yellow-600'
                                         "
-                                        class="text-black"
+                                        class="text-white"
                                     >
                                         {{ item.sudah_scan }}
                                     </Badge>
@@ -407,19 +442,54 @@ watch(search, (value) => {
         </Card>
     </div>
 
+    <AlertDialog
+        :open="showChangeProsesDialog"
+        @update:open="showChangeProsesDialog = $event"
+    >
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Ganti Proses Troli</AlertDialogTitle>
+                <AlertDialogDescription
+                    >Pilih proses baru yang akan ditugaskan pada troli
+                    {{ troli.nomor }}.</AlertDialogDescription
+                >
+            </AlertDialogHeader>
+            <div class="py-4">
+                <Select v-model="selectedProsesId">
+                    <SelectTrigger>
+                        <SelectValue placeholder="Pilih Proses Baru" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem
+                            v-for="p in allProses"
+                            :key="p.id"
+                            :value="p.id.toString()"
+                            >{{ p.proses }}</SelectItem
+                        >
+                    </SelectContent>
+                </Select>
+            </div>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                    @click="changeProses"
+                    class="bg-orange-600 hover:bg-orange-700"
+                    >Simpan Perubahan</AlertDialogAction
+                >
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
     <AlertDialog :open="showMoveDialog" @update:open="showMoveDialog = $event">
         <AlertDialogContent>
             <AlertDialogHeader>
                 <AlertDialogTitle>Pindahkan ke Troli Lain</AlertDialogTitle>
-                <AlertDialogDescription>
-                    {{ selectedIds.length }} produk terpilih akan dipindahkan ke
-                    nomor troli berikut.
-                </AlertDialogDescription>
+                <AlertDialogDescription
+                    >{{ selectedIds.length }} produk akan dipindahkan ke troli
+                    tujuan.</AlertDialogDescription
+                >
             </AlertDialogHeader>
             <div class="py-4">
-                <label class="text-sm font-medium mb-2 block"
-                    >Pilih Troli Tujuan</label
-                >
                 <Select v-model="targetTroliId">
                     <SelectTrigger>
                         <SelectValue placeholder="Pilih Nomor Troli" />
@@ -429,16 +499,13 @@ watch(search, (value) => {
                             v-for="t in availableTrolis"
                             :key="t.id"
                             :value="t.id.toString()"
+                            >{{ t.nomor }}</SelectItem
                         >
-                            {{ t.nomor }}
-                        </SelectItem>
                     </SelectContent>
                 </Select>
             </div>
             <AlertDialogFooter>
-                <AlertDialogCancel @click="showMoveDialog = false"
-                    >Batal</AlertDialogCancel
-                >
+                <AlertDialogCancel>Batal</AlertDialogCancel>
                 <AlertDialogAction
                     @click="moveProducts"
                     class="bg-primary hover:bg-primary/90"
@@ -455,15 +522,13 @@ watch(search, (value) => {
         <AlertDialogContent>
             <AlertDialogHeader>
                 <AlertDialogTitle>Hapus/Reset Status Troli?</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Tindakan ini akan melepaskan ikatan proses pada troli ini
-                    (set NULL). Status troli akan kembali menjadi "Kosong".
-                </AlertDialogDescription>
+                <AlertDialogDescription
+                    >Melepaskan ikatan proses pada troli ini. Status troli akan
+                    kembali menjadi "Kosong".</AlertDialogDescription
+                >
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel @click="showDeleteTroliDialog = false"
-                    >Batal</AlertDialogCancel
-                >
+                <AlertDialogCancel>Batal</AlertDialogCancel>
                 <AlertDialogAction
                     @click="deleteTroli"
                     class="bg-red-600 hover:bg-red-700"
