@@ -23,6 +23,7 @@ use App\Http\Controllers\TotalPengerjaanUserController;
 use App\Http\Controllers\LogTemuanRejectController;
 use App\Http\Controllers\ProsesProduksiController;
 use App\Http\Controllers\StokController;
+use App\Http\Controllers\Master\MasterTroliController;
 
 
 
@@ -94,6 +95,8 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/troli-fisiks/{trolifisik}/edit', [MasterTroliFisikController::class, 'edit'])->name('master.trolifisiks.edit');
     Route::put('master/troli-fisiks/{trolifisik}/edit', [MasterTroliFisikController::class, 'update'])->name('master.trolifisiks.update');
     Route::delete('master/troli-fisiks/{trolifisik}', [MasterTroliFisikController::class, 'destroy'])->name('master.trolifisiks.destroy');
+
+    Route::get('master/troli', [MasterTroliController::class, 'index'])->name('master.troli.index');
 });
 
 Route::middleware('auth')->group(function () {
