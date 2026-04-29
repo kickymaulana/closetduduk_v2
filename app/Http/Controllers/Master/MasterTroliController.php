@@ -47,7 +47,7 @@ class MasterTroliController extends Controller
                 'terakhir_diperbaharui' => $troli->updated_at->format('d M Y'),
             ]);
 
-        return Inertia::render('Master/Troli/Index', [
+        return Inertia::render('Master/Trolis/Index', [
             'trolis' => $trolis,
             'filters' => $request->only(['search']),
         ]);

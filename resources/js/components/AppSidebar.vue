@@ -16,6 +16,7 @@ import {
     IconQrcode,
     IconRoute,
     IconBoxSeam,
+    IconShoppingCart,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -154,6 +155,12 @@ const masterData = [
         url: route("master.trolifisiks.index"),
         icon: IconTruck,
         root: "Master/TroliFisiks",
+    },
+    {
+        name: "Troli",
+        url: route("master.troli.index"),
+        icon: IconShoppingCart,
+        root: "Master/Trolis",
     },
     {
         name: "Jabatan",
