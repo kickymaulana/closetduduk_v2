@@ -106,14 +106,20 @@ const changeProses = () => {
     );
 };
 
-const updateScanStatus = (status: string) => {
+const updateScanStatus = (sudah_scan: "Sudah" | "Belum") => {
+    if (selectedIds.value.length === 0)
+        return toast.error("Pilih produk terlebih dahulu!");
+
     router.post(
         route("master.troli.update_scan", props.troli.id),
-        { ids: selectedIds.value, status },
+        {
+            ids: selectedIds.value,
+            sudah_scan: sudah_scan,
+        },
         {
             onSuccess: () => {
-                toast.success(`Status diubah ke ${status}`);
-                selectedIds.value = [];
+                toast.success(`Berhasil mengubah status ke: ${sudah_scan}`);
+                selectedIds.value = []; // Reset pilihan setelah berhasil
             },
         },
     );
@@ -241,12 +247,23 @@ watch(search, (val) => {
                                 ><IconTransfer class="mr-2 size-4" />
                                 Pindahkan</DropdownMenuItem
                             >
+
                             <DropdownMenuItem
                                 @click="updateScanStatus('Sudah')"
                                 :disabled="selectedIds.length === 0"
-                                ><IconCheck class="mr-2 size-4" /> Set Sudah
-                                Scan</DropdownMenuItem
                             >
+                                <IconCheck class="mr-2 size-4 text-green-500" />
+                                Setel Sudah Scan
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                                @click="updateScanStatus('Belum')"
+                                :disabled="selectedIds.length === 0"
+                            >
+                                <IconX class="mr-2 size-4 text-yellow-600" />
+                                Setel Belum Scan
+                            </DropdownMenuItem>
+
                             <DropdownMenuItem
                                 @click="removeProducts"
                                 :disabled="selectedIds.length === 0"

@@ -100,22 +100,19 @@ public function produk(Request $request, Troli $troli)
     }
 
 
-
-    /**
-    * Update kolom sudah_scan pada produk yang dipilih
-    */
     public function updateScan(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
-            'status' => 'required|string' // "Sudah" atau "Belum"
+            'ids.*' => 'exists:produk,id', // Validasi tiap ID ada di tabel
+            'sudah_scan' => 'required|in:Sudah,Belum' // Memastikan hanya Sudah/Belum
         ]);
 
         Produk::whereIn('id', $request->ids)->update([
-            'sudah_scan' => $request->status
+            'sudah_scan' => $request->sudah_scan
         ]);
 
-        return back()->with('success', 'Status scan berhasil diperbaharui.');
+        return back()->with('success', "Status scan " . count($request->ids) . " produk berhasil diubah menjadi {$request->status}.");
     }
 
     /**
