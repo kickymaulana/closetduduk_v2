@@ -50,16 +50,34 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { ref, watch, computed } from "vue";
+import { ref, watch } from "vue";
 import { toast } from "vue-sonner";
 
 defineOptions({ layout: AuthenticatedLayout });
 
 const props = defineProps<{
-    troli: any;
-    produks: any;
+    troli: {
+        id: number;
+        nomor: string;
+        proses?: {
+            proses: string;
+        };
+    };
+    produks: {
+        data: Array<{
+            id: number;
+            qrcode: string;
+            jenis: string;
+            status_akhir: string;
+            sudah_scan: string;
+            created_at: string;
+        }>;
+        total: number;
+    };
     availableTrolis: Array<{ id: number; nomor: string }>;
-    filters: any;
+    filters: {
+        search: string;
+    };
 }>();
 
 const search = ref(props.filters.search || "");
@@ -70,30 +88,39 @@ const targetTroliId = ref<string>("");
 const showMoveDialog = ref(false);
 const showDeleteTroliDialog = ref(false);
 
-// Logic Checkbox
+/**
+ * LOGIKA CHECKBOX (DIPERBAIKI)
+ */
 const toggleAll = (checked: boolean) => {
-    selectedIds.value = checked ? props.produks.data.map((p: any) => p.id) : [];
+    if (checked) {
+        selectedIds.value = props.produks.data.map((p) => p.id);
+    } else {
+        selectedIds.value = [];
+    }
 };
 
 const toggleSelect = (id: number) => {
     const index = selectedIds.value.indexOf(id);
-    if (index > -1) selectedIds.value.splice(index, 1);
-    else selectedIds.value.push(id);
+    if (index > -1) {
+        selectedIds.value = selectedIds.value.filter((i) => i !== id);
+    } else {
+        selectedIds.value = [...selectedIds.value, id];
+    }
 };
 
-// Actions
+/**
+ * ACTIONS
+ */
 const updateScanStatus = (status: string) => {
-    if (selectedIds.value.length === 0)
-        return toast.error("Pilih produk terlebih dahulu");
     router.post(
-        route("master.troli.update_scan"),
+        route("master.troli.update_scan", props.troli.id),
         {
             ids: selectedIds.value,
             status: status,
         },
         {
             onSuccess: () => {
-                toast.success("Status scan diperbarui");
+                toast.success(`Status berhasil diubah ke ${status}`);
                 selectedIds.value = [];
             },
         },
@@ -101,12 +128,13 @@ const updateScanStatus = (status: string) => {
 };
 
 const moveProducts = () => {
-    if (!targetTroliId.value) return toast.error("Pilih troli tujuan");
+    if (!targetTroliId.value) return toast.error("Pilih troli tujuan!");
+
     router.post(
-        route("master.troli.move_products"),
+        route("master.troli.move_products", props.troli.id),
         {
             ids: selectedIds.value,
-            troli_id: targetTroliId.value,
+            target_troli_id: targetTroliId.value,
         },
         {
             onSuccess: () => {
@@ -119,9 +147,8 @@ const moveProducts = () => {
 };
 
 const removeProducts = () => {
-    if (selectedIds.value.length === 0) return;
     router.post(
-        route("master.troli.remove_products"),
+        route("master.troli.remove_products", props.troli.id),
         {
             ids: selectedIds.value,
         },
@@ -140,22 +167,24 @@ const deleteTroli = () => {
         {},
         {
             onSuccess: () => {
-                toast.success("Troli berhasil dikosongkan/hapus");
+                toast.success("Troli berhasil direset");
                 router.get(route("master.troli.index"));
             },
         },
     );
 };
 
-// Watcher Search
-let timeout: any;
+/**
+ * SEARCH WATCHER
+ */
+let timeout: ReturnType<typeof setTimeout>;
 watch(search, (value) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
         router.get(
             route("master.troli.produk", props.troli.id),
             { search: value },
-            { preserveState: true },
+            { preserveState: true, replace: true },
         );
     }, 500);
 });
@@ -168,7 +197,7 @@ watch(search, (value) => {
         <div class="flex items-center">
             <Button variant="ghost" size="sm" as-child>
                 <Link :href="route('master.troli.index')">
-                    <IconArrowLeft class="size-4 mr-2" /> Kembali
+                    <IconArrowLeft class="size-4 mr-2" /> Kembali ke Daftar
                 </Link>
             </Button>
         </div>
@@ -178,14 +207,19 @@ watch(search, (value) => {
                 class="flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0 pb-6 border-b"
             >
                 <CardTitle class="flex flex-col gap-1">
-                    <div class="flex items-center gap-2 text-xl font-bold">
-                        <IconPackage class="size-6 text-primary" />
+                    <div
+                        class="flex items-center gap-2 text-xl font-bold text-primary"
+                    >
+                        <IconPackage class="size-6" />
                         Isi Troli: {{ troli.nomor }}
                     </div>
                     <div class="flex items-center gap-2">
-                        <Badge variant="outline"
-                            >Proses: {{ troli.proses?.proses }}</Badge
+                        <Badge
+                            variant="outline"
+                            class="bg-blue-50 text-blue-700 border-blue-200"
                         >
+                            Proses: {{ troli.proses?.proses ?? "-" }}
+                        </Badge>
                         <span class="text-sm text-muted-foreground"
                             >Total: {{ produks.total }} Produk</span
                         >
@@ -199,22 +233,37 @@ watch(search, (value) => {
                         />
                         <Input
                             v-model="search"
-                            placeholder="Cari produk..."
-                            class="pl-10"
+                            placeholder="Cari QR Code..."
+                            class="pl-10 focus-visible:ring-primary"
                         />
+                        <button
+                            v-if="search"
+                            @click="search = ''"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                            <IconX class="size-4" />
+                        </button>
                     </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
-                            <Button variant="outline" size="icon">
-                                <IconSettings class="size-4" />
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                class="border-primary/20 hover:bg-primary/5"
+                            >
+                                <IconSettings class="size-4 text-primary" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-56">
                             <DropdownMenuLabel
-                                >Manajemen Troli</DropdownMenuLabel
+                                >Aksi ({{
+                                    selectedIds.length
+                                }}
+                                Terpilih)</DropdownMenuLabel
                             >
                             <DropdownMenuSeparator />
+
                             <DropdownMenuItem
                                 @click="showMoveDialog = true"
                                 :disabled="selectedIds.length === 0"
@@ -224,35 +273,39 @@ watch(search, (value) => {
                                 />
                                 Pindahkan ke Troli Lain
                             </DropdownMenuItem>
+
                             <DropdownMenuItem
                                 @click="updateScanStatus('Sudah')"
                                 :disabled="selectedIds.length === 0"
                             >
                                 <IconCheck class="mr-2 size-4 text-green-500" />
-                                Setel "Sudah Scan"
+                                Setel Sudah Scan
                             </DropdownMenuItem>
+
                             <DropdownMenuItem
                                 @click="updateScanStatus('Belum')"
                                 :disabled="selectedIds.length === 0"
                             >
-                                <IconX class="mr-2 size-4 text-yellow-500" />
-                                Setel "Belum Scan"
+                                <IconX class="mr-2 size-4 text-yellow-600" />
+                                Setel Belum Scan
                             </DropdownMenuItem>
+
                             <DropdownMenuItem
                                 @click="removeProducts"
                                 :disabled="selectedIds.length === 0"
                                 class="text-red-600"
                             >
-                                <IconTrash class="mr-2 size-4" /> Hapus Produk
-                                dari Troli
+                                <IconTrash class="mr-2 size-4" /> Keluarkan dari
+                                Troli
                             </DropdownMenuItem>
+
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 @click="showDeleteTroliDialog = true"
                                 class="text-red-600 font-bold"
                             >
-                                <IconTrash class="mr-2 size-4" />
-                                Hapus/Kosongkan Troli
+                                <IconTrash class="mr-2 size-4" /> Hapus/Reset
+                                Troli
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -260,10 +313,10 @@ watch(search, (value) => {
             </CardHeader>
 
             <CardContent class="pt-6">
-                <div class="rounded-lg border overflow-hidden">
+                <div class="rounded-lg border overflow-hidden bg-background">
                     <Table>
                         <TableHeader>
-                            <TableRow class="bg-muted/50">
+                            <TableRow class="bg-muted/50 hover:bg-muted/50">
                                 <TableHead class="w-12">
                                     <Checkbox
                                         :checked="
@@ -282,9 +335,24 @@ watch(search, (value) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
+                            <TableRow v-if="produks.data.length === 0">
+                                <TableCell
+                                    colspan="6"
+                                    class="h-32 text-center text-muted-foreground"
+                                >
+                                    Troli ini belum berisi produk apapun.
+                                </TableCell>
+                            </TableRow>
+
                             <TableRow
                                 v-for="item in produks.data"
                                 :key="item.id"
+                                class="hover:bg-muted/30 transition-colors"
+                                :class="{
+                                    'bg-primary/5': selectedIds.includes(
+                                        item.id,
+                                    ),
+                                }"
                             >
                                 <TableCell>
                                     <Checkbox
@@ -294,9 +362,10 @@ watch(search, (value) => {
                                         "
                                     />
                                 </TableCell>
-                                <TableCell class="font-mono font-bold">{{
-                                    item.qrcode
-                                }}</TableCell>
+                                <TableCell
+                                    class="font-mono font-bold text-sm"
+                                    >{{ item.qrcode }}</TableCell
+                                >
                                 <TableCell>{{ item.jenis }}</TableCell>
                                 <TableCell>
                                     <Badge
@@ -305,24 +374,31 @@ watch(search, (value) => {
                                                 ? 'default'
                                                 : 'destructive'
                                         "
-                                        >{{ item.status_akhir }}</Badge
                                     >
+                                        {{ item.status_akhir }}
+                                    </Badge>
                                 </TableCell>
                                 <TableCell>
                                     <Badge
                                         :class="
                                             item.sudah_scan === 'Sudah'
-                                                ? 'bg-green-500'
-                                                : 'bg-yellow-500'
+                                                ? 'bg-green-500 hover:bg-green-600'
+                                                : 'bg-yellow-500 hover:bg-yellow-600'
                                         "
-                                        >{{ item.sudah_scan }}</Badge
+                                        class="text-black"
                                     >
+                                        {{ item.sudah_scan }}
+                                    </Badge>
                                 </TableCell>
-                                <TableCell class="text-xs">{{
-                                    new Date(
-                                        item.created_at,
-                                    ).toLocaleDateString("id-ID")
-                                }}</TableCell>
+                                <TableCell
+                                    class="text-xs text-muted-foreground"
+                                >
+                                    {{
+                                        new Date(
+                                            item.created_at,
+                                        ).toLocaleDateString("id-ID")
+                                    }}
+                                </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -334,18 +410,19 @@ watch(search, (value) => {
     <AlertDialog :open="showMoveDialog" @update:open="showMoveDialog = $event">
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle
-                    >Pindahkan {{ selectedIds.length }} Produk</AlertDialogTitle
-                >
-                <AlertDialogDescription
-                    >Pilih nomor troli tujuan untuk memindahkan produk yang
-                    dipilih.</AlertDialogDescription
-                >
+                <AlertDialogTitle>Pindahkan ke Troli Lain</AlertDialogTitle>
+                <AlertDialogDescription>
+                    {{ selectedIds.length }} produk terpilih akan dipindahkan ke
+                    nomor troli berikut.
+                </AlertDialogDescription>
             </AlertDialogHeader>
             <div class="py-4">
+                <label class="text-sm font-medium mb-2 block"
+                    >Pilih Troli Tujuan</label
+                >
                 <Select v-model="targetTroliId">
                     <SelectTrigger>
-                        <SelectValue placeholder="Pilih Troli Tujuan" />
+                        <SelectValue placeholder="Pilih Nomor Troli" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem
@@ -364,8 +441,8 @@ watch(search, (value) => {
                 >
                 <AlertDialogAction
                     @click="moveProducts"
-                    class="bg-blue-600 hover:bg-blue-700"
-                    >Pindahkan</AlertDialogAction
+                    class="bg-primary hover:bg-primary/90"
+                    >Konfirmasi Pindah</AlertDialogAction
                 >
             </AlertDialogFooter>
         </AlertDialogContent>
@@ -377,10 +454,10 @@ watch(search, (value) => {
     >
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Konfirmasi Hapus Troli</AlertDialogTitle>
+                <AlertDialogTitle>Hapus/Reset Status Troli?</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Menghapus troli akan melepaskan ikatan proses (set null).
-                    Troli akan kembali tersedia untuk digunakan dari awal.
+                    Tindakan ini akan melepaskan ikatan proses pada troli ini
+                    (set NULL). Status troli akan kembali menjadi "Kosong".
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -390,7 +467,7 @@ watch(search, (value) => {
                 <AlertDialogAction
                     @click="deleteTroli"
                     class="bg-red-600 hover:bg-red-700"
-                    >Ya, Hapus</AlertDialogAction
+                    >Ya, Reset Troli</AlertDialogAction
                 >
             </AlertDialogFooter>
         </AlertDialogContent>
