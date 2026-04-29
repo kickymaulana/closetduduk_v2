@@ -56,37 +56,45 @@ class MasterTroliController extends Controller
 
 
     public function produk(Request $request, Troli $troli)
-{
-    $troli->load('proses');
+    {
+        $troli->load('proses');
 
-    $produks = Produk::query()
-        ->where('troli_id', $troli->id)
-        ->when($request->search, function ($query, $search) {
-            $query->where(function($q) use ($search) {
-                $q->where('qrcode', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%");
-            });
-        })
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+        $produks = Produk::query()
+            ->where('troli_id', $troli->id)
+            ->when($request->search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('qrcode', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-    $availableTrolis = Troli::where('id', '!=', $troli->id)
-        ->whereNotNull('proses_id')
-        ->select('id', 'nomor')
-        ->get();
+        $availableTrolis = Troli::where('id', '!=', $troli->id)
+            ->whereNotNull('proses_id')
+            ->select('id', 'nomor')
+            ->get();
 
-    // TAMBAHKAN INI: Ambil semua daftar proses untuk pilihan ganti proses
-    $allProses = \App\Models\Proses::select('id', 'proses')->get();
+        // TAMBAHKAN INI: Ambil semua daftar proses untuk pilihan ganti proses
+        $allProses = \App\Models\Proses::select('id', 'proses')->get();
 
-    return Inertia::render('Master/Trolis/Produk', [
-        'troli' => $troli,
-        'produks' => $produks,
-        'availableTrolis' => $availableTrolis,
-        'allProses' => $allProses, // Kirim ke Vue
-        'filters' => $request->only(['search']),
-    ]);
-}
+        return Inertia::render('Master/Trolis/Produk', [
+            'troli' => $troli,
+            'produks' => $produks,
+            'availableTrolis' => $availableTrolis,
+            'allProses' => $allProses, // Kirim ke Vue
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
+
+    public function updateProses(Request $request, Troli $troli)
+    {
+        $request->validate(['proses_id' => 'required|exists:proses,id']);
+        $troli->update(['proses_id' => $request->proses_id]);
+        return back();
+    }
 
 
 

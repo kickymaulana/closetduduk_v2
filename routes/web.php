@@ -98,6 +98,7 @@ Route::middleware('auth', 'role:admin')->group(function () {
 
     Route::get('master/troli', [MasterTroliController::class, 'index'])->name('master.troli.index');
     Route::get('master/troli/{troli}/produk', [MasterTroliController::class, 'produk'])->name('master.troli.produk');
+    Route::post('master/troli/{troli}/update-proses', [MasterTroliController::class, 'updateProses'])->name('master.troli.update_proses');
     Route::post('master/troli/{troli}/update-scan', [MasterTroliController::class, 'updateScan'])->name('master.troli.update_scan');
     Route::post('master/troli/{troli}/remove-products', [MasterTroliController::class, 'removeProducts'])->name('master.troli.remove_products');
     Route::post('master/troli/{troli}/move-products', [MasterTroliController::class, 'moveProducts'])->name('master.troli.move_products');
