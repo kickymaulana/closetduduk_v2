@@ -121,20 +121,33 @@ class MasterTroliController extends Controller
         return back()->with('success', "Status scan " . count($request->ids) . " produk berhasil diubah menjadi {$request->status}.");
     }
 
-    /**
-    * Melepaskan produk dari troli (set troli_id = null)
-    */
+
+
     public function removeProducts(Request $request)
     {
         $request->validate([
             'ids' => 'required|array'
         ]);
 
-        Produk::whereIn('id', $request->ids)->update([
-            'troli_id' => null
-        ]);
+        // Hitung berapa banyak produk yang akan diproses
+        $countBefore = count($request->ids);
 
-        return back()->with('success', 'Produk berhasil dikeluarkan dari troli.');
+        // Update hanya yang status_akhir-nya 'Buang'
+        $updatedCount = Produk::whereIn('id', $request->ids)
+            ->where('status_akhir', 'Buang')
+            ->update([
+                'troli_id' => null
+            ]);
+
+        if ($updatedCount === 0) {
+            return back()->with('error', 'Gagal! Hanya produk dengan status "Buang" yang bisa dikeluarkan.');
+        }
+
+        if ($updatedCount < $countBefore) {
+            return back()->with('success', "Berhasil mengeluarkan $updatedCount produk. Beberapa produk dilewati karena statusnya bukan 'Buang'.");
+        }
+
+        return back()->with('success', 'Semua produk terpilih berhasil dikeluarkan dari troli.');
     }
 
     /**

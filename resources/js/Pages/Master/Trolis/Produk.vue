@@ -147,13 +147,29 @@ const moveProducts = () => {
 };
 
 const removeProducts = () => {
+    if (selectedIds.value.length === 0)
+        return toast.error("Pilih produk terlebih dahulu!");
+
     router.post(
         route("master.troli.remove_products", props.troli.id),
-        { ids: selectedIds.value },
         {
-            onSuccess: () => {
-                toast.success("Produk dikeluarkan");
-                selectedIds.value = [];
+            ids: selectedIds.value,
+        },
+        {
+            onSuccess: (page) => {
+                const flash = page.props.flash as any;
+
+                if (flash.error) {
+                    toast.error(flash.error);
+                } else if (flash.success) {
+                    toast.success(flash.success);
+                    selectedIds.value = []; // Reset pilihan hanya jika ada yang berhasil
+                }
+            },
+            onError: () => {
+                toast.error(
+                    "Terjadi kesalahan sistem saat mengeluarkan produk.",
+                );
             },
         },
     );
