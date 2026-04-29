@@ -105,64 +105,60 @@ defineOptions({ layout: AuthenticatedLayout });
             </div>
 
             <div class="lg:col-span-8">
-                <Card class="border-none shadow-sm dark:bg-slate-900/50 dark:ring-1 dark:ring-slate-800">
-                    <CardHeader>
-                        <CardTitle class="text-sm font-black uppercase flex items-center gap-2">
-                            <IconHistory class="size-4 text-primary" /> Log Aktivitas Produksi
+
+
+                    <Card class="border-none shadow-sm dark:bg-slate-900/50 dark:ring-1 dark:ring-slate-800">
+                    <CardHeader class="pb-1"> <CardTitle class="text-sm font-black uppercase flex items-center gap-2">
+                            <IconHistory class="size-3 text-primary" /> Log Aktivitas Produksi
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div class="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
+                        <div class="relative space-y-4 before:absolute before:inset-0 before:ml-4 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-primary before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
 
-                            <div v-for="(history, index) in produk.pengerjaan_produks" :key="history.id" class="relative flex items-start gap-6">
+                            <div v-for="(history, index) in produk.pengerjaan_produks" :key="history.id" class="relative flex items-start">
                                 <div :class="[index === 0 ? 'bg-primary ring-4 ring-primary/20' : 'bg-slate-400']"
-                                    class="absolute left-0 size-10 rounded-full border-4 border-white dark:border-slate-950 flex items-center justify-center z-10 shadow-sm transition-all">
-                                    <IconCircleCheck v-if="history.pengerjaan_cacats.length === 0" class="size-5 text-white" />
-                                    <IconAlertCircle v-else class="size-5 text-white" />
+                                    class="absolute left-0 size-8 rounded-full border-4 border-white dark:border-slate-950 flex items-center justify-center z-10 shadow-sm transition-all">
+                                    <IconCircleCheck v-if="history.pengerjaan_cacats.length === 0" class="size-4 text-white" />
+                                    <IconAlertCircle v-else class="size-4 text-white" />
                                 </div>
 
-                                <div class="ml-12 bg-muted/30 dark:bg-slate-900/80 p-5 rounded-2xl border border-transparent hover:border-primary/20 transition-all flex-1 shadow-sm">
-                                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
-                                        <h4 class="font-black uppercase text-md italic tracking-tight text-slate-800 dark:text-slate-200">
+                                <div class="ml-10 bg-muted/30 dark:bg-slate-900/80 p-2 md:p-2 rounded-xl border border-transparent hover:border-primary/20 transition-all flex-1 shadow-sm">
+                                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-1 mb-1">
+                                        <h4 class="font-black uppercase text-sm italic tracking-tight text-slate-800 dark:text-slate-200">
                                             {{ history.proses.proses }}
                                         </h4>
-                                        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border dark:border-slate-700">
+                                        <div class="flex items-center gap-1 bg-white/50 dark:bg-slate-800 px-2 py-0.5 rounded-full border dark:border-slate-700">
                                             <IconClock class="size-3 text-primary" />
-                                            <span class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase">
+                                            <span class="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">
                                                 {{ new Date(history.created_at).toLocaleString('id-ID') }}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center gap-2 mb-4">
-                                        <div class="size-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                            <IconUser class="size-3 text-slate-600 dark:text-slate-400" />
-                                        </div>
-                                        <p class="text-[10px] font-bold uppercase text-slate-500">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <IconUser class="size-3 text-slate-400" />
+                                        <p class="text-[9px] font-bold uppercase text-slate-500">
                                             Operator: <span class="text-slate-800 dark:text-slate-200">{{ history.user.name }}</span>
                                         </p>
                                     </div>
 
-                                    <div v-if="history.pengerjaan_cacats.length > 0" class="p-4 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-100 dark:border-red-900/30">
-                                        <p class="text-[10px] font-black text-red-600 dark:text-red-400 uppercase mb-3 flex items-center gap-2">
-                                            <IconAlertCircle class="size-3" /> Temuan Masalah Kualitas:
-                                        </p>
-                                        <div class="flex flex-wrap gap-2">
-                                            <Badge v-for="item in history.pengerjaan_cacats" :key="item.id" variant="destructive" class="text-[9px] font-black uppercase px-3 py-1 shadow-sm">
+                                    <div v-if="history.pengerjaan_cacats.length > 0" class="p-2 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-100 dark:border-red-900/30">
+                                        <div class="flex flex-wrap gap-1">
+                                            <Badge v-for="item in history.pengerjaan_cacats" :key="item.id" variant="destructive" class="text-[8px] font-black uppercase px-2 py-0 shadow-sm">
                                                 {{ item.cacat.cacat }}
                                             </Badge>
                                         </div>
                                     </div>
 
-                                    <div v-else class="flex items-center gap-2 text-green-600 dark:text-green-500 text-[10px] font-black uppercase italic">
-                                        <IconCircleCheck class="size-4" /> Lolos Tahap Ini (Good)
+                                    <div v-else class="flex items-center gap-2 text-green-600 dark:text-green-500 text-[9px] font-black uppercase italic">
+                                        <IconCircleCheck class="size-3" /> OK
                                     </div>
                                 </div>
-                            </div>
-
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </CardContent>
+            </Card>
+
             </div>
 
         </div>
