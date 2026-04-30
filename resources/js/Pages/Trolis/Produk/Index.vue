@@ -411,7 +411,7 @@ const confirmHapus = () => {
 
                                 <TableCell class="text-right">
                                     <Button variant="ghost" class="size-10" as-child>
-                                        <Link :href="route('produk.show', item.id)">
+                                        <Link :href="route('produk.show', item.produk.id)">
                                             <IconEye class="size-5 text-primary" />
                                         </Link>
                                     </Button>

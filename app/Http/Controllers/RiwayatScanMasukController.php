@@ -26,7 +26,11 @@ class RiwayatScanMasukController extends Controller
             ->withQueryString()
             // Kita gunakan through untuk memastikan data terformat dengan baik
             ->through(fn ($item) => [
-                'id' => $item->id,
+                // Mengambil ID dari table pengerjaan (opsional, ganti nama key jika perlu)
+                'id_pengerjaan' => $item->id,
+
+                // Mengambil ID dari table produk
+                'id' => $item->produk->id ?? null,
                 'produk' => $item->produk,
                 'proses' => $item->proses,
                 'user' => $item->user,

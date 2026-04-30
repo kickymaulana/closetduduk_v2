@@ -21,6 +21,7 @@ import {
     IconChevronRight,
     IconX,
     IconCalendarTime,
+    IconEye,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
@@ -123,6 +124,7 @@ const getStatusVariant = (status: string) => {
                                 <TableHead>Proses</TableHead>
                                 <TableHead>Operator</TableHead>
                                 <TableHead>Kondisi</TableHead>
+                                <TableHead class="text-right">Detail</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -195,6 +197,13 @@ const getStatusVariant = (status: string) => {
                                     >
                                         {{ item.status_kondisi }}
                                     </Badge>
+                                </TableCell>
+                                <TableCell class="text-right">
+                                    <Button variant="ghost" class="size-10" as-child>
+                                        <Link :href="route('produk.show', item.id)">
+                                            <IconEye class="size-5 text-primary" />
+                                        </Link>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
 
