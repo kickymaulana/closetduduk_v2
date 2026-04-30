@@ -120,17 +120,27 @@ class UserController extends Controller
             ->with('success', 'Data user berhasil diperbarui.');
     }
 
+
     public function destroy(User $user)
     {
-        // Pastikan user tidak menghapus dirinya sendiri (Opsional tapi penting!)
         if (auth()->id() === $user->id) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
+        // Cek keterkaitan di model-model yang kamu sebutkan
+        $hasRelation = $user->sesiKerjaMembers()->exists() ||
+                    PengerjaanProduk::where('user_id', $user->id)->exists() ||
+                    PengerjaanCacat::where('user_scan_id', $user->id)
+                                                ->orWhere('user_pj_id', $user->id)
+                                                ->exists() ||
+                    SesiKerja::where('leader_id', $user->id)->exists();
+
+        if ($hasRelation) {
+            return back()->with('error', 'User tidak bisa dihapus karena memiliki riwayat pengerjaan atau data terkait.');
+        }
+
         $user->delete();
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User berhasil dihapus selamanya.');
+        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 }
