@@ -151,12 +151,6 @@ const masterData = [
         root: "Master/AturanPenolakans",
     },
     {
-        name: "Troli Fisik",
-        url: route("master.trolifisiks.index"),
-        icon: IconTruck,
-        root: "Master/TroliFisiks",
-    },
-    {
         name: "Troli",
         url: route("master.troli.index"),
         icon: IconShoppingCart,

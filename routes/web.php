@@ -89,13 +89,6 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::put('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'update'])->name('aturanpenolakans.update');
     Route::delete('master/aturan-penolakans/{cacat}', [AturanPenolakanController::class, 'destroy'])->name('aturanpenolakans.destroy');
 
-    Route::get('master/troli-fisiks', [MasterTroliFisikController::class, 'index'])->name('master.trolifisiks.index');
-    Route::get('master/troli-fisiks/create', [MasterTroliFisikController::class, 'create'])->name('master.trolifisiks.create');
-    Route::post('master/troli-fisiks/create', [MasterTroliFisikController::class, 'store'])->name('master.trolifisiks.store');
-    Route::get('master/troli-fisiks/{trolifisik}/edit', [MasterTroliFisikController::class, 'edit'])->name('master.trolifisiks.edit');
-    Route::put('master/troli-fisiks/{trolifisik}/edit', [MasterTroliFisikController::class, 'update'])->name('master.trolifisiks.update');
-    Route::delete('master/troli-fisiks/{trolifisik}', [MasterTroliFisikController::class, 'destroy'])->name('master.trolifisiks.destroy');
-
     Route::get('master/troli', [MasterTroliController::class, 'index'])->name('master.troli.index');
     Route::get('master/troli/{troli}/produk', [MasterTroliController::class, 'produk'])->name('master.troli.produk');
     Route::post('master/troli/{troli}/update-proses', [MasterTroliController::class, 'updateProses'])->name('master.troli.update_proses');
@@ -143,9 +136,6 @@ Route::middleware('auth')->group(function () {
     Route::post('trolis/{troli}/produk/scan-pindah', [ProdukController::class, 'scan_pindah_store'])->name('trolis.produk.scan_pindah_store');
     Route::get('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus'])->name('trolis.produk.scan_hapus');
     Route::post('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus_store'])->name('trolis.produk.scan_hapus_store');
-
-    Route::get('troli-fisiks', [TroliFisikController::class, 'index'])->name('trolifisiks.index');
-    Route::post('troli-fisiks/ambil', [TroliFisikController::class, 'ambil'])->name('trolifisiks.ambil');
 
     Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
     Route::get('total-pengerjaan-user', [TotalPengerjaanUserController::class, 'index'])->name('total.pengerjaan.user');
