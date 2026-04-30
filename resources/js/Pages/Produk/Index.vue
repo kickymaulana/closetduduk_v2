@@ -153,7 +153,7 @@ const cleanLabel = (label: string) => {
                                 <TableCell class="text-xs text-muted-foreground">
                                     {{ item.created_at }}
                                 </TableCell>
-                                                                <TableCell class="text-right">
+                                <TableCell class="text-right">
                                     <Button variant="ghost" class="size-10" as-child>
                                         <Link :href="route('produk.show', item.id)">
                                             <IconEye class="size-5 text-primary" />

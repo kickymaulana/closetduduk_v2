@@ -530,7 +530,10 @@ class ProdukController extends Controller
         ])->findOrFail($id);
 
         return Inertia::render('Produk/Show', [
-            'produk' => $produk
+            'produk' => $produk,
+            'backUrl' => url()->previous() !== url()->current()
+                     ? url()->previous()
+                     : route('produk.index'),
         ]);
     }
 

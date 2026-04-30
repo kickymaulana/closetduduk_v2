@@ -28,6 +28,7 @@ import {
     IconTransfer,
     IconArrowBackUp,
     IconBasketX,
+    IconEye,
 } from "@tabler/icons-vue";
 import {
     DropdownMenu,
@@ -354,6 +355,7 @@ const confirmHapus = () => {
                                 <TableHead>Status Akhir</TableHead>
                                 <TableHead>Scan</TableHead>
                                 <TableHead>Tgl Masuk</TableHead>
+                                <TableHead class="text-right">Detail</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -405,6 +407,14 @@ const confirmHapus = () => {
                                             item.created_at,
                                         ).toLocaleDateString("id-ID")
                                     }}
+                                </TableCell>
+
+                                <TableCell class="text-right">
+                                    <Button variant="ghost" class="size-10" as-child>
+                                        <Link :href="route('produk.show', item.id)">
+                                            <IconEye class="size-5 text-primary" />
+                                        </Link>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         </TableBody>

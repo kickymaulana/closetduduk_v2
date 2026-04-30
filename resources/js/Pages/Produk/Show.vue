@@ -19,6 +19,7 @@ import {
 
 const props = defineProps<{
     produk: any;
+    backUrl: string;
 }>();
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -31,7 +32,7 @@ defineOptions({ layout: AuthenticatedLayout });
 
         <div class="mb-6">
             <Button variant="ghost" size="sm" as-child class="p-0 hover:bg-transparent group">
-                <Link :href="route('produk.index')" class="flex items-center text-muted-foreground group-hover:text-primary transition-colors">
+                <Link :href="props.backUrl" class="flex items-center text-muted-foreground group-hover:text-primary transition-colors">
                     <IconArrowLeft class="size-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                     <span class="text-[10px] font-black uppercase tracking-[0.2em]">Kembali ke Daftar</span>
                 </Link>
