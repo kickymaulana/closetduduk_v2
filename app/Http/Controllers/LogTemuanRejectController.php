@@ -28,7 +28,21 @@ class LogTemuanRejectController extends Controller
             })
             ->latest()
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(fn ($log) => [
+            // Ambil ID Produk lewat pengerjaan_produk
+            'id' => $log->pengerjaan_produk->produk->id ?? null,
+
+            // Data lainnya
+            'id_pengerjaan_cacat' => $log->id,
+            'cacat' => $log->cacat,
+            'pengerjaan_produk' => $log->pengerjaan_produk,
+            'user_scan' => $log->user_scan,
+            'user_pj' => $log->user_pj,
+            'proses_pj' => $log->proses_pj,
+            'proses_scan' => $log->proses_scan,
+            'created_at' => $log->created_at->translatedFormat('d M Y, H:i'),
+        ]);
 
         return Inertia::render('LogTemuanReject/Index', [
             'logs' => $logs,

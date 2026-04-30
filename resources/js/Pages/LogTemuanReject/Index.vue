@@ -17,6 +17,7 @@ import {
     IconSearch,
     IconX,
     IconClipboardList,
+    IconEye,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 
@@ -121,6 +122,7 @@ const formatDate = (dateString: string) => {
                                 <TableHead>Proses</TableHead>
                                 <TableHead>Penanggung Jawab</TableHead>
                                 <TableHead>Proses Png Jawab</TableHead>
+                                <TableHead class="text-right">Detail</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -163,6 +165,13 @@ const formatDate = (dateString: string) => {
                                 </TableCell>
                                 <TableCell class="text-sm">
                                     {{ item.proses_pj.proses }}
+                                </TableCell>
+                                <TableCell class="text-right">
+                                    <Button variant="ghost" class="size-10" as-child>
+                                        <Link :href="route('produk.show', item.id)">
+                                            <IconEye class="size-5 text-primary" />
+                                        </Link>
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         </TableBody>
