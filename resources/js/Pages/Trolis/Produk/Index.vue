@@ -144,6 +144,12 @@ const confirmHapus = () => {
         },
     );
 };
+const cleanLabel = (label: string) => {
+    if (label.includes("Previous")) return "Sebelumnya";
+    if (label.includes("Next")) return "Selanjutnya";
+    return label;
+};
+
 </script>
 
 <template>
@@ -420,6 +426,25 @@ const confirmHapus = () => {
                         </TableBody>
                     </Table>
                 </div>
+                                <div v-if="produks.total > 0" class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-sm text-muted-foreground">
+                        Data <span class="font-medium text-foreground">{{ produks.from }}</span> - {{ produks.to }} dari {{ produks.total }}
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <template v-for="(link, k) in produks.links" :key="k">
+                            <Link
+                                v-if="link.url"
+                                :href="link.url"
+                                v-html="cleanLabel(link.label)"
+                                class="px-3 py-1 text-xs border rounded-md"
+                                :class="{ 'bg-primary text-white': link.active }"
+                                preserve-scroll
+                            />
+                            <span v-else v-html="cleanLabel(link.label)" class="px-3 py-1 text-xs border rounded-md opacity-50" />
+                        </template>
+                    </div>
+                </div>
+
             </CardContent>
         </Card>
     </div>
