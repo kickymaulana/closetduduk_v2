@@ -25,7 +25,6 @@ import {
     IconCheck,
     IconSettings,
     IconRefresh,
-    IconEye,
 } from "@tabler/icons-vue";
 import {
     DropdownMenu,
@@ -370,13 +369,6 @@ const filteredTrolis = computed(() => {
                                         >{{ item.sudah_scan }}</Badge
                                     ></TableCell
                                 >
-                                <TableCell class="text-right">
-                                    <Button variant="ghost" class="size-10" as-child>
-                                        <Link :href="route('produk.show', item.id)">
-                                            <IconEye class="size-5 text-primary" />
-                                        </Link>
-                                    </Button>
-                                </TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
