@@ -93,7 +93,7 @@ const clearSelection = () => {
 const handleScan = () => {
     if (!form.qr || form.processing) return;
 
-    form.post(route('trolis.produk.scan_inproses_store', props.troli.id), {
+    form.post(route('scan.checking.inproses_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
             toast.success("Berhasil!", {
