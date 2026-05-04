@@ -336,18 +336,32 @@ const cleanLabel = (label: string) => {
                         </Link>
                     </Button>
 
-                    <Button
+                    <div
                         v-else
-                        as-child
-                        class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
-                        <Link
-                            :href="route('trolis.produk.scan', props.troli.id)"
+                        <Button
+                            as-child
+                            class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                         >
-                            <IconQrcode class="mr-2 size-4" />
-                            <span class="hidden sm:inline">Scan Validasi</span>
-                        </Link>
-                    </Button>
+                            <Link
+                                :href="route('trolis.produk.scan', props.troli.id)"
+                            >
+                                <IconQrcode class="mr-2 size-4" />
+                                <span class="hidden sm:inline">Scan</span>
+                            </Link>
+                        </Button>
+                        <Button
+                            as-child
+                            class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
+                        >
+                            <Link
+                                :href="route('scan.checking.scan', props.troli.id)"
+                            >
+                                <IconQrcode class="mr-2 size-4" />
+                                <span class="hidden sm:inline">Checking</span>
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
 
