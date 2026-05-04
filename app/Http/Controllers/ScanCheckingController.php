@@ -19,7 +19,9 @@ class ScanCheckingController extends Controller
     public function scan(Troli $troli)
     {
         return Inertia::render('Trolis/Produk/ScanChecking', [
-            'troli' => $troli
+            'troli' => $troli,
+            'pilihan_kualitas' => Kualitas::all(['id', 'kualitas']),
+            'pilihan_warna' => Warna::all(['id', 'warna']),
         ]);
     }
 
@@ -28,6 +30,8 @@ class ScanCheckingController extends Controller
     {
         $request->validate([
             'qr' => 'required|string',
+            'kualitas_id' => 'nullable|exists:kualitas,id',
+            'warna_id' => 'nullable|exists:warna,id',
         ]);
 
         // 1. Cek Sesi Kerja Aktif
@@ -54,10 +58,13 @@ class ScanCheckingController extends Controller
         }
 
         try {
-            return DB::transaction(function () use ($produk, $troli, $sesi) {
+            return DB::transaction(function () use ($request, $produk, $troli, $sesi) {
                 // 3. Update status scan produk
                 $produk->update([
-                    'sudah_scan' => 'Sudah'
+                    'sudah_scan' => 'Sudah',
+                    'status_akhir' => 'OK',
+                    'kualitas_id' => $request->kualitas_id,
+                    'warna_id' => $request->warna_id,
                 ]);
 
                 // 4. Catat histori untuk LEADER

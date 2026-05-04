@@ -2,54 +2,33 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// Kita tidak lagi import Input dari shadcn untuk menghindari konflik fokus
 import { toast } from "vue-sonner";
 import {
-    IconScan,
-    IconLoader2,
-    IconArrowLeft,
-    IconCheck,
-    IconShieldCheck
+    IconScan, IconLoader2, IconArrowLeft, IconCheck,
+    IconShieldCheck, IconSettings, IconPalette
 } from "@tabler/icons-vue";
 
 const props = defineProps<{
     troli: any;
+    pilihan_kualitas: Array<{ id: number; kualitas: string }>;
+    pilihan_warna: Array<{ id: number; warna: string }>;
 }>();
 
-// Gunakan ref native
 const nativeInput = ref<HTMLInputElement | null>(null);
 
 const form = useForm({
     qr: "",
+    kualitas_id: null as number | null,
+    warna_id: null as number | null,
 });
 
-/**
- * FUNGSI FOKUS NATIVE
- * Langsung menembak elemen input tanpa perantara wrapper
- */
 const focusInput = () => {
-    setTimeout(() => {
-        if (nativeInput.value) {
-            nativeInput.value.focus();
-        }
-    }, 50);
+    setTimeout(() => nativeInput.value?.focus(), 50);
 };
 
-onMounted(() => {
-    focusInput();
-});
-
-/**
- * WATCHDOG FOKUS
- * Memaksa fokus kembali setiap kali proses submit selesai (berhasil/gagal)
- */
-watch(() => form.processing, (isProcessing) => {
-    if (!isProcessing) {
-        focusInput();
-    }
-});
+onMounted(() => focusInput());
+watch(() => form.processing, (proc) => { if (!proc) focusInput(); });
 
 const handleScan = () => {
     if (!form.qr || form.processing) return;
@@ -57,17 +36,11 @@ const handleScan = () => {
     form.post(route('scan.checking.scan_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
-            toast.success("Terverifikasi!", {
-                description: `Produk ${form.qr} berhasil divalidasi.`,
-                duration: 2000,
-            });
-            form.reset();
+            toast.success("Terverifikasi!", { description: `Produk ${form.qr} berhasil.` });
+            form.qr = "";
         },
         onError: (errors) => {
-            const message = errors.qr || errors.error || "Terjadi kesalahan validasi.";
-            toast.error("Gagal Validasi", {
-                description: message,
-            });
+            toast.error(errors.qr || errors.error || "Gagal");
             form.reset('qr');
             focusInput();
         }
@@ -80,103 +53,109 @@ defineOptions({ layout: AuthenticatedLayout });
 <template>
     <Head title="Scan Validasi Produk" />
 
-    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4 relative" @click="focusInput">
+    <div class="p-4 max-w-5xl mx-auto space-y-4" @click="focusInput">
 
-        <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
-            <Button as-child variant="default" class="bg-blue-600 hover:bg-blue-700 shadow-lg border-b-4 border-blue-800">
-                <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
-            </Button>
-            <Button as-child variant="outline" class="text-orange-600 border-orange-200 hover:bg-orange-50">
-                <Link :href="route('trolis.produk.scan_inproses', troli.id)">IN PROSES</Link>
-            </Button>
-            <Button as-child variant="outline" class="text-red-600 border-red-200 hover:bg-red-50">
-                <Link :href="route('trolis.produk.scan_buang', troli.id)">BUANG</Link>
-            </Button>
+        <!-- Header Navigasi -->
+        <div class="flex items-center justify-between bg-white p-2 rounded-lg shadow-sm border border-blue-100">
+            <Link :href="route('trolis.produk.index', troli.id)" class="flex items-center text-xs font-bold text-slate-500">
+                <IconArrowLeft class="size-4 mr-1" /> KEMBALI
+            </Link>
+            <div class="flex gap-1">
+                <Button size="sm" class="h-8 text-[10px] bg-blue-600 hover:bg-blue-700 shadow-md">MODE OK</Button>
+                <Button as-child variant="outline" size="sm" class="h-8 text-[10px] border-orange-200 text-orange-600">
+                    <Link :href="route('scan.checking.inproses', troli.id)">IN PROSES</Link>
+                </Button>
+                <Button as-child variant="outline" size="sm" class="h-8 text-[10px] border-red-200 text-red-600">
+                    <Link :href="route('scan.checking.buang', troli.id)">BUANG</Link>
+                </Button>
+            </div>
         </div>
 
-        <div class="w-full max-w-md mb-4">
-            <Button variant="ghost" as-child class="group text-muted-foreground hover:text-blue-600">
-                <Link :href="route('trolis.produk.index', troli.id)">
-                    <IconArrowLeft class="mr-2 size-4 transition-transform group-hover:-translate-x-1" />
-                    Batal & Kembali
-                </Link>
-            </Button>
+        <!-- Baris Atas: Input Scan (Kecil) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2 flex items-center bg-blue-50 border-2 border-blue-200 p-2 rounded-xl shadow-inner">
+                <IconScan class="size-6 text-blue-500 ml-2 mr-3" />
+                <input
+                    ref="nativeInput"
+                    v-model="form.qr"
+                    :disabled="form.processing"
+                    type="text"
+                    class="flex-1 bg-transparent border-none focus:ring-0 text-xl font-black uppercase tracking-widest text-blue-700 placeholder:text-blue-200"
+                    placeholder="SCAN QR OK DISINI..."
+                    @keyup.enter="handleScan"
+                    @input="form.qr = form.qr.toUpperCase()"
+                    @blur="focusInput"
+                    autocomplete="off"
+                />
+            </div>
+            <div class="bg-blue-900 text-white p-3 rounded-xl flex flex-col justify-center items-center shadow-lg border-b-4 border-blue-950">
+                <span class="text-[9px] uppercase opacity-70 tracking-tighter font-bold">Mode Validasi</span>
+                <span class="font-black text-sm">{{ troli.invoice }}</span>
+            </div>
         </div>
 
-        <Card class="w-full max-w-md border-2 border-blue-500/20 shadow-xl overflow-hidden">
-            <div class="h-2 bg-blue-600 w-full"></div>
-            <CardHeader class="text-center">
-                <CardTitle class="text-2xl font-bold text-blue-700 flex items-center justify-center gap-2">
-                    <IconShieldCheck class="size-6" />
-                    Validasi Produk
-                </CardTitle>
-                <p class="text-muted-foreground font-mono text-sm tracking-widest bg-muted py-1 rounded-md mt-2">
-                    INV: {{ troli.invoice }}
-                </p>
-            </CardHeader>
-
-            <CardContent class="space-y-8 py-8">
-                <div class="flex justify-center">
-                    <div class="relative">
-                        <div class="p-6 bg-blue-50 rounded-full">
-                            <IconScan :class="['size-20 text-blue-600 transition-all', form.processing ? 'animate-pulse scale-110' : '']" />
-                        </div>
-                        <div v-if="form.recentlySuccessful" class="absolute -top-2 -right-2 bg-green-500 text-white p-2 rounded-full shadow-lg animate-in zoom-in">
-                            <IconCheck class="size-5" />
-                        </div>
-                    </div>
+        <!-- Grid Atribut -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Kualitas -->
+            <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-blue-600 px-3 py-1.5 flex items-center gap-2">
+                    <IconSettings class="size-3 text-white" />
+                    <span class="text-[10px] font-bold text-white uppercase">Tentukan Kualitas</span>
                 </div>
-
-                <div class="space-y-4 text-center">
-                    <input
-                        ref="nativeInput"
-                        v-model="form.qr"
-                        :disabled="form.processing"
-                        type="text"
-                        maxlength="10"
-                        class="w-full text-center border-b-4 border-t-0 border-x-0 border-blue-200 focus:ring-0 focus:border-blue-600 transition-all outline-none font-bold uppercase placeholder:text-slate-300 rounded-none bg-transparent block"
-                        style="font-size: 2.2rem; color: #1e40af; height: 80px;"
-                        placeholder="SCAN DISINI"
-                        @keyup.enter="handleScan"
-                        @input="form.qr = form.qr.toUpperCase()"
-                        @blur="focusInput"
-                        autocomplete="off"
-                    />
-
-                    <div class="h-6">
-                        <div v-if="form.processing" class="flex items-center justify-center gap-2 text-blue-600 font-medium">
-                            <IconLoader2 class="animate-spin size-5" />
-                            <span>Mengecek Data...</span>
-                        </div>
-                        <div v-else class="flex items-center justify-center gap-2">
-                            <span class="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Mode: Verifikasi Tim</span>
-                        </div>
-                    </div>
-
-                    <p v-if="form.errors.qr" class="text-sm text-red-600 font-bold animate-bounce">
-                        {{ form.errors.qr }}
-                    </p>
+                <div class="p-3 flex flex-wrap gap-2">
+                    <button
+                        v-for="k in pilihan_kualitas" :key="k.id"
+                        type="button"
+                        @click="form.kualitas_id = (form.kualitas_id === k.id ? null : k.id); focusInput()"
+                        :class="['px-5 py-3 rounded-xl text-xs font-bold border-2 transition-all',
+                                 form.kualitas_id === k.id ? 'bg-blue-600 border-blue-700 text-white shadow-md scale-105' : 'bg-slate-50 border-slate-100 text-slate-500']"
+                    >
+                        {{ k.kualitas }}
+                    </button>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
 
-        <div class="mt-8 flex flex-col items-center gap-2 text-xs text-muted-foreground italic">
-            <div class="flex items-center gap-2 px-3 py-1 bg-white border rounded-full shadow-sm">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative h-2 w-2 rounded-full bg-green-500"></span>
-                </span>
-                <span class="font-bold text-slate-500 uppercase tracking-tighter">Scanner Active</span>
+            <!-- Warna -->
+            <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-blue-800 px-3 py-1.5 flex items-center gap-2">
+                    <IconPalette class="size-3 text-white" />
+                    <span class="text-[10px] font-bold text-white uppercase">Tentukan Warna</span>
+                </div>
+                <div class="p-3 flex flex-wrap gap-2">
+                    <button
+                        v-for="w in pilihan_warna" :key="w.id"
+                        type="button"
+                        @click="form.warna_id = (form.warna_id === w.id ? null : w.id); focusInput()"
+                        :class="['px-5 py-3 rounded-xl text-xs font-bold border-2 transition-all',
+                                 form.warna_id === w.id ? 'bg-blue-800 border-blue-900 text-white shadow-md scale-105' : 'bg-slate-50 border-slate-100 text-slate-500']"
+                    >
+                        {{ w.warna }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Card Tambahan (Opsional) -->
+        <div class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-start gap-3">
+            <IconShieldCheck class="size-5 text-green-600 mt-0.5" />
+            <div>
+                <h4 class="text-xs font-bold text-green-800 uppercase">Mode Validasi Cepat</h4>
+                <p class="text-[11px] text-green-700 leading-relaxed">Produk yang discan dalam mode ini otomatis akan berstatus <strong>OK</strong>. Pastikan pemilihan Kualitas dan Warna sudah sesuai sebelum melakukan scanning.</p>
+            </div>
+        </div>
+
+        <!-- Overlay Loading -->
+        <div v-if="form.processing" class="fixed inset-0 bg-blue-900/40 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="bg-white p-5 rounded-2xl shadow-2xl flex flex-col items-center border-t-4 border-blue-600">
+                <IconLoader2 class="size-8 animate-spin text-blue-600 mb-2" />
+                <span class="text-xs font-black uppercase tracking-widest text-blue-900">Validasi...</span>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-/* Reset style tambahan jika ada */
 input:focus {
     outline: none !important;
-    box-shadow: none !important;
 }
 </style>
-
