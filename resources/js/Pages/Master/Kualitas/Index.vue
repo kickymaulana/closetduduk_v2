@@ -148,8 +148,11 @@ const cleanLabel = (label: string) => {
                                         class="size-8 hover:text-primary transition-colors"
                                         as-child
                                     >
-                                        <!-- Sesuaikan dengan route edit kamu -->
-                                        <Link :href="route('kualitas.index')">
+                                        <Link
+                                            :href="
+                                                route('kualitas.edit', item.id)
+                                            "
+                                        >
                                             <IconPencil class="size-4" />
                                         </Link>
                                     </Button>

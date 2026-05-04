@@ -101,6 +101,9 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/kualitas', [KualitasController::class, 'index'])->name('kualitas.index');
     Route::get('master/kualitas/create', [KualitasController::class, 'create'])->name('kualitas.create');
     Route::post('master/kualitas/create', [KualitasController::class, 'store'])->name('kualitas.store');
+    Route::get('master/kualitas/{kualitas}/edit', [KualitasController::class, 'edit'])->name('kualitas.edit');
+    Route::put('master/kualitas/{kualitas}/edit', [KualitasController::class, 'update'])->name('kualitas.update');
+    Route::delete('master/kualitas/{kualitas}', [KualitasController::class, 'destroy'])->name('kualitas.destroy');
 });
 
 Route::middleware('auth')->group(function () {

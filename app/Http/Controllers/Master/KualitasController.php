@@ -46,4 +46,31 @@ class KualitasController extends Controller
 
         return redirect()->route('kualitas.index')->with('message', 'Data kualitas berhasil ditambahkan.');
     }
+
+    public function edit(Kualitas $kualitas)
+    {
+        return Inertia::render('Master/Kualitas/Edit', [
+            'kualitas' => $kualitas
+        ]);
+    }
+
+    public function update(Request $request, Kualitas $kualitas)
+    {
+        $request->validate([
+            'kualitas' => 'required|string|max:255|unique:kualitas,kualitas,' . $kualitas->id,
+        ], [
+            'kualitas.required' => 'Nama kualitas wajib diisi.',
+            'kualitas.unique' => 'Nama kualitas ini sudah terdaftar.',
+        ]);
+
+        $kualitas->update($request->only('kualitas'));
+
+        return redirect()->route('kualitas.index')->with('message', 'Data kualitas berhasil diperbarui.');
+    }
+
+    public function destroy(Kualitas $kualitas)
+    {
+        $kualitas->delete();
+        return redirect()->route('kualitas.index')->with('message', 'Data kualitas berhasil dihapus.');
+    }
 }
