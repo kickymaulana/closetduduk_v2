@@ -18,6 +18,7 @@ import {
     IconBoxSeam,
     IconShoppingCart,
     IconSquareCheck,
+    IconPalette,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -168,6 +169,13 @@ const masterData = [
         url: route("kualitas.index"),
         icon: IconSquareCheck,
         root: "Master/Kualitas",
+    },
+
+    {
+        name: "Warna",
+        url: route("warna.index"),
+        icon: IconPalette,
+        root: "Master/Warna",
     },
 ];
 </script>

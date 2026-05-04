@@ -25,6 +25,7 @@ use App\Http\Controllers\ProsesProduksiController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\Master\MasterTroliController;
 use App\Http\Controllers\Master\KualitasController;
+use App\Http\Controllers\Master\WarnaController;
 
 
 
@@ -104,6 +105,13 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::get('master/kualitas/{kualitas}/edit', [KualitasController::class, 'edit'])->name('kualitas.edit');
     Route::put('master/kualitas/{kualitas}/edit', [KualitasController::class, 'update'])->name('kualitas.update');
     Route::delete('master/kualitas/{kualitas}', [KualitasController::class, 'destroy'])->name('kualitas.destroy');
+
+    Route::get('master/warna', [WarnaController::class, 'index'])->name('warna.index');
+    Route::get('master/warna/create', [WarnaController::class, 'create'])->name('warna.create');
+    Route::post('master/warna/create', [WarnaController::class, 'store'])->name('warna.store');
+    Route::get('master/warna/{warna}/edit', [WarnaController::class, 'edit'])->name('warna.edit');
+    Route::put('master/warna/{warna}/edit', [WarnaController::class, 'update'])->name('warna.update');
+    Route::delete('master/warna/{warna}', [WarnaController::class, 'destroy'])->name('warna.destroy');
 });
 
 Route::middleware('auth')->group(function () {
