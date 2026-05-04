@@ -2,110 +2,60 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "vue-sonner";
 import {
-    IconScan,
-    IconLoader2,
-    IconArrowLeft,
-    IconCheck,
-    IconAlertTriangle,
-    IconClipboardCheck
+    IconScan, IconLoader2, IconArrowLeft, IconCheck,
+    IconAlertTriangle, IconSettings, IconPalette, IconCircleCheck
 } from "@tabler/icons-vue";
 
 const props = defineProps<{
     troli: any;
     pilihan_cacat: Array<{ id: number; cacat: string }>;
+    pilihan_kualitas: Array<{ id: number; kualitas: string }>;
+    pilihan_warna: Array<{ id: number; warna: string }>;
 }>();
 
-// Konfigurasi Storage
 const PREFIX = "scan_cacat_ids_";
 const STORAGE_KEY = `${PREFIX}${props.troli.id}`;
-
-// Ref untuk Input Native
 const nativeInput = ref<HTMLInputElement | null>(null);
-
-const cleanupOldStorage = () => {
-    try {
-        const keys = Object.keys(localStorage);
-        keys.forEach(key => {
-            if (key.startsWith(PREFIX) && key !== STORAGE_KEY) {
-                localStorage.removeItem(key);
-            }
-        });
-    } catch (e) {
-        console.error("Gagal membersihkan storage", e);
-    }
-};
 
 const form = useForm({
     qr: "",
     cacat_ids: JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as number[],
+    kualitas_id: null as number | null,
+    warna_id: null as number | null,
 });
 
-// Simpan ke localStorage
+// Simpan pilihan cacat ke localStorage agar tidak hilang saat reload
 watch(() => form.cacat_ids, (newVal) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newVal));
 }, { deep: true });
 
-/**
- * FUNGSI FOKUS NATIVE
- */
 const focusInput = () => {
-    setTimeout(() => {
-        if (nativeInput.value) {
-            nativeInput.value.focus();
-        }
-    }, 50);
+    setTimeout(() => nativeInput.value?.focus(), 50);
 };
 
-// Pantau status processing untuk mengembalikan kursor
-watch(() => form.processing, (isProcessing) => {
-    if (!isProcessing) {
-        focusInput();
-    }
-});
-
-onMounted(() => {
-    cleanupOldStorage();
-    focusInput();
-});
+// Pastikan input selalu fokus walau diklik di mana saja
+onMounted(() => focusInput());
+watch(() => form.processing, (proc) => { if (!proc) focusInput(); });
 
 const toggleCacat = (id: number) => {
-    const index = form.cacat_ids.indexOf(id);
-    if (index > -1) {
-        form.cacat_ids.splice(index, 1);
-    } else {
-        form.cacat_ids.push(id);
-    }
-    // Setelah klik tombol cacat, kembalikan fokus ke input QR
-    focusInput();
-};
-
-const clearSelection = () => {
-    form.cacat_ids = [];
-    localStorage.removeItem(STORAGE_KEY);
-    toast.info("Pilihan cacat telah dibersihkan.");
+    const idx = form.cacat_ids.indexOf(id);
+    idx > -1 ? form.cacat_ids.splice(idx, 1) : form.cacat_ids.push(id);
     focusInput();
 };
 
 const handleScan = () => {
     if (!form.qr || form.processing) return;
-
     form.post(route('scan.checking.inproses_store', props.troli.id), {
         preserveScroll: true,
         onSuccess: () => {
-            toast.success("Berhasil!", {
-                description: `Produk ${form.qr} berhasil diproses.`,
-                duration: 2000,
-            });
+            toast.success(`Produk ${form.qr} Berhasil`);
             form.qr = "";
-            // Fokus otomatis ditangani watcher processing
         },
-        onError: (errors) => {
-            const message = errors.qr || errors.error || "Terjadi kesalahan.";
-            toast.error("Gagal", { description: message });
+        onError: (err) => {
+            toast.error(err.qr || err.error || "Gagal");
             form.reset('qr');
             focusInput();
         }
@@ -118,149 +68,138 @@ defineOptions({ layout: AuthenticatedLayout });
 <template>
     <Head title="Scan In-Proses" />
 
-    <div class="flex flex-col items-center justify-center min-h-[80vh] p-4" @click="focusInput">
+    <div class="p-4 max-w-5xl mx-auto space-y-4" @click="focusInput">
 
-        <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
-            <Button as-child variant="outline" class="text-blue-600 border-blue-200 hover:bg-blue-50">
-                <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
-            </Button>
-            <Button as-child variant="default" class="bg-orange-500 hover:bg-orange-600 shadow-lg border-b-4 border-orange-700">
-                <Link :href="route('trolis.produk.scan_inproses', troli.id)">IN PROSES</Link>
-            </Button>
-            <Button as-child variant="outline" class="text-red-600 border-red-200 hover:bg-red-50">
-                <Link :href="route('trolis.produk.scan_buang', troli.id)">BUANG</Link>
-            </Button>
+        <!-- Header Navigasi -->
+        <div class="flex items-center justify-between bg-white p-2 rounded-lg shadow-sm border">
+            <Link :href="route('trolis.produk.index', troli.id)" class="flex items-center text-xs font-bold text-slate-500">
+                <IconArrowLeft class="size-4 mr-1" /> KEMBALI
+            </Link>
+            <div class="flex gap-1">
+                <Button as-child variant="outline" size="sm" class="h-8 text-[10px] border-blue-200 text-blue-600">
+                    <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
+                </Button>
+                <Button size="sm" class="h-8 text-[10px] bg-orange-500 hover:bg-orange-600">IN PROSES</Button>
+            </div>
         </div>
 
-        <div class="w-full max-w-2xl mb-4">
-            <Button variant="ghost" as-child class="group text-muted-foreground">
-                <Link :href="route('trolis.produk.index', troli.id)">
-                    <IconArrowLeft class="mr-2 size-4 transition-transform group-hover:-translate-x-1" />
-                    Kembali
-                </Link>
-            </Button>
+        <!-- Baris Atas: Input Scan (Kecil) & Info Troli -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2 flex items-center bg-orange-50 border-2 border-orange-200 p-2 rounded-xl shadow-inner">
+                <IconScan class="size-6 text-orange-500 ml-2 mr-3" />
+                <input
+                    ref="nativeInput"
+                    v-model="form.qr"
+                    :disabled="form.processing"
+                    type="text"
+                    class="flex-1 bg-transparent border-none focus:ring-0 text-xl font-black uppercase tracking-widest placeholder:text-orange-200"
+                    placeholder="SCAN QR DISINI..."
+                    @keyup.enter="handleScan"
+                    @input="form.qr = form.qr.toUpperCase()"
+                    @blur="focusInput"
+                    autocomplete="off"
+                />
+            </div>
+            <div class="bg-slate-800 text-white p-3 rounded-xl flex flex-col justify-center items-center shadow-lg">
+                <span class="text-[9px] uppercase opacity-60 tracking-tighter">Troli / Invoice</span>
+                <span class="font-bold text-sm">{{ troli.invoice }}</span>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full max-w-4xl">
+        <!-- Grid Utama -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <Card class="md:col-span-5 border-2 border-orange-500/20 shadow-xl overflow-hidden">
-                <div class="h-2 bg-orange-500 w-full"></div>
-                <CardHeader class="text-center">
-                    <CardTitle class="text-xl font-bold text-orange-700 flex items-center justify-center gap-2">
-                        <IconScan class="size-6" />
-                        Scan QR Produk
-                    </CardTitle>
-                </CardHeader>
-
-                <CardContent class="space-y-6 py-6">
-                    <div class="flex justify-center">
-                        <div class="p-4 bg-orange-50 rounded-full">
-                            <IconScan :class="['size-16 text-orange-600', form.processing ? 'animate-pulse' : '']" />
-                        </div>
+            <!-- Kolom Atribut (Kualitas & Warna) -->
+            <div class="space-y-4">
+                <!-- Kualitas -->
+                <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-blue-600 px-3 py-1.5 flex items-center gap-2">
+                        <IconSettings class="size-3 text-white" />
+                        <span class="text-[10px] font-bold text-white uppercase">Pilih Kualitas</span>
                     </div>
-
-                    <div class="space-y-4">
-                        <input
-                            ref="nativeInput"
-                            v-model="form.qr"
-                            :disabled="form.processing"
-                            type="text"
-                            maxlength="10"
-                            class="w-full text-center border-b-4 border-t-0 border-x-0 border-orange-200 focus:ring-0 focus:border-orange-500 transition-all font-bold uppercase rounded-none bg-transparent block outline-none"
-                            style="font-size: 1.5rem; height: 60px;"
-                            placeholder="TAP DISINI"
-                            @keyup.enter="handleScan"
-                            @input="form.qr = form.qr.toUpperCase()"
-                            @blur="focusInput"
-                            autocomplete="off"
-                        />
-
-                        <p v-if="form.errors.qr" class="text-[11px] text-center font-bold text-red-600 animate-bounce">
-                            {{ form.errors.qr }}
-                        </p>
-
-                        <p class="text-[10px] text-center font-bold text-orange-400 uppercase tracking-widest">
-                            In-Proses: {{ troli.invoice }}
-                        </p>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card class="md:col-span-7 border-2 border-slate-200 shadow-xl">
-                <CardHeader class="bg-slate-50 border-b">
-                    <CardTitle class="text-sm font-bold flex items-center gap-2">
-                        <IconAlertTriangle class="size-4 text-red-500" />
-                        LAPORAN CACAT (OPSIONAL)
-                    </CardTitle>
-                    <p class="text-xs text-muted-foreground italic">Pilihan tersimpan otomatis</p>
-                </CardHeader>
-
-                <CardContent class="py-6">
-                    <div v-if="pilihan_cacat.length > 0" class="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+                    <div class="p-3 flex flex-wrap gap-2">
                         <button
-                            v-for="item in pilihan_cacat"
-                            :key="item.id"
-                            type="button"
-                            @click="toggleCacat(item.id)"
-                            :class="[
-                                'px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border-2 flex items-center gap-2',
-                                form.cacat_ids.includes(item.id)
-                                    ? 'bg-red-500 border-red-600 text-white shadow-md transform scale-105'
-                                    : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:bg-red-50'
-                            ]"
+                            v-for="k in pilihan_kualitas" :key="k.id"
+                            @click="form.kualitas_id = (form.kualitas_id === k.id ? null : k.id); focusInput()"
+                            :class="['px-4 py-2 rounded-lg text-xs font-bold border-2 transition-all',
+                                     form.kualitas_id === k.id ? 'bg-blue-600 border-blue-700 text-white' : 'bg-slate-50 border-slate-100 text-slate-500']"
                         >
-                            <IconCheck v-if="form.cacat_ids.includes(item.id)" class="size-3" />
-                            {{ item.cacat }}
+                            {{ k.kualitas }}
                         </button>
                     </div>
-
-                    <div v-else class="text-center py-10 text-muted-foreground">
-                        <IconClipboardCheck class="size-10 mx-auto opacity-20 mb-2" />
-                        <p class="text-xs">Tidak ada daftar jenis cacat.</p>
-                    </div>
-                </CardContent>
-
-                <div class="p-4 bg-slate-50 border-t flex justify-between items-center">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 leading-none">Terpilih:</span>
-                        <span class="text-sm font-bold text-red-600">
-                            {{ form.cacat_ids.length }} Jenis Kerusakan
-                        </span>
-                    </div>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        class="text-red-600 hover:bg-red-100 hover:text-red-700 font-bold"
-                        @click="clearSelection"
-                        :disabled="form.cacat_ids.length === 0"
-                    >
-                        Bersihkan Semua
-                    </Button>
                 </div>
-            </Card>
 
+                <!-- Warna -->
+                <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-purple-600 px-3 py-1.5 flex items-center gap-2">
+                        <IconPalette class="size-3 text-white" />
+                        <span class="text-[10px] font-bold text-white uppercase">Pilih Warna</span>
+                    </div>
+                    <div class="p-3 flex flex-wrap gap-2">
+                        <button
+                            v-for="w in pilihan_warna" :key="w.id"
+                            @click="form.warna_id = (form.warna_id === w.id ? null : w.id); focusInput()"
+                            :class="['px-4 py-2 rounded-lg text-xs font-bold border-2 transition-all',
+                                     form.warna_id === w.id ? 'bg-purple-600 border-purple-700 text-white' : 'bg-slate-50 border-slate-100 text-slate-500']"
+                        >
+                            {{ w.warna }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Cacat -->
+            <div class="bg-white border rounded-xl overflow-hidden shadow-sm flex flex-col">
+                <div class="bg-red-600 px-3 py-1.5 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <IconAlertTriangle class="size-3 text-white" />
+                        <span class="text-[10px] font-bold text-white uppercase">Laporan Cacat</span>
+                    </div>
+                    <button @click="form.cacat_ids = []; focusInput()" class="text-[9px] text-white underline font-bold">CLEAR</button>
+                </div>
+                <div class="p-3 flex-1">
+                    <div v-if="pilihan_cacat.length" class="flex flex-wrap gap-2 overflow-y-auto max-h-[250px] p-1">
+                        <button
+                            v-for="c in pilihan_cacat" :key="c.id"
+                            @click="toggleCacat(c.id)"
+                            :class="['px-3 py-2 rounded-md text-[11px] font-semibold border-2 transition-all flex items-center gap-1',
+                                     form.cacat_ids.includes(c.id) ? 'bg-red-500 border-red-600 text-white scale-105' : 'bg-white border-slate-100 text-slate-600']"
+                        >
+                            <IconCheck v-if="form.cacat_ids.includes(c.id)" class="size-3" />
+                            {{ c.cacat }}
+                        </button>
+                    </div>
+                    <div v-else class="h-full flex items-center justify-center text-slate-300 italic text-xs">
+                        Tidak ada daftar cacat
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-2 border-t text-center">
+                    <span class="text-[10px] font-bold text-red-600 uppercase">{{ form.cacat_ids.length }} Cacat Terpilih</span>
+                </div>
+            </div>
         </div>
 
-        <div v-if="form.processing" class="fixed inset-0 bg-white/60 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div class="flex flex-col items-center gap-2">
-                <IconLoader2 class="size-10 animate-spin text-orange-600" />
-                <span class="font-bold text-orange-900">Memproses Data...</span>
+        <!-- Overlay Loading -->
+        <div v-if="form.processing" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="bg-white p-4 rounded-2xl shadow-2xl flex flex-col items-center">
+                <IconLoader2 class="size-8 animate-spin text-orange-500 mb-2" />
+                <span class="text-xs font-bold uppercase tracking-widest text-slate-600">Menyimpan...</span>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+/* Menghilangkan ring fokus default pada input */
 input:focus {
     outline: none !important;
-    box-shadow: none !important;
 }
+/* Mempercantik scrollbar */
 .overflow-y-auto::-webkit-scrollbar {
     width: 4px;
 }
 .overflow-y-auto::-webkit-scrollbar-thumb {
-    background-color: #e2e8f0;
-    border-radius: 20px;
+    background-color: #cbd5e1;
+    border-radius: 10px;
 }
 </style>
-

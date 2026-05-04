@@ -24,4 +24,14 @@ class Produk extends Model
         return $this->hasMany(PengerjaanProduk::class, 'produk_id');
     }
 
+    public function kualitas(): BelongsTo
+    {
+        return $this->belongsTo(Kualitas::class, 'kualitas_id');
+    }
+
+    public function warna(): BelongsTo
+    {
+        return $this->belongsTo(Warna::class, 'warna_id');
+    }
+
 }

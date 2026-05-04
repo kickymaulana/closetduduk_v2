@@ -10,6 +10,8 @@ use App\Models\SesiKerja;
 use Illuminate\Support\Facades\DB;
 use App\Models\PengerjaanProduk;
 use App\Models\AturanPenolakan;
+use App\Models\Kualitas;
+use App\Models\Warna;
 
 class ScanCheckingController extends Controller
 {
@@ -24,7 +26,9 @@ class ScanCheckingController extends Controller
 
         return Inertia::render('Trolis/Produk/ScanCheckingInproses', [
             'troli' => $troli,
-            'pilihan_cacat' => $pilihan_cacat
+            'pilihan_cacat' => $pilihan_cacat,
+            'pilihan_kualitas' => Kualitas::all(['id', 'kualitas']),
+            'pilihan_warna' => Warna::all(['id', 'warna']),
         ]);
     }
 
@@ -35,6 +39,8 @@ class ScanCheckingController extends Controller
         $request->validate([
             'qr' => 'required|string',
             'cacat_ids' => 'nullable|array',
+            'kualitas_id' => 'nullable|exists:kualitas,id',
+            'warna_id' => 'nullable|exists:warna,id',
         ]);
 
         // 2. Validasi: Cek Sesi Kerja Aktif
@@ -126,7 +132,9 @@ class ScanCheckingController extends Controller
                 // Kita update status scan dan juga status akhir barang (OK/NG)
                 $produk->update([
                     'sudah_scan' => 'Sudah',
-                    'status_akhir' => 'In Proses'
+                    'status_akhir' => 'In Proses',
+                    'kualitas_id' => $request->kualitas_id,
+                    'warna_id' => $request->warna_id,
                 ]);
             });
 
