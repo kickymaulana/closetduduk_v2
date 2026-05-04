@@ -154,6 +154,8 @@ Route::middleware('auth')->group(function () {
     Route::get('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus'])->name('trolis.produk.scan_hapus');
     Route::post('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus_store'])->name('trolis.produk.scan_hapus_store');
 
+    Route::get('trolis/{troli}/produk/scan-checking', [ScanCheckingController::class, 'scan'])->name('scan.checking.scan');
+    Route::post('trolis/{troli}/produk/scan-checking', [ScanCheckingController::class, 'scan_store'])->name('scan.checking.scan_store');
     Route::get('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses'])->name('scan.checking.inproses');
     Route::post('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses_store'])->name('scan.checking.inproses_store');
     Route::get('trolis/{troli}/produk/scan-checking-buang', [ScanCheckingController::class, 'buang'])->name('scan.checking.buang');
