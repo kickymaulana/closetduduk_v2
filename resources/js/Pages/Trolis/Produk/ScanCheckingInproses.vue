@@ -77,9 +77,12 @@ defineOptions({ layout: AuthenticatedLayout });
             </Link>
             <div class="flex gap-1">
                 <Button as-child variant="outline" size="sm" class="h-8 text-[10px] border-blue-200 text-blue-600">
-                    <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
+                    <Link :href="route('scan.checking.scan', troli.id)">MODE OK</Link>
                 </Button>
                 <Button size="sm" class="h-8 text-[10px] bg-orange-500 hover:bg-orange-600">IN PROSES</Button>
+                <Button as-child variant="outline" size="sm" class="h-8 text-[10px] border-red-200 text-red-600">
+                    <Link :href="route('scan.checking.buang', troli.id)">BUANG</Link>
+                </Button>
             </div>
         </div>
 

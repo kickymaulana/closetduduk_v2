@@ -86,7 +86,7 @@ defineOptions({ layout: AuthenticatedLayout });
                     <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
                 </Button>
                 <Button as-child variant="outline" size="sm" class="h-8 text-[10px] border-orange-200 text-orange-600">
-                    <Link :href="route('trolis.produk.scan_inproses', troli.id)">IN PROSES</Link>
+                    <Link :href="route('scan.checking.inproses', troli.id)">IN PROSES</Link>
                 </Button>
                 <Button size="sm" class="h-8 text-[10px] bg-red-600 hover:bg-red-700">BUANG</Button>
             </div>
