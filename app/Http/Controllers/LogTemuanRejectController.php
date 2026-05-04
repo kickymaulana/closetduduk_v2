@@ -32,6 +32,7 @@ class LogTemuanRejectController extends Controller
             ->through(fn ($log) => [
             // Ambil ID Produk lewat pengerjaan_produk
             'id' => $log->pengerjaan_produk->produk->id ?? null,
+            'id_pengerjaan_cacat' => $log->id ?? null,
 
             // Data lainnya
             'id_pengerjaan_cacat' => $log->id,

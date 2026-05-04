@@ -27,6 +27,7 @@ const props = defineProps<{
     logs: {
         data: Array<{
             id: number;
+            id_pengerjaan_cacat: number;
             pengerjaan_produk: { produk: { nama_produk: string } };
             master_cacat: { cacat: string };
             user_scan_id: number;
@@ -141,10 +142,10 @@ const formatDate = (dateString: string) => {
                                 class="hover:bg-muted/30 transition-colors"
                             >
                                 <TableCell class="font-medium text-muted-foreground">
-                                    #{{ item.id }}
+                                    #{{ item.id_pengerjaan_cacat }}
                                 </TableCell>
                                 <TableCell class="text-sm">
-                                    {{ formatDate(item.created_at) }}
+                                    {{ item.created_at }}
                                 </TableCell>
                                 <TableCell class="font-semibold">
                                     {{ item.pengerjaan_produk?.produk?.qrcode || 'N/A' }}
