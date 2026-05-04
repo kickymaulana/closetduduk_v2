@@ -99,6 +99,8 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::post('mastertroli/{troli}/hapus', [MasterTroliController::class, 'hapusTroli'])->name('master.troli.hapus_troli');
 
     Route::get('master/kualitas', [KualitasController::class, 'index'])->name('kualitas.index');
+    Route::get('master/kualitas/create', [KualitasController::class, 'create'])->name('kualitas.create');
+    Route::post('master/kualitas/create', [KualitasController::class, 'store'])->name('kualitas.store');
 });
 
 Route::middleware('auth')->group(function () {

@@ -27,4 +27,23 @@ class KualitasController extends Controller
 
     // Kamu bisa menambahkan method create, store, dll nanti sesuai kebutuhan
     // dengan pola yang sama seperti CacatController.
+
+    public function create()
+    {
+        return Inertia::render('Master/Kualitas/Create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'kualitas' => 'required|string|max:255|unique:kualitas,kualitas',
+        ], [
+            'kualitas.required' => 'Nama kualitas wajib diisi.',
+            'kualitas.unique' => 'Nama kualitas ini sudah terdaftar.',
+        ]);
+
+        \App\Models\Kualitas::create($request->only('kualitas'));
+
+        return redirect()->route('kualitas.index')->with('message', 'Data kualitas berhasil ditambahkan.');
+    }
 }

@@ -95,7 +95,7 @@ const cleanLabel = (label: string) => {
                         class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
                     >
                         <!-- Pastikan route 'kualitas.create' sudah ada di web.php -->
-                        <Link :href="route('kualitas.index')">
+                        <Link :href="route('kualitas.create')">
                             <IconPlus class="mr-2 size-4" />
                             Tambah Kualitas
                         </Link>
