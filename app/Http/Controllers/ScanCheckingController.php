@@ -145,4 +145,114 @@ class ScanCheckingController extends Controller
         }
     }
 
+
+    public function buang(Troli $troli)
+    {
+        // Ambil pilihan cacat yang memang memiliki aturan 'buang' untuk proses ini
+        $pilihan_cacat = Cacat::whereHas('aturan_penolakans', function ($query) use ($troli) {
+            $query->where('proses_pemeriksa', $troli->proses->id);
+        })
+        ->select(['id', 'cacat'])
+        ->distinct()
+        ->get();
+
+        return Inertia::render('Trolis/Produk/ScanCheckingBuang', [
+            'troli' => $troli,
+            'pilihan_cacat' => $pilihan_cacat
+        ]);
+    }
+
+    public function buang_store(Request $request, Troli $troli)
+    {
+        $request->validate([
+            'qr' => 'required|string',
+            'cacat_ids' => 'required|array|min:1', // WAJIB ada minimal 1 cacat kalau BUANG
+        ], [
+            'cacat_ids.required' => 'Wajib memilih minimal satu jenis cacat untuk membuang produk!'
+        ]);
+
+        $sesi_kerja_id = session('sesi_kerja_id');
+        if (!$sesi_kerja_id) {
+            return back()->withErrors(['error' => 'Silakan aktifkan Sesi Kerja terlebih dahulu!']);
+        }
+
+        $sesi = SesiKerja::with('sesi_kerja_members')->find($sesi_kerja_id);
+
+        $produk = $troli->produks()->where('qrcode', $request->qr)->first();
+        if (!$produk) {
+            return back()->withErrors(['qr' => "Produk {$request->qr} tidak ditemukan di troli ini!"]);
+        }
+
+        if ($produk->sudah_scan === 'Sudah') {
+            return back()->withErrors(['qr' => "Produk {$request->qr} sudah discan sebelumnya!"]);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $troli, $sesi, $produk) {
+
+                // 1. Simpan Pengerjaan untuk Leader (Status: Buang)
+                $pengerjaanLeader = PengerjaanProduk::create([
+                    'user_id' => auth()->id(),
+                    'produk_id' => $produk->id,
+                    'sesi_kerja_id' => $sesi->id,
+                    'proses_id' => $troli->proses->id,
+                    'status_kondisi' => 'Buang',
+                ]);
+
+                // 2. Loop Cacat & Tracking PJ (Ambil dari proses_buang)
+                foreach ($request->cacat_ids as $cid) {
+                    $aturan = AturanPenolakan::where('cacat_id', $cid)
+                                ->where('proses_pemeriksa', $troli->proses->id)
+                                ->first();
+
+                    $userPJId = null;
+                    $prosesPJId = null;
+
+                    if ($aturan) {
+                        // BEDANYA DISINI: Ambil PROSES BUANG sebagai PJ
+                        $prosesPJId = $aturan->proses_buang;
+
+                        $lastJob = PengerjaanProduk::where('produk_id', $produk->id)
+                                    ->where('proses_id', $prosesPJId)
+                                    ->latest('id')
+                                    ->first();
+
+                        $userPJId = $lastJob ? $lastJob->user_id : null;
+                    }
+
+                    $pengerjaanLeader->pengerjaan_cacats()->create([
+                        'cacat_id' => $cid,
+                        'user_scan_id' => auth()->id(),
+                        'proses_scan_id' => $troli->proses->id,
+                        'user_pj_id' => $userPJId,
+                        'proses_pj_id' => $prosesPJId,
+                    ]);
+                }
+
+                // 3. Auto-Insert Anggota Tim
+                foreach ($sesi->sesi_kerja_members as $member) {
+                    PengerjaanProduk::create([
+                        'user_id' => $member->user_id,
+                        'produk_id' => $produk->id,
+                        'sesi_kerja_id' => $sesi->id,
+                        'proses_id' => $troli->proses->id,
+                        'status_kondisi' => 'Buang',
+                    ]);
+                }
+
+                // 4. Update data Produk (Sudah Scan & Status Akhir: Buang)
+                $produk->update([
+                    'sudah_scan' => 'Sudah',
+                    'status_akhir' => 'Buang'
+                ]);
+            });
+
+            return back()->with('success', "Produk {$request->qr} BERHASIL DIBUANG.");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal: ' . $e->getMessage()]);
+        }
+    }
+
+
 }

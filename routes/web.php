@@ -156,6 +156,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses'])->name('scan.checking.inproses');
     Route::post('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses_store'])->name('scan.checking.inproses_store');
+    Route::get('trolis/{troli}/produk/scan-checking-buang', [ScanCheckingController::class, 'buang'])->name('scan.checking.buang');
+    Route::post('trolis/{troli}/produk/scan-checking-buang', [ScanCheckingController::class, 'buang_store'])->name('scan.checking.buang_store');
 
     Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
     Route::get('total-pengerjaan-user', [TotalPengerjaanUserController::class, 'index'])->name('total.pengerjaan.user');
