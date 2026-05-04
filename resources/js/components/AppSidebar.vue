@@ -17,6 +17,7 @@ import {
     IconRoute,
     IconBoxSeam,
     IconShoppingCart,
+    IconSquareCheck,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -161,6 +162,12 @@ const masterData = [
         url: route("roles.index"),
         icon: IconHierarchy,
         root: "Master/Roles",
+    },
+    {
+        name: "Kualitas",
+        url: route("kualitas.index"),
+        icon: IconSquareCheck,
+        root: "Master/Kualitas",
     },
 ];
 </script>

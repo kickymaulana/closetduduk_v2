@@ -24,6 +24,7 @@ use App\Http\Controllers\LogTemuanRejectController;
 use App\Http\Controllers\ProsesProduksiController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\Master\MasterTroliController;
+use App\Http\Controllers\Master\KualitasController;
 
 
 
@@ -96,6 +97,8 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::post('master/troli/{troli}/remove-products', [MasterTroliController::class, 'removeProducts'])->name('master.troli.remove_products');
     Route::post('master/troli/{troli}/move-products', [MasterTroliController::class, 'moveProducts'])->name('master.troli.move_products');
     Route::post('mastertroli/{troli}/hapus', [MasterTroliController::class, 'hapusTroli'])->name('master.troli.hapus_troli');
+
+    Route::get('master/kualitas', [KualitasController::class, 'index'])->name('kualitas.index');
 });
 
 Route::middleware('auth')->group(function () {
