@@ -26,6 +26,7 @@ use App\Http\Controllers\StokController;
 use App\Http\Controllers\Master\MasterTroliController;
 use App\Http\Controllers\Master\KualitasController;
 use App\Http\Controllers\Master\WarnaController;
+use App\Http\Controllers\ScanCheckingController;
 
 
 
@@ -152,6 +153,9 @@ Route::middleware('auth')->group(function () {
     Route::post('trolis/{troli}/produk/scan-pindah', [ProdukController::class, 'scan_pindah_store'])->name('trolis.produk.scan_pindah_store');
     Route::get('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus'])->name('trolis.produk.scan_hapus');
     Route::post('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus_store'])->name('trolis.produk.scan_hapus_store');
+
+    Route::get('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses'])->name('scan.checking.inproses');
+    Route::post('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses_store'])->name('scan.checking.inproses_store');
 
     Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
     Route::get('total-pengerjaan-user', [TotalPengerjaanUserController::class, 'index'])->name('total.pengerjaan.user');
