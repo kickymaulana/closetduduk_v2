@@ -158,7 +158,9 @@ class ScanCheckingController extends Controller
 
         return Inertia::render('Trolis/Produk/ScanCheckingBuang', [
             'troli' => $troli,
-            'pilihan_cacat' => $pilihan_cacat
+            'pilihan_cacat' => $pilihan_cacat,
+            'pilihan_kualitas' => Kualitas::all(['id', 'kualitas']),
+            'pilihan_warna' => Warna::all(['id', 'warna']),
         ]);
     }
 
@@ -167,6 +169,8 @@ class ScanCheckingController extends Controller
         $request->validate([
             'qr' => 'required|string',
             'cacat_ids' => 'required|array|min:1', // WAJIB ada minimal 1 cacat kalau BUANG
+            'kualitas_id' => 'nullable|exists:kualitas,id',
+            'warna_id' => 'nullable|exists:warna,id',
         ], [
             'cacat_ids.required' => 'Wajib memilih minimal satu jenis cacat untuk membuang produk!'
         ]);
@@ -243,7 +247,9 @@ class ScanCheckingController extends Controller
                 // 4. Update data Produk (Sudah Scan & Status Akhir: Buang)
                 $produk->update([
                     'sudah_scan' => 'Sudah',
-                    'status_akhir' => 'Buang'
+                    'status_akhir' => 'Buang',
+                    'kualitas_id' => $request->kualitas_id,
+                    'warna_id' => $request->warna_id,
                 ]);
             });
 
