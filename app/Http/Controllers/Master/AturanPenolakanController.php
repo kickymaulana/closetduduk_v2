@@ -72,7 +72,7 @@ class AturanPenolakanController extends Controller
         $aturan = AturanPenolakan::findOrFail($id);
 
         $request->validate([
-            'cacat_id'   => 'required|exists:proses,id',
+            'cacat_id'   => 'required|exists:cacat,id',
             'proses_toleransi'   => 'required|exists:proses,id',
             'proses_buang'       => 'required|exists:proses,id',
             'proses_pemeriksa'   => 'required|exists:proses,id',
