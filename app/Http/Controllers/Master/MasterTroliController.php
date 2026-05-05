@@ -33,7 +33,7 @@ class MasterTroliController extends Controller
             });
         }
 
-        $trolis = $query->latest()
+        $trolis = $query->orderBy('nomor', 'asc')
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($troli) => [
@@ -43,7 +43,6 @@ class MasterTroliController extends Controller
                 'status' => $troli->status,
                 'proses' => $troli->proses,
                 'produks_count' => $troli->produks_count,
-                // Penyesuaian untuk tampilan di Vue kamu
                 'terakhir_diperbaharui_jam' => $troli->updated_at->format('H:i'),
                 'terakhir_diperbaharui' => $troli->updated_at->format('d M Y'),
             ]);
