@@ -114,7 +114,7 @@ const form = useForm({ cacat: props.cacat.cacat });
                             <Input
                                 id="cacat"
                                 v-model="form.cacat"
-                                class="uppercase"
+                                class=""
                             />
                         </div>
                         <Button

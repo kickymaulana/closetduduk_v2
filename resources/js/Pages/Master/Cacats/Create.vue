@@ -45,7 +45,7 @@ const form = useForm({ cacat: "" });
                                 id="cacat"
                                 v-model="form.cacat"
                                 placeholder="Contoh: Pecah Body"
-                                class="uppercase"
+                                class=""
                             />
                             <p
                                 v-if="form.errors.cacat"
