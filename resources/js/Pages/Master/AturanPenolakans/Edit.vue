@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm, router } from "@inertiajs/vue3";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
     Select,
     SelectContent,
@@ -12,10 +14,26 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import {
     IconArrowLeft,
     IconDeviceFloppy,
     IconDotsVertical,
     IconTrash,
+    IconCheck,
+    IconSelector,
+    IconLoader2
 } from "@tabler/icons-vue";
 import {
     AlertDialog,
@@ -46,6 +64,14 @@ const form = useForm({
     proses_pemeriksa: props.aturan.proses_pemeriksa.toString(),
 });
 
+// State untuk Popover Combobox
+const openCacat = ref(false);
+
+// Computed untuk menampilkan label cacat yang sedang dipilih (berdasarkan props awal atau perubahan form)
+const selectedCacatLabel = computed(() => {
+    return props.cacats.find((c) => c.id.toString() === form.cacat_id)?.cacat || "Pilih Jenis Cacat...";
+});
+
 const submit = () => {
     form.put(route('aturanpenolakans.update', props.aturan.id));
 };
@@ -56,12 +82,7 @@ const submit = () => {
     <div class="flex flex-col gap-6 p-4 md:p-8 pt-1">
         <div class="flex items-center justify-between max-w-4xl">
             <div class="flex items-center gap-4">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    as-child
-                    class="rounded-full"
-                >
+                <Button variant="outline" size="icon" as-child class="rounded-full">
                     <Link :href="route('aturanpenolakans.index')">
                         <IconArrowLeft class="size-4" />
                     </Link>
@@ -117,38 +138,64 @@ const submit = () => {
                         <!-- Grid Container -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                            <!-- Baris 1: Jenis Cacat (Full Width / Span 3) -->
+                            <!-- Baris 1: Jenis Cacat (SEARCHABLE COMBOBOX) -->
                             <div class="grid gap-2 md:col-span-3">
-                                <Label for="cacat">Jenis Cacat</Label>
-                                <Select v-model="form.cacat_id">
-                                    <SelectTrigger id="cacat">
-                                        <SelectValue placeholder="Pilih Jenis Cacat" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem
-                                            v-for="c in cacats"
-                                            :key="c.id"
-                                            :value="c.id.toString()"
+                                <Label>Jenis Cacat</Label>
+                                <Popover v-model:open="openCacat">
+                                    <PopoverTrigger as-child>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            :aria-expanded="openCacat"
+                                            class="w-full justify-between font-normal h-10"
+                                            :class="{ 'border-destructive': form.errors.cacat_id }"
                                         >
-                                            {{ c.cacat }}
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                            {{ selectedCacatLabel }}
+                                            <IconSelector class="ml-2 size-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent class="w-[--radix-popover-trigger-width] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Cari jenis cacat..." />
+                                            <CommandList>
+                                                <CommandEmpty>Data tidak ditemukan.</CommandEmpty>
+                                                <CommandGroup>
+                                                    <CommandItem
+                                                        v-for="c in cacats"
+                                                        :key="c.id"
+                                                        :value="c.cacat"
+                                                        @select="() => {
+                                                            form.cacat_id = c.id.toString();
+                                                            openCacat = false;
+                                                        }"
+                                                    >
+                                                        <IconCheck
+                                                            :class="cn(
+                                                                'mr-2 size-4',
+                                                                form.cacat_id === c.id.toString() ? 'opacity-100' : 'opacity-0'
+                                                            )"
+                                                        />
+                                                        {{ c.cacat }}
+                                                    </CommandItem>
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <p v-if="form.errors.cacat_id" class="text-xs text-destructive italic">
+                                    {{ form.errors.cacat_id }}
+                                </p>
                             </div>
 
                             <!-- Baris 2 Kolom 1: Departemen Toleransi -->
                             <div class="grid gap-2">
-                                <Label for="toleransi">Departemen Toleransi</Label>
+                                <Label>Departemen Toleransi</Label>
                                 <Select v-model="form.proses_toleransi">
-                                    <SelectTrigger id="toleransi">
+                                    <SelectTrigger :class="{ 'border-destructive': form.errors.proses_toleransi }">
                                         <SelectValue placeholder="Pilih Departemen" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem
-                                            v-for="d in proses"
-                                            :key="d.id"
-                                            :value="d.id.toString()"
-                                        >
+                                        <SelectItem v-for="d in proses" :key="d.id" :value="d.id.toString()">
                                             {{ d.proses }}
                                         </SelectItem>
                                     </SelectContent>
@@ -157,17 +204,13 @@ const submit = () => {
 
                             <!-- Baris 2 Kolom 2: Departemen Buang -->
                             <div class="grid gap-2">
-                                <Label for="buang">Departemen Buang</Label>
+                                <Label>Departemen Buang</Label>
                                 <Select v-model="form.proses_buang">
-                                    <SelectTrigger id="buang">
+                                    <SelectTrigger :class="{ 'border-destructive': form.errors.proses_buang }">
                                         <SelectValue placeholder="Pilih Departemen" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem
-                                            v-for="d in proses"
-                                            :key="d.id"
-                                            :value="d.id.toString()"
-                                        >
+                                        <SelectItem v-for="d in proses" :key="d.id" :value="d.id.toString()">
                                             {{ d.proses }}
                                         </SelectItem>
                                     </SelectContent>
@@ -176,17 +219,13 @@ const submit = () => {
 
                             <!-- Baris 2 Kolom 3: Departemen Pemeriksa -->
                             <div class="grid gap-2">
-                                <Label for="pemeriksa">Departemen Pemeriksa</Label>
+                                <Label>Departemen Pemeriksa</Label>
                                 <Select v-model="form.proses_pemeriksa">
-                                    <SelectTrigger id="pemeriksa">
+                                    <SelectTrigger :class="{ 'border-destructive': form.errors.proses_pemeriksa }">
                                         <SelectValue placeholder="Pilih Departemen" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem
-                                            v-for="d in proses"
-                                            :key="d.id"
-                                            :value="d.id.toString()"
-                                        >
+                                        <SelectItem v-for="d in proses" :key="d.id" :value="d.id.toString()">
                                             {{ d.proses }}
                                         </SelectItem>
                                     </SelectContent>
@@ -199,11 +238,8 @@ const submit = () => {
                             :disabled="form.processing"
                             class="w-full bg-primary h-11"
                         >
-                            <IconDeviceFloppy v-if="!form.processing" class="mr-2 size-4" />
-                            <span v-else class="mr-2 animate-spin">
-                                <!-- Anda bisa menggunakan IconLoader2 di sini jika diimpor -->
-                                ⏳
-                            </span>
+                            <IconLoader2 v-if="form.processing" class="mr-2 size-4 animate-spin" />
+                            <IconDeviceFloppy v-else class="mr-2 size-4" />
                             Update Aturan
                         </Button>
                     </form>
