@@ -80,7 +80,7 @@ const submit = () => {
                                 id="departemen"
                                 v-model="form.departemen"
                                 placeholder="Contoh: OVEN, PACKING, QC..."
-                                class="uppercase focus:ring-primary/50"
+                                class="focus:ring-primary/50"
                                 :class="{
                                     'border-destructive':
                                         form.errors.departemen,

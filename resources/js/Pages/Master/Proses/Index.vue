@@ -145,7 +145,7 @@ const cleanLabel = (label: string) => {
                                     </Badge>
                                 </TableCell>
                                 <TableCell
-                                    class="font-bold uppercase tracking-wide text-primary"
+                                    class="font-bold tracking-wide text-primary"
                                 >
                                     {{ item.proses }}
                                 </TableCell>

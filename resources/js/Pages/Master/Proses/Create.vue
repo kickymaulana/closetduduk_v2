@@ -114,7 +114,7 @@ const submit = () => {
                                 id="proses"
                                 v-model="form.proses"
                                 placeholder="Contoh: PENGECEKAN FINAL"
-                                class="uppercase h-11"
+                                class="h-11"
                                 :class="{
                                     'border-destructive': form.errors.proses,
                                 }"

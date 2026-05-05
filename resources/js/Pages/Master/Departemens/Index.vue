@@ -153,7 +153,7 @@ const cleanLabel = (label: string) => {
                                 class="hover:bg-muted/30 transition-colors"
                             >
                                 <TableCell
-                                    class="font-bold text-primary uppercase tracking-wide"
+                                    class="font-bold text-primary tracking-wide"
                                 >
                                     {{ item.departemen }}
                                 </TableCell>

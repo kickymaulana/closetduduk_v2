@@ -159,7 +159,7 @@ const deleteDepartemen = () => {
                             <Input
                                 id="departemen"
                                 v-model="form.departemen"
-                                class="uppercase bg-white/50 dark:bg-black/20 border-primary/20"
+                                class="bg-white/50 dark:bg-black/20 border-primary/20"
                             />
                             <p
                                 v-if="form.errors.departemen"
