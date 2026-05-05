@@ -260,28 +260,29 @@ class TroliController extends Controller
 
     public function trolikosong(Request $request)
     {
-        $user = auth()->user(); // Ambil data user yang sedang login
+        $user = auth()->user();
 
-        // 1. Ambil query troli yang belum digunakan (proses_id NULL)
-        $query = Troli::query()->whereNull('proses_id');
+        $query = Troli::query()
+            // 1. Syarat Mutlak: Tidak boleh ada produk di dalamnya
+            ->whereDoesntHave('produks')
+            // 2. Tambahan: Harus benar-benar tidak terikat proses (proses_id NULL)
+            // Ini agar D086 yang sudah ada di departemen Anda tidak muncul lagi di sini
+            ->whereNull('proses_id');
 
-        // 2. Filter Search
         if ($request->search) {
             $query->where('nomor', 'like', '%' . $request->search . '%');
         }
 
-        // 3. Paginate data
         $troliFisiks = $query->paginate(10)->withQueryString()->through(fn ($troli) => [
             'id' => $troli->id,
             'nomor' => $troli->nomor,
-            'status' => 'Tidak',
+            'status' => 'Tersedia',
             'created_at' => $troli->created_at,
         ]);
 
-        // 4. Ambil daftar proses HANYA untuk departemen user tersebut
         $prosesList = \App\Models\Proses::where('departemen_id', $user->departemen_id)
             ->orderBy('urutan', 'asc')
-            ->get(['id', 'proses']); // Ambil kolom yang diperlukan saja
+            ->get(['id', 'proses']);
 
         return Inertia::render('Trolis/TroliKosong', [
             'troliFisiks' => $troliFisiks,
@@ -290,27 +291,41 @@ class TroliController extends Controller
         ]);
     }
 
-
     public function trolikosong_store(Request $request)
     {
-        // 1. Validasi input
+        // 1. Validasi input ID yang dikirim dari form
         $request->validate([
             'id' => 'required|exists:troli,id',
             'proses_id' => 'required|exists:proses,id',
             'keperluan' => 'required|in:OK,In Proses,Scan',
         ]);
 
-        // 2. Update data troli
+        // 2. Ambil data troli yang mau diambil
         $troli = Troli::findOrFail($request->id);
+        $nomorTroli = $troli->nomor; // Contoh: D001
 
+        /**
+        * 3. PENGECEKAN BERDASARKAN NOMOR:
+        * Kita cek di seluruh tabel troli, apakah ada nomor yang sama (D001)
+        * yang proses_id-nya TIDAK NULL (sedang dipakai).
+        */
+        $troliSedangDipakai = Troli::where('nomor', $nomorTroli)
+            ->whereNotNull('proses_id')
+            ->exists();
+
+        if ($troliSedangDipakai) {
+            return redirect()->back()->with('error', "Gagal! Nomor Troli {$nomorTroli} terdeteksi masih digunakan di proses lain. Kosongkan dulu secara fisik dan sistem sebelum mengambilnya kembali.");
+        }
+
+        // 4. Jika aman (tidak ada nomor tersebut yang sedang dipakai), baru update
         $troli->update([
             'proses_id' => $request->proses_id,
             'keperluan' => $request->keperluan,
-            'status' => 'Proses', // Set status ke Proses karena baru diambil
-            'is_output' => 1,      // Biasanya kalau diambil jadi wadah baru (is_output = true)
+            'status' => 'Proses',
+            'is_output' => 1,
         ]);
 
-        return redirect()->back()->with('success', 'Troli berhasil diambil dan didaftarkan ke proses.');
+        return redirect()->back()->with('success', "Troli {$nomorTroli} berhasil diambil.");
     }
 
 }
