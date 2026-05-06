@@ -17,9 +17,6 @@ class MasterTroliController extends Controller
         $user = auth()->user();
 
         $query = Troli::with(['proses'])
-            ->whereHas('proses', function ($query) use ($user) {
-                $query->where('departemen_id', $user->departemen_id);
-            })
             ->withCount('produks');
 
         if ($search) {
