@@ -8,6 +8,7 @@ use App\Models\Shift;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\MasterDepartemen;
+use App\Models\Proses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ class SesiKerjaController extends Controller
 {
     public function index(Request $request)
     {
+
         $sesikerjas = SesiKerja::query()
             // Syarat utama: Harus milik user yang sedang login
             ->where('leader_id', auth()->id())
@@ -48,8 +50,13 @@ class SesiKerjaController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
         return Inertia::render('SesiKerjas/Create', [
             'shifts' => Shift::all(['id', 'shift']),
+            // Ambil proses hanya yang sesuai departemen user yang login
+            'prosesList' => Proses::where('departemen_id', $user->departemen_id)
+            ->orderBy('urutan', 'asc')
+            ->get(['id', 'proses']),
             'users' => User::where('id', '!=', auth()->id())->get(['id', 'name'])
         ]);
 
@@ -59,6 +66,7 @@ class SesiKerjaController extends Controller
     {
         $validated = $request->validate([
             'shift_id' => 'required|exists:shift,id',
+            'proses_id' => 'required|exists:proses,id',
             'jenis' => 'required|in:Body,Tangki',
             'user_ids'  => 'nullable|array', // ID anggota yang dipilih
             'user_ids.*'=> 'exists:users,id'
@@ -71,6 +79,7 @@ class SesiKerjaController extends Controller
             $sesi = SesiKerja::create([
                 'leader_id' => $validated['leader_id'],
                 'shift_id'  => $validated['shift_id'],
+                'proses_id' => $validated['proses_id'],
                 'jenis' => $validated['jenis'],
             ]);
 
