@@ -24,7 +24,16 @@ import {
     IconClock,
     IconInfoCircle,
 } from "@tabler/icons-vue";
-import { ref, watch } from "vue";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ref, watch, onMounted } from "vue";
 import { toast } from "vue-sonner";
 
 defineOptions({ layout: AuthenticatedLayout });
@@ -68,7 +77,6 @@ const props = defineProps<{
     };
 }>();
 
-console.log(props.sesiAktif.proses?.proses);
 
 const search = ref(props.filters.search || "");
 const copiedNomor = ref<number | null>(null);
@@ -107,6 +115,16 @@ const cleanLabel = (label: string) => {
     if (label.includes("Next")) return "Selanjutnya";
     return label;
 };
+
+
+const isDialogOpen = ref(false);
+
+onMounted(() => {
+    // Jika sesiAktif null atau undefined, buka dialog otomatis
+    if (!props.sesiAktif) {
+        isDialogOpen.value = true;
+    }
+});
 </script>
 
 <template>
@@ -297,5 +315,28 @@ const cleanLabel = (label: string) => {
                 </div>
             </CardContent>
         </Card>
+
+        <AlertDialog :open="isDialogOpen" @update:open="isDialogOpen = $event">
+            <AlertDialogContent class="max-w-[400px]">
+                <AlertDialogHeader>
+                    <div class="flex justify-center mb-2">
+                        <div class="p-3 bg-amber-100 rounded-full">
+                            <IconClock class="size-8 text-amber-600 animate-pulse" />
+                        </div>
+                    </div>
+                    <AlertDialogTitle class="text-center text-xl">Sesi Belum Aktif!</AlertDialogTitle>
+                    <AlertDialogDescription class="text-center">
+                        Maaf, Anda harus mengaktifkan **Sesi Kerja** terlebih dahulu sebelum dapat mengelola troli atau melakukan scan produk.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter class="flex-col sm:flex-col gap-2">
+                    <Button class="w-full bg-primary" as-child>
+                        <Link :href="route('sesikerjas.index')">
+                            Pilih Sesi Sekarang
+                        </Link>
+                    </Button>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
 </template>
