@@ -70,6 +70,7 @@ const selectedProsesId = ref<string>(props.troli.proses_id?.toString() || "");
 
 const showMoveDialog = ref(false);
 const showDeleteTroliDialog = ref(false);
+const showDeleteTroliDialogMaster = ref(false);
 const showChangeProsesDialog = ref(false);
 
 /**
@@ -191,6 +192,21 @@ const deleteTroli = () => {
     );
 };
 
+const deleteTroliMaster = () => {
+    router.delete(
+        route("master.troli.hapus_troli_master", props.troli.id),
+        {},
+        {
+            onSuccess: (page) => {
+                const flash = (page.props as any).flash;
+                if (flash?.error) return toast.error(flash.error);
+                toast.success("Troli direset");
+                router.get(route("master.troli.index"));
+            },
+        },
+    );
+};
+
 watch(search, (val) => {
     router.get(
         route("master.troli.produk", props.troli.id),
@@ -270,6 +286,12 @@ const filteredTrolis = computed(() => {
                                 @click="showDeleteTroliDialog = true"
                                 class="text-red-600"
                                 ><IconTrash class="mr-2 size-4" /> Reset
+                                Troli</DropdownMenuItem
+                            >
+                            <DropdownMenuItem
+                                @click="showDeleteTroliDialogMaster = true"
+                                class="text-red-600"
+                                ><IconTrash class="mr-2 size-4" /> Hapus
                                 Troli</DropdownMenuItem
                             >
                             <DropdownMenuItem as-child>
@@ -516,6 +538,27 @@ const filteredTrolis = computed(() => {
             <AlertDialogFooter
                 ><AlertDialogCancel>Batal</AlertDialogCancel
                 ><AlertDialogAction @click="deleteTroli" class="bg-red-600"
+                    >Ya, Reset</AlertDialogAction
+                ></AlertDialogFooter
+            >
+        </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog
+        :open="showDeleteTroliDialogMaster"
+        @update:open="showDeleteTroliDialogMaster = $event"
+    >
+        <AlertDialogContent>
+            <AlertDialogHeader
+                ><AlertDialogTitle
+                    >Hapus Troli?</AlertDialogTitle
+                ></AlertDialogHeader
+            >
+            <AlertDialogFooter
+                ><AlertDialogCancel>Batal</AlertDialogCancel
+                ><AlertDialogAction
+                    @click="deleteTroliMaster"
+                    class="bg-red-600"
                     >Ya, Reset</AlertDialogAction
                 ></AlertDialogFooter
             >

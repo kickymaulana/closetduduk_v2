@@ -101,6 +101,7 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::post('master/troli/{troli}/remove-products', [MasterTroliController::class, 'removeProducts'])->name('master.troli.remove_products');
     Route::post('master/troli/{troli}/move-products', [MasterTroliController::class, 'moveProducts'])->name('master.troli.move_products');
     Route::post('mastertroli/{troli}/hapus', [MasterTroliController::class, 'hapusTroli'])->name('master.troli.hapus_troli');
+    Route::delete('mastertroli/{troli}/hapus-troli-master', [MasterTroliController::class, 'hapusTroliMaster'])->name('master.troli.hapus_troli_master');
 
     Route::get('master/kualitas', [KualitasController::class, 'index'])->name('kualitas.index');
     Route::get('master/kualitas/create', [KualitasController::class, 'create'])->name('kualitas.create');

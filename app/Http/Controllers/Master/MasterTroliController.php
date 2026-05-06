@@ -185,6 +185,20 @@ class MasterTroliController extends Controller
             ->with('success', 'Troli berhasil dikosongkan dan dilepas dari proses.');
     }
 
+    public function hapusTroliMaster(Troli $troli)
+    {
+        // Cek apakah ada produk yang masih menggunakan troli ini
+        if ($troli->produks()->exists()) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus! Masih ada produk di dalam troli ini. Kosongkan produk terlebih dahulu.');
+        }
+
+        $troli->delete();
+
+        return redirect()->route('master.troli.index')
+            ->with('success', 'Troli berhasil dihapus.');
+    }
+
     public function create()
     {
         return Inertia::render('Master/Trolis/Create');
