@@ -184,4 +184,24 @@ class MasterTroliController extends Controller
         return redirect()->route('master.troli.index')
             ->with('success', 'Troli berhasil dikosongkan dan dilepas dari proses.');
     }
+
+    public function create()
+    {
+        return Inertia::render('Master/Trolis/Create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nomor' => 'required|string|max:255|unique:troli,nomor',
+        ], [
+            'nomor.required' => 'Nomor wajib diisi.',
+            'nomor.unique' => 'Nomor Troli ini sudah terdaftar.',
+        ]);
+
+        Troli::create($request->only('nomor'));
+
+        return redirect()->route('master.troli.index')->with('message', 'Data cacat berhasil ditambahkan.');
+    }
+
 }

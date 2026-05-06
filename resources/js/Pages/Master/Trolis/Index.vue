@@ -20,6 +20,7 @@ import {
     IconEye,
     IconCopy,
     IconCheck,
+    IconPlus,
 } from "@tabler/icons-vue";
 import { ref, watch } from "vue";
 import { toast } from "vue-sonner";
@@ -124,6 +125,15 @@ const cleanLabel = (label: string) => {
                             <IconX class="size-4" />
                         </button>
                     </div>
+                    <Button
+                        as-child
+                        class="bg-primary hover:bg-primary/90 shadow-md transition-all active:scale-95"
+                    >
+                        <Link :href="route('master.troli.create')">
+                            <IconPlus class="mr-2 size-4" />
+                            Tambah Troli
+                        </Link>
+                    </Button>
                 </div>
             </CardHeader>
 
