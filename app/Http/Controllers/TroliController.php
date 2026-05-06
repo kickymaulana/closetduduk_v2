@@ -59,130 +59,131 @@ class TroliController extends Controller
         ]);
     }
 
-   public function selesaikan_troli(Troli $troli)
+    public function selesaikan_troli(Troli $troli)
     {
-
-        // 1. Cek apakah ada produk di dalam troli yang status 'sudah_scan' nya masih 'Belum'
-        $adaYangBelumScan = $troli->produks()
-        ->where('sudah_scan', 'Belum')
-        ->exists();
-
-        if ($adaYangBelumScan) {
+        // 1. Validasi Scan (Sudah benar)
+        if ($troli->produks()->where('sudah_scan', 'Belum')->exists()) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'error' => 'Gagal! Masih ada produk di dalam troli ini yang belum discan.'
             ]);
         }
 
-        $urutanSekarang = $troli->proses->urutan;
+        $prosesSekarang = $troli->proses;
+        // Cari proses dengan urutan tepat di atas urutan saat ini
+        $prosesBerikutnya = Proses::where('urutan', '>', $prosesSekarang->urutan)
+            ->orderBy('urutan', 'asc')
+            ->first();
 
-        $prosesSekarang = Proses::where('urutan', $urutanSekarang)->first();
-
-        $prosesBerikutnya = Proses::where('urutan', $urutanSekarang + 1)->first();
-        //harus di cek dulu proses dengan urutan berikutnya apakah punya departemen yang login atau tidak
-        //cek apakah proses berikutnya milih departemen yang login?
-        if($prosesBerikutnya->departemen_id != auth()->user()->departemen_id){
+        // JIKA TIDAK ADA PROSES BERIKUTNYA (Finish Total)
+        if (!$prosesBerikutnya) {
             $troli->update([
                 'status' => 'Selesai',
-                'is_output' => true,
+                'is_output' => false, // Tidak bisa diambil siapa-siapa lagi
             ]);
-            return redirect()->route('trolis.index')->with('success', 'Troli mencapai tahap akhir dan telah diselesaikan.');
-        } else {
-            DB::transaction(function () use ($troli, $prosesBerikutnya) {
-                $troli->update([
-                    'status' => 'Selesai', // Atau mungkin statusnya jadi 'Pending' lagi untuk proses berikutnya?
-                    'proses_id' => $prosesBerikutnya->id
-                ]);
-
-                $troli->produks()->update([
-                    'sudah_scan' => 'Belum'
-                ]);
-            });
-            return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
-
+            return redirect()->route('trolis.index')->with('success', 'Produksi selesai sepenuhnya.');
         }
 
+        // JIKA PROSES BERIKUTNYA BEDA DEPARTEMEN
+        if ($prosesBerikutnya->departemen_id != auth()->user()->departemen_id) {
+            $troli->update([
+                'status' => 'Selesai',
+                'is_output' => true, // Muncul di menu "Ambil Troli" departemen lain
+            ]);
+            return redirect()->route('trolis.index')->with('success', 'Troli selesai dan siap diambil departemen berikutnya.');
+        }
 
+        // JIKA PROSES BERIKUTNYA MASIH DEPARTEMEN YANG SAMA
+        // Otomatis pindah ke tahap berikutnya tanpa perlu "Ambil" manual
+        DB::transaction(function () use ($troli, $prosesBerikutnya) {
+            $troli->update([
+                'proses_id' => $prosesBerikutnya->id,
+                'status' => 'Proses', // Langsung 'Proses' karena masih di departemen yang sama
+                'is_output' => false,
+            ]);
 
+            $troli->produks()->update(['sudah_scan' => 'Belum']);
+        });
+
+        return redirect()->route('trolis.index')->with('success', "Troli lanjut ke tahap: {$prosesBerikutnya->proses}");
     }
+
 
 
     public function ambil(Request $request)
     {
         $user = auth()->user();
-        $search = $request->search; // Ambil nilai search
+        $search = $request->search;
 
-        // 1. Ambil info proses user saat ini
-        $prosesSekarang = $user->departemen->proses()->orderBy('urutan', 'asc')->first();
+        // AMBIL PROSES DARI SESI AKTIF (Ini Kuncinya)
+        $sesiKerjaId = session('sesi_kerja_id');
+        $sesiAktif = SesiKerja::find($sesiKerjaId);
 
-        if (!$prosesSekarang) {
-            return back()->with('error', 'Proses untuk departemen Anda belum diatur.');
+        if (!$sesiAktif) {
+            return redirect()->route('sesikerjas.index')->with('error', 'Aktifkan sesi kerja dulu sebelum mengambil troli.');
         }
 
-        $urutanSekarang = $prosesSekarang->urutan;
-        $prosesSebelumnya = Proses::where('urutan', '<', $urutanSekarang)
-                            ->orderBy('urutan', 'desc')
-                            ->first();
+        $prosesTargetId = $sesiAktif->proses_id;
+        $urutanTarget = $sesiAktif->proses->urutan;
 
-        $trolis = Troli::query()
-            ->with(['proses'])
-            ->withCount(['produks'])
-            // Filter alur proses
-            ->when($prosesSebelumnya, function ($query) use ($prosesSebelumnya) {
-                $query->where('proses_id', $prosesSebelumnya->id)
-                    ->where('status', 'Selesai')
-                    ->where('is_output', true);
-            })
-            ->unless($prosesSebelumnya, function ($query) {
-                $query->whereNull('id');
-            })
-            // Tambahkan Logika Search Scan di sini
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    // Cari berdasarkan invoice troli
-                    $q->where('nomor', 'like', "%{$search}%")
-                    // ATAU cari produk di dalam troli tersebut
-                    ->orWhereHas('produks', function ($pq) use ($search) {
-                        $pq->where('qrcode', 'like', "%{$search}%");
-                    });
+        // Cari proses apa yang tepat sebelum proses di sesi aktif ini
+        $prosesSebelumnya = Proses::where('urutan', '<', $urutanTarget)
+            ->orderBy('urutan', 'desc')
+            ->first();
+
+        $query = Troli::with(['proses'])->withCount(['produks']);
+
+        if ($prosesSebelumnya) {
+            // Troli harus berada di proses sebelumnya, status Selesai, dan siap keluar (is_output)
+            $query->where('proses_id', $prosesSebelumnya->id)
+                ->where('status', 'Selesai')
+                ->where('is_output', true);
+        } else {
+            // Jika ini adalah proses urutan pertama di seluruh pabrik (Casting)
+            // Maka tampilkan troli yang baru dibuat (Status: Pending / Baru)
+            $query->where('status', 'Baru');
+        }
+
+        // Filter Search
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor', 'like', "%{$search}%")
+                ->orWhereHas('produks', function ($pq) use ($search) {
+                    $pq->where('qrcode', 'like', "%{$search}%");
                 });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            });
+        }
 
         return Inertia::render('Trolis/Ambil', [
-            'trolis' => $trolis,
-            'filters' => $request->only(['search'])
+            'trolis' => $query->latest()->paginate(10)->withQueryString(),
+            'filters' => $request->only(['search']),
+            'sesiAktif' => $sesiAktif
         ]);
     }
 
 
     public function ambilproses(Request $request)
     {
-        $user = auth()->user();
+        $sesiAktif = SesiKerja::find(session('sesi_kerja_id'));
 
-        // Cari data troli berdasarkan ID yang dikirim dari Vue
-        $troli = Troli::findOrFail($request->id);
-
-        // Ambil proses pertama/saat ini untuk departemen user
-        $prosesSekarang = $user->departemen->proses()->orderBy('urutan', 'asc')->first();
-
-        if (!$prosesSekarang) {
-            return back()->with('error', 'Proses departemen Anda belum diatur.');
+        if (!$sesiAktif) {
+            return back()->with('error', 'Sesi kerja tidak ditemukan.');
         }
 
-        // Update status dan pindahkan ke proses user
+        $troli = Troli::findOrFail($request->id);
+
+        // Update troli ke proses yang ada di sesi aktif user
         $troli->update([
-            'proses_id' => $prosesSekarang->id,
-            'status'    => 'Proses', // Menandakan sedang dikerjakan di departemen Anda
+            'proses_id' => $sesiAktif->proses_id,
+            'status'    => 'Proses',
             'is_output' => false,
         ]);
-        $troli->produks()->update([
-            'sudah_scan' => 'Belum'
-        ]);
 
-        return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil.');
+        $troli->produks()->update(['sudah_scan' => 'Belum']);
+
+        return redirect()->route('trolis.index')->with('success', 'Troli berhasil diambil ke proses ' . $sesiAktif->proses->proses);
     }
+
+
 
 
     public function kembalikan(Troli $troli)
