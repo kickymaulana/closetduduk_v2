@@ -167,6 +167,7 @@ class SesiKerjaController extends Controller
 
     public function edit(SesiKerja $sesikerja)
     {
+        $user = auth()->user();
         // 1. Ambil departemen_id dari user yang sedang login
         $departemenId = auth()->user()->departemen_id;
 
@@ -176,6 +177,9 @@ class SesiKerjaController extends Controller
         return Inertia::render('SesiKerjas/Edit', [
             'sesikerja' => $sesikerja,
             'shifts' => Shift::all(['id', 'shift']),
+            'prosesList' => Proses::where('departemen_id', $user->departemen_id)
+            ->orderBy('urutan', 'asc')
+            ->get(['id', 'proses']),
             'users' => User::query()
                 ->where('id', '!=', auth()->id()) // Kecuali diri sendiri
                 ->where('departemen_id', $departemenId) // Harus satu departemen
@@ -187,6 +191,7 @@ class SesiKerjaController extends Controller
     {
         $validated = $request->validate([
             'shift_id' => 'required|exists:shift,id',
+            'proses_id' => 'required|exists:proses,id',
             'jenis' => 'required|in:Body,Tangki',
             'user_ids' => 'nullable|array',
             'user_ids.*' => 'exists:users,id',
@@ -196,6 +201,7 @@ class SesiKerjaController extends Controller
             // Update data utama
             $sesikerja->update([
                 'shift_id' => $validated['shift_id'],
+                'proses_id' => $validated['proses_id'],
                 'jenis' => $validated['jenis'],
             ]);
 
