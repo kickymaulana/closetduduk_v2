@@ -199,6 +199,10 @@ class ProdukController extends Controller
         // Kita hanya kirim data troli asal saja
         return Inertia::render('Trolis/Produk/ScanPindah', [
             'troli' => $troli->load('produks'),
+            'backUrl' => url()->previous() !== url()->current()
+                     ? url()->previous()
+                     : route('trolis.produk.index', $troli->id),
+
         ]);
     }
 

@@ -272,6 +272,22 @@ const filteredTrolis = computed(() => {
                                 ><IconTrash class="mr-2 size-4" /> Reset
                                 Troli</DropdownMenuItem
                             >
+                            <DropdownMenuItem as-child>
+                                <Link
+                                    :href="
+                                        route(
+                                            'trolis.produk.scan_pindah',
+                                            props.troli.id,
+                                        )
+                                    "
+                                    class="flex w-full items-center"
+                                >
+                                    <IconTransfer
+                                        class="mr-2 size-4 text-green-500"
+                                    />
+                                    <span>Pindahkan Produk</span>
+                                </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 @click="showMoveDialog = true"
@@ -371,9 +387,19 @@ const filteredTrolis = computed(() => {
                                     ></TableCell
                                 >
                                 <TableCell class="text-right">
-                                    <Button variant="ghost" class="size-10" as-child>
-                                        <Link :href="route('produk.show', item.id)">
-                                            <IconEye class="size-5 text-primary" />
+                                    <Button
+                                        variant="ghost"
+                                        class="size-10"
+                                        as-child
+                                    >
+                                        <Link
+                                            :href="
+                                                route('produk.show', item.id)
+                                            "
+                                        >
+                                            <IconEye
+                                                class="size-5 text-primary"
+                                            />
                                         </Link>
                                     </Button>
                                 </TableCell>
