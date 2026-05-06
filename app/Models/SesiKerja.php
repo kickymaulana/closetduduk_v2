@@ -31,4 +31,8 @@ class SesiKerja extends Model
     {
         return $this->belongsTo(Shift::class, 'shift_id');
     }
+    public function proses(): BelongsTo
+    {
+        return $this->belongsTo(Proses::class, 'proses_id');
+    }
 }

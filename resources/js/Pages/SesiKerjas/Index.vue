@@ -119,6 +119,7 @@ const cleanLabel = (label: string) => {
                             <TableRow class="bg-muted/50">
                                 <TableHead>Leader</TableHead>
                                 <TableHead>Anggota</TableHead>
+                                <TableHead>Proses</TableHead>
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Shift</TableHead>
                                 <TableHead>Total Scan</TableHead>
@@ -154,6 +155,14 @@ const cleanLabel = (label: string) => {
                                             class="text-xs text-muted-foreground italic"
                                         >
                                             Tanpa Anggota
+                                        </span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div class="flex items-center gap-2">
+                                        <div class="size-2 rounded-full bg-primary animate-pulse" v-if="sesi_kerja_id === item.id"></div>
+                                        <span class="font-semibold text-sm">
+                                            {{ item.proses?.proses || '-' }}
                                         </span>
                                     </div>
                                 </TableCell>
