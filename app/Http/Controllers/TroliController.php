@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Troli;
 use App\Models\TroliFisik;
 use App\Models\Proses;
+use App\Models\SesiKerja;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
@@ -18,19 +19,31 @@ class TroliController extends Controller
         $search = $request->search;
         $user = auth()->user();
 
+        // 1. Ambil ID sesi kerja dari session
+        $sesiKerjaId = session('sesi_kerja_id');
+
+        // 2. Cari data sesi kerjanya untuk mendapatkan proses_id
+        $sesiAktif = SesiKerja::with('proses')->find($sesiKerjaId);
+
         $query = Troli::with(['proses'])
-            ->whereHas('proses', function ($query) use ($user) {
-                $query->where('departemen_id', $user->departemen_id);
-           })
             ->withCount('produks');
+
+        // 3. Filter berdasarkan proses_id dari sesi yang sedang aktif
+        if ($sesiAktif) {
+            $query->where('proses_id', $sesiAktif->proses_id);
+        } else {
+            // Opsi: Jika tidak ada sesi aktif, tampilkan berdasarkan departemen user saja (seperti kode awalmu)
+            $query->whereHas('proses', function ($q) use ($user) {
+                $q->where('departemen_id', $user->departemen_id);
+            });
+
+            // Atau jika ingin benar-benar kosong kalau belum pilih sesi, gunakan:
+            // $query->whereRaw('1 = 0');
+        }
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                // 1. Cari berdasarkan nomor invoice troli
                 $q->where('nomor', 'like', "%{$search}%")
-
-                // 2. ATAU cari berdasarkan qrcode produk yang ada di dalam troli
-                // Gunakan orWhereHas untuk mencari ke tabel relasi 'produks'
                 ->orWhereHas('produks', function ($pq) use ($search) {
                     $pq->where('qrcode', 'like', "%{$search}%");
                 });
@@ -42,6 +55,7 @@ class TroliController extends Controller
         return Inertia::render('Trolis/Index', [
             'trolis' => $trolis,
             'filters' => $request->only(['search']),
+            'sesiAktif' => $sesiAktif, // Opsional: kirim data sesi aktif ke Vue untuk info di UI
         ]);
     }
 
