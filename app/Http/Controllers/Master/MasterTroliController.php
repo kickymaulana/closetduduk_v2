@@ -218,4 +218,51 @@ class MasterTroliController extends Controller
         return redirect()->route('master.troli.index')->with('message', 'Data cacat berhasil ditambahkan.');
     }
 
+
+    public function scan_pindah(Request $request)
+    {
+        // Kita hanya kirim data troli asal saja
+        return Inertia::render('Master/Trolis/ScanPindah', [
+            'backUrl' => url()->previous() !== url()->current()
+                     ? url()->previous()
+                     : route('master.troli.index'),
+
+        ]);
+    }
+
+    public function scan_pindah_store(Request $request)
+    {
+        // Pastikan nama field di sini 'invoice_tujuan' sesuai dengan di Vue form
+        $request->validate([
+            'qr' => 'required|string',
+            'nomor_tujuan' => 'required|string|exists:troli,nomor',
+        ], [
+            'nomor_tujuan.required' => 'Nomor tujuan belum diisi/tempel!',
+            'nomor_tujuan.exists'   => 'Nomor troli tujuan tidak terdaftar!',
+        ]);
+
+        // 1. Ambil data troli tujuan berdasarkan invoice
+        $troliTujuan = Troli::where('nomor', $request->nomor_tujuan)->first();
+
+
+        // 3. Cari produk di troli asal (berdasarkan qrcode)
+        $produk = Produk::where('qrcode', $request->qr)
+                        ->first();
+
+        if (!$produk) {
+            return back()->withErrors([
+                'qr' => "Produk {$request->qr} tidak ditemukan di troli " . $troli->invoice
+            ]);
+        }
+
+        // 4. Update pindah troli
+        $produk->update([
+            'troli_id' => $troliTujuan->id,
+        ]);
+
+        // Berhasil, kembali ke halaman tadi
+        return back();
+    }
+
+
 }

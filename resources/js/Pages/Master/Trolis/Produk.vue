@@ -298,8 +298,7 @@ const filteredTrolis = computed(() => {
                                 <Link
                                     :href="
                                         route(
-                                            'trolis.produk.scan_pindah',
-                                            props.troli.id,
+                                            'master.troli.scan_pindah'
                                         )
                                     "
                                     class="flex w-full items-center"
