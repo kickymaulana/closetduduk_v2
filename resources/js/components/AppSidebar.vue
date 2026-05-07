@@ -19,6 +19,7 @@ import {
     IconShoppingCart,
     IconSquareCheck,
     IconPalette,
+    IconSearch,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -88,6 +89,13 @@ const filteredNavMain = computed(() => {
         url: route("log.temuan.reject"),
         icon: IconClipboardList,
         root: "LogTemuanReject",
+    });
+
+    menus.push({
+        title: "Periksa",
+        url: route("periksa"),
+        icon: IconSearch,
+        root: "Periksa",
     });
 
     menus.push({

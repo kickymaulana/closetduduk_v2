@@ -27,6 +27,7 @@ use App\Http\Controllers\Master\MasterTroliController;
 use App\Http\Controllers\Master\KualitasController;
 use App\Http\Controllers\Master\WarnaController;
 use App\Http\Controllers\ScanCheckingController;
+use App\Http\Controllers\PeriksaController;
 
 
 
@@ -176,4 +177,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('proses-produksi', [ProsesProduksiController::class, 'index'])->name('proses.produksi');
     Route::get('stok', [StokController::class, 'index'])->name('stok');
+
+    Route::get('periksa', [PeriksaController::class, 'periksa'])->name('periksa');
+    Route::post('periksa', [PeriksaController::class, 'periksa_post'])->name('periksa_post');
 });
