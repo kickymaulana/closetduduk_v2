@@ -177,9 +177,10 @@ const cleanLabel = (label: string) => {
                                         {{ item.jenis }}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>{{
-                                    item.shift.shift || "-"
-                                }}</TableCell>
+                                <TableCell class="text-xs text-muted-foreground leading-relaxed">
+                                    <p class="font-medium text-foreground/70">{{ item.shift.shift || "-" }}</p>
+                                    <p class="italic text-[10px]">{{ item.tanggal || "-" }}</p>
+                                </TableCell>
                                 <TableCell>
                                     <div class="flex items-center gap-2">
                                         <Badge

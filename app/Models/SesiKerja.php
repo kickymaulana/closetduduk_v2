@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 #[Fillable(['leader_id', 'jam_masuk', 'jam_pulang', 'jenis', 'shift_id', 'proses_id'])]
 #[Table('sesi_kerja')]
 class SesiKerja extends Model
 {
+    protected $appends = ['tanggal'];
     public function leader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'leader_id');
@@ -34,5 +36,13 @@ class SesiKerja extends Model
     public function proses(): BelongsTo
     {
         return $this->belongsTo(Proses::class, 'proses_id');
+    }
+
+
+    protected function tanggal(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->updated_at?->translatedFormat('d F Y, H:i'),
+        );
     }
 }
