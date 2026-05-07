@@ -20,6 +20,7 @@ import {
     IconSquareCheck,
     IconPalette,
     IconSearch,
+    IconTransfer,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -96,6 +97,13 @@ const filteredNavMain = computed(() => {
         url: route("periksa"),
         icon: IconSearch,
         root: "Periksa",
+    });
+
+    menus.push({
+        title: "Pindah Produk",
+        url: route("master.troli.scan_pindah"),
+        icon: IconTransfer,
+        root: "Master/Trolis",
     });
 
     menus.push({
