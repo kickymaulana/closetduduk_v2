@@ -70,9 +70,6 @@ class MasterTroliController extends Controller
 
         // Filter troli: Departemen sama, bukan troli saat ini, dan sudah ada prosesnya
         $availableTrolis = Troli::where('id', '!=', $troli->id)
-            ->whereHas('proses', function ($q) use ($user) {
-                $q->where('departemen_id', $user->departemen_id);
-            })
             ->select('id', 'nomor')
             ->orderBy('nomor', 'asc') // Urutkan agar mudah dicari
             ->get();
