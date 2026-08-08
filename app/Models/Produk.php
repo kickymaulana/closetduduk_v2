@@ -19,6 +19,11 @@ class Produk extends Model
         return $this->belongsTo(Troli::class, 'troli_id');
     }
 
+    public function proses(): BelongsTo
+    {
+        return $this->belongsTo(Proses::class, 'proses_id');
+    }
+
     public function pengerjaan_produks(): HasMany
     {
         return $this->hasMany(PengerjaanProduk::class, 'produk_id');

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Cacat;
 use App\Models\Produk;
-use App\Models\Troli;
 use App\Models\PengerjaanProduk;
 use App\Models\PengerjaanCacat;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +29,7 @@ class DashboardController extends Controller
                                 ->orWhereDate('created_at', today())
                                 ->count(),
             'total_cacat_hari_ini' => PengerjaanCacat::whereDate('created_at', today())->count(),
-            'troli_berjalan' => Troli::count(),
+            'produk_diproses' => Produk::where('sudah_scan', 'Sudah')->count(),
         ];
 
         // 2. Ambil Aktivitas Pengerjaan Terbaru

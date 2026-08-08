@@ -26,8 +26,8 @@ class PeriksaController extends Controller
             'qr' => 'required'
         ]);
 
-        // Tambahkan nested eager loading: troli.proses
-        $produk = Produk::with(['troli.proses'])
+        // Load relasi proses untuk menampilkan posisi produk saat ini
+        $produk = Produk::with(['proses'])
             ->where('qrcode', $request->qr)
             ->first();
 

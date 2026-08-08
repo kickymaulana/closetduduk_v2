@@ -12,21 +12,17 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Master\CacatController;
 use App\Http\Controllers\Master\AturanPenolakanController;
 use App\Http\Controllers\SesiKerjaController;
-use App\Http\Controllers\Master\TroliFisikController as MasterTroliFisikController;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\Master\ProsesController;
 use App\Http\Controllers\Master\ShiftController;
-use App\Http\Controllers\TroliController;
-use App\Http\Controllers\TroliFisikController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\RiwayatScanMasukController;
 use App\Http\Controllers\TotalPengerjaanUserController;
 use App\Http\Controllers\LogTemuanRejectController;
 use App\Http\Controllers\ProsesProduksiController;
 use App\Http\Controllers\StokController;
-use App\Http\Controllers\Master\MasterTroliController;
 use App\Http\Controllers\Master\KualitasController;
 use App\Http\Controllers\Master\WarnaController;
-use App\Http\Controllers\ScanCheckingController;
 use App\Http\Controllers\PeriksaController;
 
 
@@ -93,19 +89,6 @@ Route::middleware('auth', 'role:admin')->group(function () {
     Route::put('master/aturan-penolakans/{cacat}/edit', [AturanPenolakanController::class, 'update'])->name('aturanpenolakans.update');
     Route::delete('master/aturan-penolakans/{cacat}', [AturanPenolakanController::class, 'destroy'])->name('aturanpenolakans.destroy');
 
-    Route::get('master/troli', [MasterTroliController::class, 'index'])->name('master.troli.index');
-    Route::get('master/troli/create', [MasterTroliController::class, 'create'])->name('master.troli.create');
-    Route::post('master/troli/create', [MasterTroliController::class, 'store'])->name('master.troli.store');
-    Route::get('master/troli/scan-pindah', [MasterTroliController::class, 'scan_pindah'])->name('master.troli.scan_pindah');
-    Route::post('master/troli/scan-pindah', [MasterTroliController::class, 'scan_pindah_store'])->name('master.troli.scan_pindah_store');
-    Route::get('master/troli/{troli}/produk', [MasterTroliController::class, 'produk'])->name('master.troli.produk');
-    Route::post('master/troli/{troli}/update-proses', [MasterTroliController::class, 'updateProses'])->name('master.troli.update_proses');
-    Route::post('master/troli/{troli}/update-scan', [MasterTroliController::class, 'updateScan'])->name('master.troli.update_scan');
-    Route::post('master/troli/{troli}/remove-products', [MasterTroliController::class, 'removeProducts'])->name('master.troli.remove_products');
-    Route::post('master/troli/{troli}/move-products', [MasterTroliController::class, 'moveProducts'])->name('master.troli.move_products');
-    Route::post('mastertroli/{troli}/hapus', [MasterTroliController::class, 'hapusTroli'])->name('master.troli.hapus_troli');
-    Route::delete('mastertroli/{troli}/hapus-troli-master', [MasterTroliController::class, 'hapusTroliMaster'])->name('master.troli.hapus_troli_master');
-
     Route::get('master/kualitas', [KualitasController::class, 'index'])->name('kualitas.index');
     Route::get('master/kualitas/create', [KualitasController::class, 'create'])->name('kualitas.create');
     Route::post('master/kualitas/create', [KualitasController::class, 'store'])->name('kualitas.store');
@@ -137,40 +120,25 @@ Route::middleware('auth')->group(function () {
     Route::delete('sesi-kerjas/{sesikerja}/nonaktif', [SesiKerjaController::class, 'nonaktif'])->name('sesikerjas.nonaktif');
     Route::delete('sesi-kerjas/{sesikerja}', [SesiKerjaController::class, 'destroy'])->name('sesikerjas.destroy');
 
-    Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
-    Route::get('trolis/ambil', [TroliController::class, 'ambil'])->name('trolis.ambil');
-    Route::post('trolis/ambilproses', [TroliController::class, 'ambilproses'])->name('trolis.ambilproses');
-    Route::get('trolis/trolikosong', [TroliController::class, 'trolikosong'])->name('trolis.trolikosong');
-    Route::post('trolis/trolikosong', [TroliController::class, 'trolikosong_store'])->name('trolis.trolikosong.store');
-    Route::post('trolis/{troli}/selesaikan', [TroliController::class, 'selesaikan_troli'])->name('trolis.selesaikan');
-    Route::get('trolis/{troli}/kembalikan', [TroliController::class, 'kembalikan'])->name('trolis.kembalikan');
-    Route::post('trolis/{troli}/kembalikan', [TroliController::class, 'kembalikan_store'])->name('trolis.kembalikan_store');
-    Route::post('trolis/{troli}/hapus', [TroliController::class, 'hapus_store'])->name('trolis.hapus_store');
-    Route::get('trolis/{troli}/produk', [ProdukController::class, 'index'])->name('trolis.produk.index');
-    Route::get('trolis/{troli}/produk/scan-awal', [ProdukController::class, 'scan_awal'])->name('trolis.produk.scan_awal');
-    Route::post('trolis/{troli}/produk/scan-awal', [ProdukController::class, 'scan_awal_store'])->name('trolis.produk.scan_awal_store');
-    Route::get('trolis/{troli}/produk/scan', [ProdukController::class, 'scan'])->name('trolis.produk.scan');
-    Route::post('trolis/{troli}/produk/scan', [ProdukController::class, 'scan_store'])->name('trolis.produk.scan_store');
-    Route::get('trolis/{troli}/produk/scan-inproses', [ProdukController::class, 'scan_inproses'])->name('trolis.produk.scan_inproses');
-    Route::post('trolis/{troli}/produk/scan-inproses', [ProdukController::class, 'scan_inproses_store'])->name('trolis.produk.scan_inproses_store');
-    Route::get('trolis/{troli}/produk/scan-buang', [ProdukController::class, 'scan_buang'])->name('trolis.produk.scan_buang');
-    Route::post('trolis/{troli}/produk/scan-buang', [ProdukController::class, 'scan_buang_store'])->name('trolis.produk.scan_buang_store');
-    Route::get('trolis/{troli}/produk/scan-pindah', [ProdukController::class, 'scan_pindah'])->name('trolis.produk.scan_pindah');
-    Route::post('trolis/{troli}/produk/scan-pindah', [ProdukController::class, 'scan_pindah_store'])->name('trolis.produk.scan_pindah_store');
-    Route::get('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus'])->name('trolis.produk.scan_hapus');
-    Route::post('trolis/{troli}/produk/scan-hapus', [ProdukController::class, 'scan_hapus_store'])->name('trolis.produk.scan_hapus_store');
-
-    Route::get('trolis/{troli}/produk/scan-checking', [ScanCheckingController::class, 'scan'])->name('scan.checking.scan');
-    Route::post('trolis/{troli}/produk/scan-checking', [ScanCheckingController::class, 'scan_store'])->name('scan.checking.scan_store');
-    Route::get('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses'])->name('scan.checking.inproses');
-    Route::post('trolis/{troli}/produk/scan-checking-inproses', [ScanCheckingController::class, 'inproses_store'])->name('scan.checking.inproses_store');
-    Route::get('trolis/{troli}/produk/scan-checking-buang', [ScanCheckingController::class, 'buang'])->name('scan.checking.buang');
-    Route::post('trolis/{troli}/produk/scan-checking-buang', [ScanCheckingController::class, 'buang_store'])->name('scan.checking.buang_store');
+    Route::get('scan', [ScanController::class, 'index'])->name('scan.index');
+    Route::get('scan/awal', [ScanController::class, 'awal'])->name('scan.awal');
+    Route::post('scan/awal', [ScanController::class, 'awal_store'])->name('scan.awal_store');
+    Route::get('scan/validasi', [ScanController::class, 'validasi'])->name('scan.validasi');
+    Route::post('scan/validasi', [ScanController::class, 'validasi_store'])->name('scan.validasi_store');
+    Route::get('scan/inproses', [ScanController::class, 'inproses'])->name('scan.inproses');
+    Route::post('scan/inproses', [ScanController::class, 'inproses_store'])->name('scan.inproses_store');
+    Route::get('scan/buang', [ScanController::class, 'buang'])->name('scan.buang');
+    Route::post('scan/buang', [ScanController::class, 'buang_store'])->name('scan.buang_store');
+    Route::get('scan/checking', [ScanController::class, 'checking'])->name('scan.checking');
+    Route::post('scan/checking', [ScanController::class, 'checking_store'])->name('scan.checking_store');
+    Route::get('scan/checking/{mode?}', [ScanController::class, 'checking'])->name('scan.checking.mode')
+        ->whereIn('mode', ['inproses', 'buang']);
+    Route::post('scan/checking-inproses', [ScanController::class, 'checking_inproses_store'])->name('scan.checking.inproses_store');
+    Route::post('scan/checking-buang', [ScanController::class, 'checking_buang_store'])->name('scan.checking.buang_store');
 
     Route::get('riwayat-scan-masuk', [RiwayatScanMasukController::class, 'index'])->name('riwayat.scan.masuk');
     Route::get('total-pengerjaan-user', [TotalPengerjaanUserController::class, 'index'])->name('total.pengerjaan.user');
     Route::get('log-temuan-reject', [LogTemuanRejectController::class, 'index'])->name('log.temuan.reject');
-    Route::get('trolis', [TroliController::class, 'index'])->name('trolis.index');
 
     Route::get('produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
     Route::get('produk', [ProdukController::class, 'dataprodukindex'])->name('produk.index');

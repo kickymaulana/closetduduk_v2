@@ -9,18 +9,16 @@ import {
     IconClock,
     IconTruck,
     IconArrowsSplit2,
-    IconShoppingCartCopy,
     IconHistory,
     IconReportAnalytics,
     IconClipboardList,
     IconQrcode,
     IconRoute,
     IconBoxSeam,
-    IconShoppingCart,
     IconSquareCheck,
     IconPalette,
     IconSearch,
-    IconTransfer,
+    IconScan,
 } from "@tabler/icons-vue";
 
 import Master from "@/components/Master.vue";
@@ -65,10 +63,10 @@ const filteredNavMain = computed(() => {
     });
 
     menus.push({
-        title: "Troli",
-        url: route("trolis.index"),
-        icon: IconShoppingCartCopy,
-        root: "Trolis",
+        title: "Scan Produk",
+        url: route("scan.index"),
+        icon: IconScan,
+        root: "Scan",
     });
 
     menus.push({
@@ -97,13 +95,6 @@ const filteredNavMain = computed(() => {
         url: route("periksa"),
         icon: IconSearch,
         root: "Periksa",
-    });
-
-    menus.push({
-        title: "Pindah Produk",
-        url: route("master.troli.scan_pindah"),
-        icon: IconTransfer,
-        root: "Master/Trolis",
     });
 
     menus.push({
@@ -167,12 +158,6 @@ const masterData = [
         url: route("aturanpenolakans.index"),
         icon: IconGavel,
         root: "Master/AturanPenolakans",
-    },
-    {
-        name: "Troli",
-        url: route("master.troli.index"),
-        icon: IconShoppingCart,
-        root: "Master/Trolis",
     },
     {
         name: "Jabatan",

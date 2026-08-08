@@ -4,57 +4,43 @@ import { useForm, Head, Link } from "@inertiajs/vue3";
 import { ref, onMounted, watch } from "vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// Kita tidak lagi import Input dari shadcn untuk menghindari konflik fokus
 import { toast } from "vue-sonner";
 import {
     IconScan,
     IconLoader2,
     IconArrowLeft,
     IconCheck,
-    IconShieldCheck
+    IconShieldCheck,
+    IconClock,
 } from "@tabler/icons-vue";
 
 const props = defineProps<{
-    troli: any;
+    sesi: any;
 }>();
 
-// Gunakan ref native
 const nativeInput = ref<HTMLInputElement | null>(null);
 
-const form = useForm({
-    qr: "",
-});
+const form = useForm({ qr: "" });
 
-/**
- * FUNGSI FOKUS NATIVE
- * Langsung menembak elemen input tanpa perantara wrapper
- */
 const focusInput = () => {
     setTimeout(() => {
-        if (nativeInput.value) {
-            nativeInput.value.focus();
-        }
+        if (nativeInput.value) nativeInput.value.focus();
     }, 50);
 };
 
-onMounted(() => {
-    focusInput();
-});
+onMounted(focusInput);
 
-/**
- * WATCHDOG FOKUS
- * Memaksa fokus kembali setiap kali proses submit selesai (berhasil/gagal)
- */
-watch(() => form.processing, (isProcessing) => {
-    if (!isProcessing) {
-        focusInput();
+watch(
+    () => form.processing,
+    (isProcessing) => {
+        if (!isProcessing) focusInput();
     }
-});
+);
 
 const handleScan = () => {
     if (!form.qr || form.processing) return;
 
-    form.post(route('trolis.produk.scan_store', props.troli.id), {
+    form.post(route("scan.validasi_store"), {
         preserveScroll: true,
         onSuccess: () => {
             toast.success("Terverifikasi!", {
@@ -64,13 +50,12 @@ const handleScan = () => {
             form.reset();
         },
         onError: (errors) => {
-            const message = errors.qr || errors.error || "Terjadi kesalahan validasi.";
             toast.error("Gagal Validasi", {
-                description: message,
+                description: errors.qr || errors.error || "Terjadi kesalahan validasi.",
             });
-            form.reset('qr');
+            form.reset("qr");
             focusInput();
-        }
+        },
     });
 };
 
@@ -81,22 +66,21 @@ defineOptions({ layout: AuthenticatedLayout });
     <Head title="Scan Validasi Produk" />
 
     <div class="flex flex-col items-center justify-center min-h-[80vh] p-4 relative" @click="focusInput">
-
         <div class="w-full max-w-4xl grid grid-cols-3 gap-2 mb-6">
             <Button as-child variant="default" class="bg-blue-600 hover:bg-blue-700 shadow-lg border-b-4 border-blue-800">
-                <Link :href="route('trolis.produk.scan', troli.id)">MODE OK</Link>
+                <Link :href="route('scan.validasi')">MODE OK</Link>
             </Button>
             <Button as-child variant="outline" class="text-orange-600 border-orange-200 hover:bg-orange-50">
-                <Link :href="route('trolis.produk.scan_inproses', troli.id)">IN PROSES</Link>
+                <Link :href="route('scan.inproses')">IN PROSES</Link>
             </Button>
             <Button as-child variant="outline" class="text-red-600 border-red-200 hover:bg-red-50">
-                <Link :href="route('trolis.produk.scan_buang', troli.id)">BUANG</Link>
+                <Link :href="route('scan.buang')">BUANG</Link>
             </Button>
         </div>
 
         <div class="w-full max-w-md mb-4">
             <Button variant="ghost" as-child class="group text-muted-foreground hover:text-blue-600">
-                <Link :href="route('trolis.produk.index', troli.id)">
+                <Link :href="route('scan.index')">
                     <IconArrowLeft class="mr-2 size-4 transition-transform group-hover:-translate-x-1" />
                     Batal & Kembali
                 </Link>
@@ -110,8 +94,9 @@ defineOptions({ layout: AuthenticatedLayout });
                     <IconShieldCheck class="size-6" />
                     Validasi Produk
                 </CardTitle>
-                <p class="text-muted-foreground font-mono text-sm tracking-widest bg-muted py-1 rounded-md mt-2">
-                    INV: {{ troli.invoice }}
+                <p v-if="sesi" class="text-muted-foreground font-mono text-sm tracking-widest bg-muted py-1 rounded-md mt-2">
+                    <IconClock class="inline size-3 mr-1" />
+                    {{ sesi.proses?.proses }} · {{ sesi.jenis }}
                 </p>
             </CardHeader>
 
@@ -148,32 +133,17 @@ defineOptions({ layout: AuthenticatedLayout });
                             <IconLoader2 class="animate-spin size-5" />
                             <span>Mengecek Data...</span>
                         </div>
-                        <div v-else class="flex items-center justify-center gap-2">
-                            <span class="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Mode: Verifikasi Tim</span>
-                        </div>
                     </div>
 
-                    <p v-if="form.errors.qr" class="text-sm text-red-600 font-bold animate-bounce">
-                        {{ form.errors.qr }}
-                    </p>
+                    <p v-if="form.errors.qr" class="text-sm text-red-600 font-bold animate-bounce">{{ form.errors.qr }}</p>
+                    <p v-if="form.errors.error" class="text-sm text-red-600 font-bold animate-bounce">{{ form.errors.error }}</p>
                 </div>
             </CardContent>
         </Card>
-
-        <div class="mt-8 flex flex-col items-center gap-2 text-xs text-muted-foreground italic">
-            <div class="flex items-center gap-2 px-3 py-1 bg-white border rounded-full shadow-sm">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative h-2 w-2 rounded-full bg-green-500"></span>
-                </span>
-                <span class="font-bold text-slate-500 uppercase tracking-tighter">Scanner Active</span>
-            </div>
-        </div>
     </div>
 </template>
 
 <style scoped>
-/* Reset style tambahan jika ada */
 input:focus {
     outline: none !important;
     box-shadow: none !important;

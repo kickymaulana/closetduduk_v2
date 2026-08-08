@@ -16,8 +16,7 @@ class StokController extends Controller
             ->select('proses.*')
             // Subquery sederhana untuk menghitung jumlah produk di setiap proses
             ->addSelect(['total_produk' => DB::table('produk')
-                ->join('troli', 'produk.troli_id', '=', 'troli.id')
-                ->whereColumn('troli.proses_id', 'proses.id')
+                ->whereColumn('produk.proses_id', 'proses.id')
                 ->selectRaw('count(produk.id)')
             ])
             ->orderBy('urutan', 'asc')

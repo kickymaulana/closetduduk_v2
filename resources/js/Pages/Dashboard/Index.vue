@@ -53,8 +53,8 @@ const displayStats = computed(() => [
         bg: "bg-red-50 dark:bg-red-950/30",
     },
     {
-        label: "Total Troli",
-        value: props.statsData.troli_berjalan,
+        label: "Produk Sudah Diproses",
+        value: props.statsData.produk_diproses,
         icon: IconTruck,
         color: "text-green-600 dark:text-green-400",
         bg: "bg-green-50 dark:bg-green-950/30",
@@ -94,7 +94,7 @@ const displayStats = computed(() => [
                     class="font-black uppercase text-[10px] h-9 shadow-lg shadow-primary/20"
                     as-child
                     >
-                    <Link :href="route('trolis.index')" class="flex items-center px-4">
+                    <Link :href="route('scan.index')" class="flex items-center px-4">
                         <IconPlus class="mr-2 size-4" />
                         <span>Scan Produk</span>
                     </Link>
