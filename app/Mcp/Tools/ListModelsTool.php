@@ -7,13 +7,14 @@ use Illuminate\JsonSchema\Types\Type;
 use Illuminate\Support\Facades\File;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 
 #[Description('Menampilkan daftar model Eloquent beserta relasi dan properti yang diisi (fillable/guarded).')]
 class ListModelsTool extends Tool
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request): Response|ResponseFactory
     {
         $files = File::files(app_path('Models'));
 

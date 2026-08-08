@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Tool;
 
 #[Description('Menampilkan skema database: daftar tabel (opsional filter), dan untuk satu tabel: daftar kolom + tipe + nullable + index.')]
 class DatabaseSchemaTool extends Tool
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request): Response|ResponseFactory
     {
         $tables = Schema::getTables();
 
