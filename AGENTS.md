@@ -29,9 +29,8 @@ Produk = **Body** dan **Tangki** closet duduk (produk terpisah). Tiap produk fis
 4. **Laporan**: dashboard, riwayat-scan-masuk, total-pengerjaan-user, log-temuan-reject, stok, proses-produksi, periksa, data produk.
 
 ## Perubahan Besar (penting, sudah berjalan)
-- **Sistem troli DIHAPUS**. File lama masih ada tapi orphan & tidak di-route: `TroliController.php`, `Master/MasterTroliController.php`, `ScanCheckingController.php`, `App/Models/Troli.php`, `App/Models/TroliFisik.php`. `ProdukController` dipakai (dataprodukindex, show) tapi methos scan_*/index orphan.
+- **Sistem troli DIHAPUS total**: controller (`TroliController`, `Master/MasterTroliController`, `ScanCheckingController`), model (`Troli`, `TroliFisik`) dan tabel (`troli`, `riwayat_ganti_qr`) sudah dihapus. `ProdukController` hanya berisi `dataprodukindex` & `show`.
 - Produk memakai **`produk.proses_id`** (posisi sekarang), bukan troli.
-- Tabel DB `troli` & `riwayat_ganti_qr` sudah di-drop.
 - **Fitur Ganti QR** (QR rusak/hilang): DITUNDA, belum implementasi. Ide: cari produk kandidat via tanggal+proses, ganti `qrcode`, log. Tabel log `riwayat_ganti_qr` akan dibuat ulang saat fitur dibuat.
 
 ## Struktur DB (tabel aktif ±26)
