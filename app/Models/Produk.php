@@ -14,11 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Produk extends Model
 {
-    public function troli(): BelongsTo
-    {
-        return $this->belongsTo(Troli::class, 'troli_id');
-    }
-
     public function proses(): BelongsTo
     {
         return $this->belongsTo(Proses::class, 'proses_id');

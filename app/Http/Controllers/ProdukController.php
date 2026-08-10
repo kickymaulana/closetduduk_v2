@@ -530,7 +530,7 @@ class ProdukController extends Controller
                 $query->with(['proses', 'user', 'pengerjaan_cacats.cacat'])
                     ->orderBy('created_at', 'desc'); // History terbaru di atas
             },
-            'troli'
+            'proses'
         ])->findOrFail($id);
 
         return Inertia::render('Produk/Show', [
@@ -547,7 +547,7 @@ class ProdukController extends Controller
         $search = $request->search;
 
         $query = Produk::query()
-            ->with(['troli.proses']) // Load relasi troli dan prosesnya
+            ->with(['proses'])
             ->latest();
 
         if ($search) {
@@ -556,9 +556,9 @@ class ProdukController extends Controller
                 $q->where('qrcode', 'like', "%{$search}%")
                 // 2. Cari berdasarkan Nama Produk
                 ->orWhere('nama', 'like', "%{$search}%")
-                // 3. Cari berdasarkan Invoice Troli-nya (Relasi)
-                ->orWhereHas('troli', function ($tq) use ($search) {
-                    $tq->where('nomor', 'like', "%{$search}%");
+                // 3. Cari berdasarkan nama proses
+                ->orWhereHas('proses', function ($tq) use ($search) {
+                    $tq->where('proses', 'like', "%{$search}%");
                 });
             });
         }

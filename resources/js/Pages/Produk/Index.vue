@@ -34,12 +34,8 @@ const props = defineProps<{
             jenis: string;
             status_akhir: string;
             sudah_scan: string;
-            troli_id: number | null;
-            troli?: {
-                nomor: string;
-                proses?: {
-                    proses: string;
-                }
+            proses?: {
+                proses: string;
             };
             created_at: string;
         }>;
@@ -92,7 +88,7 @@ const cleanLabel = (label: string) => {
                     <IconSearch class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         v-model="search"
-                        placeholder="Scan QR Produk atau cari nomor troli..."
+                        placeholder="Scan QR Produk atau cari proses..."
                         class="pl-10 pr-10"
                     />
                     <button v-if="search" @click="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
@@ -109,7 +105,7 @@ const cleanLabel = (label: string) => {
                                 <TableHead>QR Code</TableHead>
                                 <TableHead>Jenis</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Troli</TableHead>
+                                <TableHead>Proses</TableHead>
                                 <TableHead>Scan</TableHead>
                                 <TableHead>Tanggal Input</TableHead>
                                 <TableHead>Aksi</TableHead>
@@ -136,14 +132,14 @@ const cleanLabel = (label: string) => {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <div v-if="item.troli" class="flex flex-col gap-1">
+                                    <div v-if="item.proses" class="flex flex-col gap-1">
                                         <div class="flex items-center gap-1 text-sm font-bold">
                                             <IconShoppingCart class="size-3" />
-                                            {{ item.troli.nomor }}
+                                            {{ item.proses.proses }}
                                         </div>
-                                        <span class="text-xs text-muted-foreground">{{ item.troli.proses?.proses ?? '-' }}</span>
+                                        <span class="text-xs text-muted-foreground">{{ item.proses?.proses ?? '-' }}</span>
                                     </div>
-                                    <span v-else class="text-muted-foreground text-xs italic">Tanpa Troli</span>
+                                    <span v-else class="text-muted-foreground text-xs italic">Belum Ada Proses</span>
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="outline" :class="item.sudah_scan === 'Sudah' ? 'text-green-600 border-green-200' : 'text-orange-600 border-orange-200'">

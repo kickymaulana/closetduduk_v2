@@ -76,8 +76,8 @@ defineOptions({ layout: AuthenticatedLayout });
                                     <IconTruck class="size-4" />
                                 </div>
                                 <div>
-                                    <p class="text-[8px] font-black uppercase text-muted-foreground">Nomor Troli</p>
-                                    <p class="text-xs font-bold uppercase">{{ produk.troli?.invoice || 'TIDAK ADA TROLI' }}</p>
+                                    <p class="text-[8px] font-black uppercase text-muted-foreground">Proses Saat Ini</p>
+                                    <p class="text-xs font-bold uppercase">{{ produk.proses?.proses || 'BELUM ADA PROSES' }}</p>
                                 </div>
                             </div>
 

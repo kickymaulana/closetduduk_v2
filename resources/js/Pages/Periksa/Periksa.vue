@@ -149,7 +149,7 @@ defineOptions({ layout: AuthenticatedLayout });
                                         <th class="px-6 py-4">QR Code</th>
                                         <th class="px-6 py-4 text-center">Status Scan</th>
                                         <th class="px-6 py-4 text-center">Kondisi</th>
-                                        <th class="px-6 py-4">Troli / Proses</th>
+                                        <th class="px-6 py-4">Proses</th>
                                         <th class="px-6 py-4 text-right">Aksi</th>
                                     </tr>
                                 </thead>
@@ -181,14 +181,14 @@ defineOptions({ layout: AuthenticatedLayout });
                                             </Badge>
                                         </td>
 
-                                        <!-- TROLI & PROSES -->
+                                        <!-- PROSES -->
                                         <td class="px-6 py-4">
                                             <div class="flex flex-col">
                                                 <span class="font-bold text-slate-800 tracking-tight">
-                                                    {{ item.troli?.nomor ?? '---' }}
+                                                    {{ item.proses?.proses ?? '---' }}
                                                 </span>
-                                                <span v-if="item.troli?.proses" class="text-[10px] text-blue-600 font-black uppercase tracking-widest mt-0.5">
-                                                    {{ item.troli.proses.proses }}
+                                                <span v-if="item.proses" class="text-[10px] text-blue-600 font-black uppercase tracking-widest mt-0.5">
+                                                    {{ item.proses.proses }}
                                                 </span>
                                             </div>
                                         </td>
